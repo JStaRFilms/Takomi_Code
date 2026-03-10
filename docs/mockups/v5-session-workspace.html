@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi Code - Workspace v5</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {
+        fontFamily: { sans: ['"Segoe UI Variable Display"', '"Segoe UI"', 'Inter', 'sans-serif'], mono: ['"Cascadia Code"', '"JetBrains Mono"', 'monospace'] },
+        colors: { v5: { bg: '#141414', surface: '#1F1F1F', elevated: '#282828', accent: '#FFB900', accentHover: '#E5A600', accentMuted: '#FFB90022', text: '#F3F3F3', textMuted: '#888888', border: '#333333', borderSubtle: '#ffffff0A', danger: '#D13438', success: '#10893E', warning: '#FCE100' } },
+        boxShadow: { 'win-drop': '0 8px 32px rgba(0,0,0,0.6)', 'win-focus': '0 0 0 2px #141414, 0 0 0 4px #FFB900', 'win-card': '0 2px 8px rgba(0,0,0,0.3)' }
+      } }
+    }
+  </script>
+  <style>
+    body { background-color: #141414; color: #F3F3F3; background-image: radial-gradient(circle at top right, rgba(255, 185, 0, 0.03), transparent 40%), url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E"); }
+    .studio-acrylic { background: rgba(31, 31, 31, 0.7); backdrop-filter: blur(60px) saturate(140%); -webkit-backdrop-filter: blur(60px) saturate(140%); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+    .win-illuminated-border { position: relative; }
+    .win-illuminated-border::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.05) 100%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+    .win-press:active { transform: scale(0.98); opacity: 0.85; transition: all 0.05s ease; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #444; border-radius: 5px; border: 2px solid #141414; }
+    ::-webkit-scrollbar-thumb:hover { background: #666; }
+  </style>
+</head>
+<body class="h-screen flex overflow-hidden win-app-window">
+
+  <!-- Left Nav Sidebar (Minimized Mode) -->
+  <aside class="w-16 studio-acrylic border-r border-v5-border flex flex-col items-center py-4 z-20 shrink-0">
+    <div class="h-10 w-10 mb-6 flex items-center justify-center">
+      <div class="w-8 h-8 rounded bg-v5-accent flex items-center justify-center">
+         <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5" /></svg>
+      </div>
+    </div>
+    
+    <div class="space-y-3 w-full px-2">
+      <!-- Active Sessions Tab -->
+      <button class="w-full aspect-square flex items-center justify-center rounded-md hover:bg-white/5 group win-press transition-colors" title="Home">
+         <svg class="w-5 h-5 text-v5-textMuted group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+      </button>
+
+      <button class="w-full aspect-square flex items-center justify-center relative rounded-md bg-white/10 group win-press" title="Sessions">
+         <div class="absolute left-0 top-1/4 bottom-1/4 w-1 bg-v5-accent rounded-r-md"></div>
+         <svg class="w-5 h-5 text-v5-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+      </button>
+
+      <button class="w-full aspect-square flex items-center justify-center rounded-md hover:bg-white/5 group win-press transition-colors" title="Settings">
+         <svg class="w-5 h-5 text-v5-textMuted group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+      </button>
+    </div>
+
+    <div class="mt-auto px-2">
+      <div class="w-full aspect-square rounded-full flex items-center justify-center bg-transparent border border-v5-border cursor-pointer hover:border-v5-accent transition-colors">
+         <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Felix" alt="User Avatar" class="w-8 h-8 rounded-full bg-[#1F1F1F]">
+      </div>
+    </div>
+  </aside>
+
+  <!-- Explorer Pane -->
+  <div class="w-64 bg-[#1A1A1A] border-r border-v5-border flex flex-col z-10 hidden md:flex shrink-0">
+    <div class="h-10 border-b border-v5-border px-4 flex items-center">
+      <h2 class="text-xs font-semibold text-white tracking-widest uppercase">Sessions</h2>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto p-2 space-y-1">
+       
+       <button class="w-full text-left px-3 py-1.5 rounded bg-white/10 border border-white/5 win-illuminated-border group">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-v5-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+            <span class="text-xs font-medium text-white truncate">orch-20260310-223000</span>
+          </div>
+          <span class="text-[10px] text-v5-textMuted font-mono ml-6 mt-0.5 block">ws-a8b2</span>
+       </button>
+
+       <button class="w-full text-left px-3 py-1.5 rounded hover:bg-white/5 group">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-v5-textMuted group-hover:text-v5-success transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+            <span class="text-xs font-medium text-v5-textMuted group-hover:text-white transition-colors truncate">orch-refactor-auth-v2</span>
+          </div>
+       </button>
+
+    </div>
+  </div>
+
+  <!-- Central Workspace & Chat -->
+  <main class="flex-1 flex flex-col h-full bg-v5-bg border-r border-v5-border">
+    
+    <!-- Top Bar -->
+    <header class="h-10 border-b border-v5-border flex items-center justify-between px-4 bg-[#1F1F1F]">
+        <div class="flex items-center">
+            <div class="flex items-center gap-2 bg-[#1A1A1A] border border-v5-border rounded py-0.5 px-2">
+                <span class="text-xs text-v5-textMuted uppercase">Context</span>
+                <span class="text-xs font-semibold text-white">Takomi_Code</span>
+                <span class="text-xs text-v5-textMuted">/</span>
+                <span class="text-[10px] text-v5-textMuted font-mono">ws-a8b2</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <!-- Active Sub-chat context indicator -->
+            <button class="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 hover:bg-white/10 rounded cursor-pointer transition-colors border border-transparent win-press">
+                <svg class="w-3 h-3 text-v5-accent" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path></svg>
+                <span class="text-xs font-mono text-v5-textMuted">Sub-Chat Active</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Chat Area -->
+    <div class="flex-1 overflow-y-auto p-6 scroll-smooth">
+       <div class="max-w-3xl mx-auto space-y-6">
+
+          <!-- User Message -->
+          <div class="flex justify-end relative group">
+              <div class="bg-v5-accent text-black p-3 rounded-lg max-w-[80%] shadow-win-drop">
+                  <p class="text-sm font-medium">Please generate the v5 mockups for the rest of the orchestration shell.</p>
+              </div>
+          </div>
+
+          <!-- Agent Status Event (Informational) -->
+          <div class="flex justify-center my-4 opacity-75">
+             <div class="bg-[#1A1A1A] border border-v5-border px-4 py-2 rounded-full flex items-center gap-3">
+               <svg class="w-4 h-4 text-v5-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+               <span class="text-xs font-mono text-v5-textMuted">Initialized new sub-context for execution: ws-a8b2</span>
+             </div>
+          </div>
+
+          <!-- Agent Response / Blocked Error -->
+          <div class="flex justify-start">
+              <div class="flex items-start gap-4 max-w-[85%]">
+                  <div class="w-8 h-8 rounded shrink-0 bg-[#1F1F1F] border border-v5-border flex items-center justify-center">
+                      <svg class="w-5 h-5 text-v5-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  </div>
+                  
+                  <div class="space-y-3">
+                      <div class="bg-v5-danger/10 border border-v5-danger/30 rounded-lg p-4 shadow-[0_0_15px_rgba(209,52,56,0.1)] win-illuminated-border relative">
+                          <h4 class="text-sm font-semibold text-v5-danger mb-2">Block Encountered: Build Failure</h4>
+                          <p class="text-sm text-white/90">I attempted to compile the TypeScript files for the new v5 design system, but I encountered a catastrophic error related to missing explicit typings for Tailwind CSS.</p>
+                          
+                          <div class="mt-3 p-3 bg-black/50 border border-v5-border rounded overflow-x-auto">
+                              <code class="text-[11px] font-mono text-v5-danger whitespace-pre">
+src/utils.ts(23,15): error TS2304: Cannot find name 'TailwindConfig'.
+                              </code>
+                          </div>
+                      </div>
+
+                      <div class="flex gap-2 isolate">
+                          <button class="px-4 py-1.5 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold rounded border border-white/10 win-press win-illuminated-border shadow-sm">
+                              Suggest Fix
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+       </div>
+    </div>
+
+    <!-- Input Box Area -->
+    <div class="p-4 bg-[#1F1F1F] border-t border-v5-border flex-shrink-0 z-10 w-full relative">
+       <!-- Glow behind input -->
+       <div class="absolute -top-[1px] left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-v5-border to-transparent shadow-win-drop"></div>
+       <div class="max-w-4xl mx-auto">
+          
+          <div class="relative bg-v5-bg border border-v5-border rounded-[8px] win-illuminated-border focus-within:border-white/20 transition-colors shadow-sm">
+             <div class="px-2 py-1.5 bg-black/20 border-b border-v5-border flex items-center justify-between">
+                <!-- Toolbar Simulation -->
+                 <div class="flex gap-1">
+                     <button class="w-6 h-6 rounded hover:bg-white/5 flex items-center justify-center text-v5-textMuted hover:text-white transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                     </button>
+                 </div>
+                 <div class="px-2 py-0.5 rounded border border-v5-border bg-[#1A1A1A]">
+                    <span class="text-[10px] text-v5-textMuted uppercase font-semibold">Sub-Chat Context</span>
+                 </div>
+             </div>
+             
+             <textarea 
+                rows="2" 
+                placeholder="Ask agent to resolve, or provide context..." 
+                class="w-full bg-transparent px-3 py-2 text-sm text-white placeholder-v5-textMuted outline-none resize-none font-sans"
+             ></textarea>
+             
+             <button class="absolute bottom-2 right-2 px-3 py-1 bg-v5-accent hover:bg-v5-accentHover rounded text-black text-xs font-semibold win-press shadow-sm">
+                Route
+             </button>
+          </div>
+
+          <p class="text-center text-[10px] text-v5-textMuted mt-2 font-mono">
+            Codex runs locally. No fee-sharing. Bags Protocol verified.
+          </p>
+       </div>
+    </div>
+  </main>
+
+  <!-- Right Inspector Pane (High Density Data) -->
+  <aside class="w-80 bg-[#1A1A1A] border-l border-v5-border flex flex-col z-10 hidden xl:flex shrink-0">
+     <!-- Tab Header -->
+     <div class="flex text-xs font-semibold text-v5-textMuted border-b border-v5-border bg-[#1F1F1F]">
+         <div class="px-4 py-2.5 text-white border-b-2 border-v5-accent cursor-pointer">Task Graph</div>
+         <div class="px-4 py-2.5 hover:text-white cursor-pointer transition-colors">Artifacts</div>
+     </div>
+
+     <!-- Task Tree List -->
+     <div class="flex-1 overflow-y-auto p-3 space-y-1 bg-[#141414]">
+         <h4 class="text-[10px] uppercase font-semibold text-v5-textMuted mb-2 tracking-widest px-1">Current Execution</h4>
+         
+         <div class="space-y-0.5">
+            <!-- Normal Item -->
+            <div class="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded transition-colors group">
+              <div class="w-3 h-3 rounded-full border border-v5-success bg-v5-success/20 flex items-center justify-center">
+                 <svg class="w-1.5 h-1.5 text-v5-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <span class="text-xs text-white">Understand Requirement</span>
+            </div>
+            
+            <div class="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded transition-colors group">
+              <div class="w-3 h-3 rounded-full border border-v5-success bg-v5-success/20 flex items-center justify-center">
+                 <svg class="w-1.5 h-1.5 text-v5-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+              </div>
+              <span class="text-xs text-white">Generate Code</span>
+            </div>
+
+            <!-- Blocked Item -->
+            <div class="flex items-center gap-2 px-2 py-1.5 bg-v5-danger/10 rounded win-illuminated-border">
+              <div class="w-3 h-3 shrink-0 rounded-full border-2 border-v5-danger bg-transparent" title="Blocked"></div>
+              <span class="text-xs text-v5-danger font-semibold">Compile TS</span>
+              <button class="ml-auto text-[10px] bg-v5-danger text-white rounded px-1 win-press">Fix</button>
+            </div>
+
+            <!-- Nested Blocked Children -->
+            <div class="pl-4 ml-3 border-l border-v5-border space-y-0.5 py-1">
+                 <div class="flex items-center gap-2 px-2 py-1 opacity-60">
+                     <span class="text-[10px] text-white">run tsc --noEmit</span>
+                 </div>
+            </div>
+
+            <div class="flex items-center gap-2 px-2 py-1.5 opacity-50">
+              <div class="w-3 h-3 shrink-0 rounded-full border border-v5-textMuted border-dashed"></div>
+              <span class="text-xs text-v5-textMuted">End Run</span>
+            </div>
+         </div>
+     </div>
+  </aside>
+
+  <!-- Global Footer Bar -->
+  <footer class="absolute bottom-0 left-0 right-0 h-6 bg-[#0067C0] text-white flex items-center justify-between px-3 text-[10px] font-mono select-none z-30">
+    <div class="flex items-center gap-4">
+      <span class="font-semibold flex items-center gap-2 cursor-pointer hover:bg-white/10 px-1 py-0.5 rounded">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+        Takomi / Local
+      </span>
+      <span class="opacity-70">ws-a8b2</span>
+      <span class="text-white/60">BLOCKED</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="flex items-center gap-1 cursor-pointer hover:bg-white/10 px-1 py-0.5 rounded">
+         <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+         Engine Ready
+      </span>
+      <span class="cursor-pointer hover:bg-white/10 px-1 py-0.5 rounded">Logs</span>
+    </div>
+  </footer>
+
+</body>
+</html>

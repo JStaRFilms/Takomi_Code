@@ -46,10 +46,10 @@ Create reviewable HTML prototypes and the supporting design-system artifacts for
 
 ## Definition of Done
 
-- [ ] All required prototype pages exist
-- [ ] The design system file captures palette, typography, and shell components
-- [ ] Prototypes reflect the approved design direction
-- [ ] The prototypes visibly include branch, workspace, runtime, and task-state cues
+- [x] All required prototype pages exist
+- [x] The design system file captures palette, typography, and shell components
+- [x] Prototypes reflect the approved design direction
+- [x] The prototypes visibly include branch, workspace, runtime, and task-state cues
 
 ## Expected Artifacts
 

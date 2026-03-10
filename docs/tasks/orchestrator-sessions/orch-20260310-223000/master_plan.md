@@ -59,7 +59,7 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 | 02 | Architecture genesis | Completed | `vibe-architect` | `/vibe-genesis` | `takomi`, `spawn-task` |
 | 03 | Issue and task seed | Completed | `vibe-architect` | `/vibe-spawnTask` | `takomi`, `spawn-task` |
 | 04 | Design direction | Completed | `vibe-architect` | `/vibe-design` | `takomi`, `ui-ux-pro-max` |
-| 05 | Mockup prototypes | Pending | `vibe-architect` | `/vibe-design` | `takomi`, `frontend-design`, `ui-ux-pro-max` |
+| 05 | Mockup prototypes | Completed | `vibe-architect` | `/vibe-design` | `takomi`, `frontend-design`, `ui-ux-pro-max` |
 | 06 | Design review loop | Pending | `vibe-ask` | `/mode-ask` | `takomi`, `webapp-testing` |
 | 07 | Solution scaffold | Pending | `vibe-code` | `/vibe-build` | `takomi`, `sync-docs` |
 | 08 | Mode and workflow loader | Pending | `vibe-code` | `/vibe-build` | `takomi`, `sync-docs` |

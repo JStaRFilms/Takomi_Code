@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi Code - Design System v4 (Native WinUI Glass)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Using standard fonts that mimic Windows native Segoe UI Variable -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            /* Fallback to Inter if Segoe UI Variable isn't available on the viewing machine */
+            sans: ['"Segoe UI Variable Display"', '"Segoe UI"', 'Inter', 'sans-serif'],
+            mono: ['"Cascadia Code"', '"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            win: {
+              /* Pure native-feeling palette */
+              bg: '#000000',          /* Mica base */
+              surface: '#1A1A1A',     /* Acrylic surface base */
+              elevated: '#242424',    /* Layered raised surface */
+              accent: '#0067C0',      /* Windows 11 default dark mode blue accent */
+              accentHover: '#1A7DD1',
+              accentLight: '#4CC2FF', /* Bright text access on dark */
+              text: '#FFFFFF',
+              textMuted: '#9E9E9E',
+              border: '#ffffff12',    /* Subtle 7% white border characteristic of Win11 */
+              danger: '#E81123',
+              warning: '#FCE100',
+              success: '#10893E',
+            }
+          },
+          boxShadow: {
+            /* Standard WinUI 3 shadows */
+            'flyout': '0 8px 16px rgba(0,0,0,0.4)',
+            'dialog': '0 24px 48px rgba(0,0,0,0.5)',
+            'button': '0 2px 4px rgba(0,0,0,0.1)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #000000; /* Windows Mica effect baseline */
+      color: #FFFFFF;
+      /* Subtle wallpaper bleed to show off the glass (Mica simulation) */
+      background-image: 
+        radial-gradient(ellipse at top right, rgba(0, 103, 192, 0.15), transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(26, 26, 26, 0.8), transparent 50%);
+      background-attachment: fixed;
+    }
+
+    /* WinUI Acrylic Material */
+    .acrylic {
+      background: rgba(30, 30, 30, 0.55);
+      backdrop-filter: blur(40px) saturate(120%);
+      -webkit-backdrop-filter: blur(40px) saturate(120%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-top: 1px solid rgba(255, 255, 255, 0.1); /* Directional light edge */
+    }
+
+    .acrylic-elevated {
+      background: rgba(40, 40, 40, 0.65);
+      backdrop-filter: blur(50px) saturate(150%);
+      -webkit-backdrop-filter: blur(50px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Windows 11 standard micro-interactions */
+    .win-button-press:active {
+      transform: scale(0.97);
+      opacity: 0.8;
+      transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .win-input-focus:focus-within {
+      border-bottom-color: #4CC2FF;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Reveal effect simulation */
+    .hover-reveal:hover {
+      background: radial-gradient(circle at center, rgba(255,255,255,0.06) 0%, transparent 70%);
+    }
+  </style>
+</head>
+<body class="min-h-screen p-10 antialiased selection:bg-win-accent selection:text-white">
+  
+  <div class="max-w-6xl mx-auto space-y-16 relative z-10">
+    
+    <!-- Header -->
+    <header class="flex flex-col items-center text-center space-y-4 pt-10 pb-6">
+      <div class="w-16 h-16 rounded-xl acrylic flex items-center justify-center relative shadow-dialog">
+        <svg class="w-8 h-8 text-win-accentLight" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+      </div>
+      <div>
+        <h1 class="text-4xl font-semibold tracking-tight mb-2">Takomi Code <span class="text-win-accentLight font-light">v4 / WinUI Native</span></h1>
+        <p class="text-win-textMuted text-lg">Mica & Acrylic / Restrained Geometry / Minimalist Tech</p>
+      </div>
+    </header>
+
+    <!-- Colors -->
+    <section>
+      <h2 class="text-xl font-semibold mb-6 flex items-center gap-3">
+        System Colors
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+        <div class="acrylic p-4 rounded-lg text-center">
+          <div class="h-20 w-full rounded bg-win-bg mb-3 border border-win-border shadow-inner"></div>
+          <span class="text-sm font-semibold text-white">Mica Background</span>
+          <span class="text-xs text-win-textMuted block mt-1">#000000</span>
+        </div>
+        <div class="acrylic p-4 rounded-lg text-center">
+          <div class="h-20 w-full rounded bg-win-surface mb-3 border border-win-border shadow-inner"></div>
+          <span class="text-sm font-semibold text-white">Acrylic Surface</span>
+          <span class="text-xs text-win-textMuted block mt-1">#1A1A1A / 55%</span>
+        </div>
+        <div class="acrylic-elevated p-4 rounded-lg text-center border border-win-accent/30">
+          <div class="h-20 w-full rounded bg-win-accent mb-3 shadow-button"></div>
+          <span class="text-sm font-semibold text-win-accentLight">Win11 Blue</span>
+          <span class="text-xs text-win-textMuted block mt-1">#0067C0</span>
+        </div>
+        <div class="acrylic p-4 rounded-lg text-center">
+          <div class="h-20 w-full rounded bg-win-danger mb-3 shadow-button"></div>
+          <span class="text-sm font-semibold text-win-danger">Critical</span>
+          <span class="text-xs text-win-textMuted block mt-1">#E81123</span>
+        </div>
+        <div class="acrylic p-4 rounded-lg text-center">
+          <div class="h-20 w-full rounded bg-win-success mb-3 shadow-button"></div>
+          <span class="text-sm font-semibold text-win-success">Success</span>
+          <span class="text-xs text-win-textMuted block mt-1">#10893E</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section>
+      <h2 class="text-xl font-semibold mb-6 flex items-center gap-3">
+        Typography (Segoe UI Variable)
+      </h2>
+      <div class="acrylic p-10 rounded-xl space-y-8 border border-white/5">
+        <div>
+          <h1 class="text-5xl font-semibold tracking-tight text-white">Title Large</h1>
+          <p class="text-sm text-win-textMuted mt-2 font-mono">Segoe UI Variable Display - Semibold</p>
+        </div>
+        <div>
+          <h2 class="text-2xl font-semibold text-white">Subtitle / Page Header</h2>
+          <p class="text-sm text-win-textMuted mt-1 font-mono">Segoe UI Variable Display - 24px</p>
+        </div>
+        <div class="max-w-3xl">
+          <p class="text-sm text-white/90 leading-relaxed">
+            Windows 11 utilizes Segoe UI Variable for optimal legibility across scaling factors. Body text sits at 14px (text-sm in Tailwind) for high information density, completely discarding the exaggerated tracking or hyper-large headings of web trends in favor of software application utility.
+          </p>
+          <p class="text-xs text-win-textMuted mt-3 font-mono">Segoe UI Variable Text - 14px leading-relaxed</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- UI Elements -->
+    <section>
+      <h2 class="text-xl font-semibold mb-6 flex items-center gap-3">
+        Interactive Anatomy
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Controls -->
+        <div class="space-y-6 acrylic p-8 rounded-xl">
+          <h3 class="text-xs font-semibold text-win-textMuted mb-4">Standard Controls</h3>
+          
+          <div class="flex flex-col gap-6">
+            
+            <div class="flex gap-3">
+              <!-- Accent Button -->
+              <button class="px-6 py-1.5 bg-win-accent hover:bg-win-accentHover border border-transparent rounded win-button-press text-white font-medium text-sm transition-colors shadow-button flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                Primary Action
+              </button>
+
+              <!-- Standard Button -->
+              <button class="px-6 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded win-button-press text-white font-medium text-sm transition-colors shadow-button">
+                Standard
+              </button>
+            </div>
+
+            <!-- Segmented/Tab Control WinUI style -->
+            <div class="flex p-1 bg-black/20 border border-white/5 rounded-lg w-max mt-2">
+              <button class="px-4 py-1.5 rounded-md bg-white/10 text-white text-sm font-medium shadow-sm transition-colors cursor-default">
+                Output
+              </button>
+              <button class="px-4 py-1.5 rounded-md text-win-textMuted hover:text-white hover:bg-white/5 text-sm font-medium transition-colors">
+                Problems (2)
+              </button>
+              <button class="px-4 py-1.5 rounded-md text-win-textMuted hover:text-white hover:bg-white/5 text-sm font-medium transition-colors">
+                Terminal
+              </button>
+            </div>
+
+            <!-- WinUI Input -->
+            <div class="mt-4">
+               <label class="block text-xs text-win-textMuted mb-2">Workspace Name</label>
+               <div class="relative flex items-center bg-white/5 border border-white/10 border-b-white/20 rounded win-input-focus transition-colors">
+                 <input type="text" value="Takomi_Code" class="w-full bg-transparent px-3 py-2 text-sm text-white placeholder-win-textMuted outline-none">
+               </div>
+            </div>
+
+            <!-- Toggle Switch -->
+            <div class="flex items-center justify-between mt-2 pt-4 border-t border-white/10">
+              <div>
+                <span class="block text-sm text-white">Auto-connect runtime</span>
+                <span class="block text-xs text-win-textMuted pt-0.5">Initialize Docker daemon on start</span>
+              </div>
+              <div class="w-10 h-5 bg-win-accent rounded-full border border-transparent relative cursor-pointer win-button-press">
+                <div class="absolute right-0.5 top-0.5 bottom-0.5 w-4 bg-white rounded-full shadow-sm"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Task Nodes / Activity -->
+        <div class="space-y-6 acrylic-elevated p-8 rounded-xl">
+          <h3 class="text-xs font-semibold text-win-textMuted mb-4">Task Graph Visuals</h3>
+          
+          <div class="space-y-3">
+            
+            <!-- Running Node -->
+            <div class="p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors flex items-center gap-3 group cursor-default">
+              <!-- WinUI Indeterminate Progress Ring simulation -->
+              <div class="relative w-5 h-5">
+                <svg class="animate-spin w-5 h-5 text-win-accentLight" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+              
+              <div class="flex-1">
+                <h4 class="text-sm font-medium text-white">Compiling Application</h4>
+              </div>
+              
+              <span class="text-xs text-win-accentLight font-mono">Running</span>
+            </div>
+
+            <!-- Blocked/Intervention Node -->
+            <div class="p-3 rounded-lg bg-win-danger/10 border border-win-danger/30 flex flex-col gap-3">
+              <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-win-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <div class="flex-1">
+                  <h4 class="text-sm font-medium text-win-danger">Merge Conflict Detected</h4>
+                  <p class="text-xs text-win-textMuted mt-0.5">Please resolve src/utils.ts</p>
+                </div>
+              </div>
+              
+              <div class="flex gap-2 pl-8">
+                <button class="px-4 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-xs font-medium text-white transition-colors">
+                  Open Editor
+                </button>
+                <button class="px-4 py-1 bg-transparent hover:bg-white/5 text-win-textMuted hover:text-white rounded text-xs font-medium transition-colors">
+                  Cancel Task
+                </button>
+              </div>
+            </div>
+
+            <!-- Success Node -->
+            <div class="p-3 rounded-lg bg-transparent border border-transparent flex items-center gap-3 opacity-60">
+               <svg class="w-5 h-5 text-win-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+               <div class="flex-1">
+                  <h4 class="text-sm font-medium text-white line-through decoration-white/30">Clone Repository</h4>
+               </div>
+               <span class="text-xs text-win-textMuted font-mono">0.6s</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi Code - Project Selector v5</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {
+        fontFamily: { sans: ['"Segoe UI Variable Display"', '"Segoe UI"', 'Inter', 'sans-serif'], mono: ['"Cascadia Code"', '"JetBrains Mono"', 'monospace'] },
+        colors: { v5: { bg: '#141414', surface: '#1F1F1F', elevated: '#282828', accent: '#FFB900', accentHover: '#E5A600', accentMuted: '#FFB90022', text: '#F3F3F3', textMuted: '#888888', border: '#333333', borderSubtle: '#ffffff0A', danger: '#D13438', success: '#10893E', warning: '#FCE100' } },
+      } }
+    }
+  </script>
+  <style>
+    body { background-color: #141414; color: #F3F3F3; background-image: radial-gradient(circle at top right, rgba(255, 185, 0, 0.03), transparent 40%), url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E"); }
+    .studio-acrylic { background: rgba(31, 31, 31, 0.7); backdrop-filter: blur(60px) saturate(140%); -webkit-backdrop-filter: blur(60px) saturate(140%); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+    .win-illuminated-border { position: relative; }
+    .win-illuminated-border::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.05) 100%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+    .win-press:active { transform: scale(0.98); opacity: 0.85; transition: all 0.05s ease; }
+    .focus-ring:focus-visible { outline: none; box-shadow: 0 0 0 2px #141414, 0 0 0 4px #FFB900; }
+  </style>
+</head>
+<body class="h-screen flex overflow-hidden win-app-window">
+  <!-- Left Nav Sidebar -->
+  <aside class="w-72 studio-acrylic border-r border-v5-border flex flex-col z-10 shrink-0">
+    <!-- Branding -->
+    <div class="h-16 flex items-center px-6 border-b border-v5-border gap-3">
+      <div class="w-8 h-8 rounded bg-v5-accent flex items-center justify-center">
+        <svg class="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5" /></svg>
+      </div>
+      <h1 class="text-sm font-semibold tracking-wide text-white">Takomi Code</h1>
+    </div>
+
+    <!-- System Status Widget -->
+    <div class="p-6 border-b border-v5-border space-y-4">
+      <h2 class="text-[10px] uppercase font-semibold text-v5-textMuted tracking-widest">Environment</h2>
+      
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-2 rounded-full bg-v5-success shadow-[0_0_8px_#10893E]"></div>
+        <div class="flex-1">
+          <p class="text-xs font-semibold text-white">Codex Engine</p>
+          <p class="text-[10px] text-v5-textMuted font-mono">v1.2.4-alpha</p>
+        </div>
+      </div>
+      
+      <div class="flex flex-col gap-1 mt-2">
+         <p class="text-[10px] text-v5-textMuted font-medium flex justify-between">
+           <span>Docker Daemon</span> <span class="text-v5-success">Healthy</span>
+         </p>
+         <p class="text-[10px] text-v5-textMuted font-medium flex justify-between">
+            <span>LLM Endpoint</span> <span class="text-v5-success">Connected</span>
+         </p>
+      </div>
+    </div>
+
+    <div class="p-6 border-b border-v5-border space-y-3">
+      <h2 class="text-[10px] uppercase font-semibold text-v5-textMuted tracking-widest">Permissions</h2>
+      <div class="flex items-center gap-2 p-2 bg-v5-surface rounded-md border border-v5-border win-illuminated-border">
+         <svg class="w-4 h-4 text-v5-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+         <span class="text-xs font-medium text-white">Bags Verified Pro</span>
+      </div>
+    </div>
+
+    <div class="mt-auto p-4 border-t border-v5-border flex items-center justify-between text-xs text-v5-textMuted">
+      <span class="cursor-pointer hover:text-white transition-colors">Settings</span>
+      <span>v0.001</span>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 overflow-y-auto bg-transparent relative">
+    <div class="max-w-4xl mx-auto py-16 px-8 h-full flex flex-col justify-center">
+      
+      <div class="mb-10 text-center">
+        <h2 class="text-3xl font-semibold text-white tracking-tight">Select a Workspace</h2>
+        <p class="text-v5-textMuted text-sm mt-2">Open an existing project or initialize a new orchestrator environment.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <!-- New Project Action -->
+        <button class="h-32 studio-acrylic border border-v5-border win-illuminated-border rounded-[12px] flex flex-col items-center justify-center gap-3 hover:border-v5-accent hover:bg-v5-elevated transition-colors group win-press">
+          <svg class="w-8 h-8 text-v5-textMuted group-hover:text-v5-accent transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+          <span class="text-sm font-semibold text-white group-hover:text-v5-accent">Initialize Folder</span>
+        </button>
+
+        <!-- Clone Repository Action -->
+        <button class="h-32 studio-acrylic border border-v5-border win-illuminated-border rounded-[12px] flex flex-col items-center justify-center gap-3 hover:border-v5-accent hover:bg-v5-elevated transition-colors group win-press">
+          <svg class="w-8 h-8 text-v5-textMuted group-hover:text-v5-accent transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+          <span class="text-sm font-semibold text-white group-hover:text-v5-accent">Clone Repository</span>
+        </button>
+      </div>
+
+      <!-- Recent Workspaces -->
+      <div>
+        <h3 class="text-xs font-semibold text-v5-textMuted mb-4">Recent Environments</h3>
+        
+        <div class="bg-[#1A1A1A] border border-v5-border rounded-lg overflow-hidden win-illuminated-border">
+          
+          <button class="w-full flex justify-between items-center p-4 hover:bg-white/5 border-b border-v5-border transition-colors group text-left">
+            <div class="flex items-center gap-4">
+              <svg class="w-5 h-5 text-v5-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+              <div>
+                <span class="text-sm font-semibold text-white block">Takomi_Code</span>
+                <span class="text-xs text-v5-textMuted">C:\CreativeOS\01_Projects\Code\Takomi_Code</span>
+              </div>
+            </div>
+            <span class="text-xs text-v5-textMuted group-hover:text-white transition-colors">12 mins ago</span>
+          </button>
+
+          <button class="w-full flex justify-between items-center p-4 hover:bg-white/5 border-b border-v5-border transition-colors group text-left">
+            <div class="flex items-center gap-4">
+              <svg class="w-5 h-5 text-v5-textMuted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+              <div>
+                <span class="text-sm font-semibold text-white block">Agent_Core_V2</span>
+                <span class="text-xs text-v5-textMuted">C:\CreativeOS\01_Projects\Code\Agent_Core_V2</span>
+              </div>
+            </div>
+            <span class="text-xs text-v5-textMuted group-hover:text-white transition-colors">2 days ago</span>
+          </button>
+
+          <button class="w-full flex text-v5-textMuted hover:text-white text-xs font-semibold p-4 transition-colors">
+            Clear Recent History...
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>
