@@ -65,7 +65,7 @@ This replaces the generic split previously proposed (e.g., planner/docs-writer a
 - **Background child execution:** continue working in orchestrator while children run.
 - **Live intervention controls:** inject guidance and reroute active tasks.
 - **Cloud + local runtime:** SaaS sandbox execution and desktop/local execution modes.
-- **Payment rails:** Paystack for fiat subscriptions; Bags API for onchain fee-sharing flows.
+- **Payment rails:** Paystack for fiat subscriptions; Bags token + Bags API flows for project verification readiness and onchain alignment.
 - **Auditability:** event log for all runs, interventions, and payment entitlement changes.
 
 ## 7) Non-Negotiable Acceptance Gate
@@ -75,4 +75,4 @@ v0.001 can launch only if:
 - Genesis/Design/Build lifecycle and follow-up workflows are fully wired.
 - Orchestrator review loop and intervention controls are fully functional.
 - Cloud/local execution modes are both operational.
-- Paystack + Bags payment success path and entitlement checks pass end-to-end.
+- Paystack billing success path, entitlement checks, and Bags token/API verification path pass end-to-end.
