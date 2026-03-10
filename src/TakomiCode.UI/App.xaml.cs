@@ -25,6 +25,7 @@ public partial class App : Application
                 services.AddSingleton<TakomiCode.Application.Contracts.Persistence.IAuditLogRepository, TakomiCode.Infrastructure.Persistence.LocalAuditLogRepository>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Persistence.IWorkspaceRepository, TakomiCode.Infrastructure.Persistence.LocalWorkspaceRepository>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ICodexRuntimeAdapter, TakomiCode.RuntimeAdapters.Codex.CodexCliAdapter>();
+                services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ITakomiConfigurationLoader, TakomiCode.Infrastructure.Runtime.TakomiConfigurationLoader>();
             })
             .Build();
 

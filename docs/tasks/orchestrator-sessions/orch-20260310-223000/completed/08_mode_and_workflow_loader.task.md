@@ -28,10 +28,10 @@ Implement runtime loading for Takomi mode YAML files and workflow Markdown files
 
 ## Definition of Done
 
-- [ ] Mode YAML discovery and parsing works
-- [ ] Workflow markdown discovery and parsing works
-- [ ] Internal normalized objects exist for modes and workflows
-- [ ] Parse failures surface clear diagnostics
+- [x] Mode YAML discovery and parsing works
+- [x] Workflow markdown discovery and parsing works
+- [x] Internal normalized objects exist for modes and workflows
+- [x] Parse failures surface clear diagnostics
 
 ## Expected Artifacts
 
