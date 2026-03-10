@@ -40,10 +40,10 @@ Review the HTML mockups as a read-only design critic and produce a refinement ch
 
 ## Definition of Done
 
-- [ ] Review notes exist under `docs/design/`
-- [ ] A refinement checklist is recorded
-- [ ] The output clearly states approved or blocked
-- [ ] Any blockers are mapped to specific mockup files
+- [x] Review notes exist under `docs/design/`
+- [x] A refinement checklist is recorded
+- [x] The output clearly states approved or blocked
+- [x] Any blockers are mapped to specific mockup files
 
 ## Expected Artifacts
 

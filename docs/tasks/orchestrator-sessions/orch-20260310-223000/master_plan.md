@@ -60,7 +60,7 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 | 03 | Issue and task seed | Completed | `vibe-architect` | `/vibe-spawnTask` | `takomi`, `spawn-task` |
 | 04 | Design direction | Completed | `vibe-architect` | `/vibe-design` | `takomi`, `ui-ux-pro-max` |
 | 05 | Mockup prototypes | Completed | `vibe-architect` | `/vibe-design` | `takomi`, `frontend-design`, `ui-ux-pro-max` |
-| 06 | Design review loop | Pending | `vibe-ask` | `/mode-ask` | `takomi`, `webapp-testing` |
+| 06 | Design review loop | Completed | `vibe-ask` | `/mode-ask` | `takomi`, `webapp-testing` |
 | 07 | Solution scaffold | Pending | `vibe-code` | `/vibe-build` | `takomi`, `sync-docs` |
 | 08 | Mode and workflow loader | Pending | `vibe-code` | `/vibe-build` | `takomi`, `sync-docs` |
 | 09 | Chat and session core | Pending | `vibe-code` | `/vibe-continueBuild` | `takomi`, `sync-docs` |
@@ -81,7 +81,7 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 - [x] Genesis docs complete
 - [x] FR issue set complete
 - [x] Design direction approved
-- [ ] HTML prototypes approved
+- [x] HTML prototypes approved
 - [ ] Build foundation complete
 - [ ] Orchestration features complete
 - [ ] Payments and Bags integrations complete
