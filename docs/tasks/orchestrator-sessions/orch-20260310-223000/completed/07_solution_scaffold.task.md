@@ -41,10 +41,10 @@ Scaffold the WinUI 3 solution and establish the application layering needed for 
 
 ## Definition of Done
 
-- [ ] A WinUI 3 solution exists in `src/`
-- [ ] Project layering is visible and compile-ready
-- [ ] Base persistence and audit plumbing are present
-- [ ] Documentation reflects the scaffold decisions
+- [x] A WinUI 3 solution exists in `src/`
+- [x] Project layering is visible and compile-ready
+- [x] Base persistence and audit plumbing are present
+- [x] Documentation reflects the scaffold decisions
 
 ## Expected Artifacts
 
