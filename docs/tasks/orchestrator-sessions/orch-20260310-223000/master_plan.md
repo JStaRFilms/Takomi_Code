@@ -58,7 +58,7 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 | 01 | Product genesis brief | Completed | `vibe-architect` | `/vibe-genesis` | `takomi`, `spawn-task`, `avoid-feature-creep` |
 | 02 | Architecture genesis | Completed | `vibe-architect` | `/vibe-genesis` | `takomi`, `spawn-task` |
 | 03 | Issue and task seed | Completed | `vibe-architect` | `/vibe-spawnTask` | `takomi`, `spawn-task` |
-| 04 | Design direction | Pending | `vibe-architect` | `/vibe-design` | `takomi`, `ui-ux-pro-max` |
+| 04 | Design direction | Completed | `vibe-architect` | `/vibe-design` | `takomi`, `ui-ux-pro-max` |
 | 05 | Mockup prototypes | Pending | `vibe-architect` | `/vibe-design` | `takomi`, `frontend-design`, `ui-ux-pro-max` |
 | 06 | Design review loop | Pending | `vibe-ask` | `/mode-ask` | `takomi`, `webapp-testing` |
 | 07 | Solution scaffold | Pending | `vibe-code` | `/vibe-build` | `takomi`, `sync-docs` |
@@ -80,7 +80,7 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 - [x] Intake and session framing complete
 - [x] Genesis docs complete
 - [x] FR issue set complete
-- [ ] Design direction approved
+- [x] Design direction approved
 - [ ] HTML prototypes approved
 - [ ] Build foundation complete
 - [ ] Orchestration features complete

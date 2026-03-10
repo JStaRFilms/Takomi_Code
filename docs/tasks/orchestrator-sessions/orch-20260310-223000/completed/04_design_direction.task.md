@@ -40,10 +40,10 @@ Produce the Windows-native design direction for Takomi Code, aligned to the PRD 
 
 ## Definition of Done
 
-- [ ] A design direction document exists under `docs/design/`
-- [ ] Navigation and panel model are explicitly defined
-- [ ] The document addresses same-workspace defaults and explicit worktree switching
-- [ ] The document includes design rules for background child execution and intervention visibility
+- [x] A design direction document exists under `docs/design/`
+- [x] Navigation and panel model are explicitly defined
+- [x] The document addresses same-workspace defaults and explicit worktree switching
+- [x] The document includes design rules for background child execution and intervention visibility
 
 ## Expected Artifacts
 
