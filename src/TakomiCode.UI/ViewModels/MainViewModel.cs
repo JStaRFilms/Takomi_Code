@@ -11,6 +11,8 @@ public partial class MainViewModel : ObservableObject
     private const string DefaultWorkspaceId = "workspace-default";
     private readonly IChatSessionRepository _chatSessionRepository;
     private readonly IWorkspaceRepository _workspaceRepository;
+    private readonly IOrchestrationRepository _orchestrationRepository;
+    private readonly TakomiCode.Application.Contracts.Services.IInterventionCommandHandler _interventionCommandHandler;
 
     [ObservableProperty]
     private string _statusMessage = "Welcome to Takomi Code Orchestrator";
@@ -21,16 +23,25 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _draftMessage = string.Empty;
 
+    [ObservableProperty]
+    private OrchestrationRun? _selectedActiveRun;
+
     public ObservableCollection<ChatSessionViewModel> Sessions { get; } = new();
+    public ObservableCollection<OrchestrationRun> ActiveRuns { get; } = new();
+
     public string CurrentSessionTitle => SelectedSession?.Title ?? "No session selected";
     public string CurrentSessionWorktree => SelectedSession?.WorktreePath ?? "Same workspace / default worktree";
 
     public MainViewModel(
         IChatSessionRepository chatSessionRepository,
-        IWorkspaceRepository workspaceRepository)
+        IWorkspaceRepository workspaceRepository,
+        IOrchestrationRepository orchestrationRepository,
+        TakomiCode.Application.Contracts.Services.IInterventionCommandHandler interventionCommandHandler)
     {
         _chatSessionRepository = chatSessionRepository;
         _workspaceRepository = workspaceRepository;
+        _orchestrationRepository = orchestrationRepository;
+        _interventionCommandHandler = interventionCommandHandler;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
@@ -65,6 +76,18 @@ public partial class MainViewModel : ObservableObject
         {
             SelectedSession = Sessions[0];
             StatusMessage = $"Loaded {Sessions.Count} chat session(s)";
+        }
+
+        await ReloadActiveRunsAsync(cancellationToken);
+    }
+
+    public async Task ReloadActiveRunsAsync(CancellationToken cancellationToken = default)
+    {
+        var runs = await _orchestrationRepository.GetActiveRunsAsync(cancellationToken);
+        ActiveRuns.Clear();
+        foreach (var run in runs)
+        {
+            ActiveRuns.Add(run);
         }
     }
 
@@ -151,5 +174,47 @@ public partial class MainViewModel : ObservableObject
         Sessions.RemoveAt(index);
         Sessions.Insert(0, session);
         SelectedSession = session;
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task PauseRunAsync() => await ExecuteInterventionAsync(InterventionAction.Pause);
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task ResumeRunAsync() => await ExecuteInterventionAsync(InterventionAction.Resume);
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task CancelRunAsync() => await ExecuteInterventionAsync(InterventionAction.Cancel);
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task RerouteRunAsync() => await ExecuteInterventionAsync(InterventionAction.Reroute, "Reroute requested");
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task ReplaceRunAsync() => await ExecuteInterventionAsync(InterventionAction.Replace, "Replace requested");
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task MigrateRunAsync() => await ExecuteInterventionAsync(InterventionAction.Migrate, "Migrate requested");
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task InjectGuidanceAsync() => await ExecuteInterventionAsync(InterventionAction.InjectGuidance, "Guidance requested");
+
+    private async Task ExecuteInterventionAsync(InterventionAction action, string? payload = null)
+    {
+        if (SelectedActiveRun is null)
+        {
+            StatusMessage = "Select an active run first.";
+            return;
+        }
+
+        try
+        {
+            StatusMessage = $"Sending {action} to run {SelectedActiveRun.RunId}...";
+            await _interventionCommandHandler.ExecuteInterventionAsync(SelectedActiveRun.RunId, action, payload);
+            StatusMessage = $"Sent {action} successfully.";
+            await ReloadActiveRunsAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Action '{action}' failed: {ex.Message}";
+        }
     }
 }

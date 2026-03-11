@@ -29,10 +29,10 @@ Implement the live intervention model for active runs and expose it in the shell
 
 ## Definition of Done
 
-- [ ] Inject guidance, pause, resume, cancel, reroute, replace, and migrate actions exist
-- [ ] Actions are available for active runs in the UI
-- [ ] Interventions emit structured audit events
-- [ ] Unsupported actions fail with clear UI feedback
+- [x] Inject guidance, pause, resume, cancel, reroute, replace, and migrate actions exist
+- [x] Actions are available for active runs in the UI
+- [x] Interventions emit structured audit events
+- [x] Unsupported actions fail with clear UI feedback
 
 ## Expected Artifacts
 

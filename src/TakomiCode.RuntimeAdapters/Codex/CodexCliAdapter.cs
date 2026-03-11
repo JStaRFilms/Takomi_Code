@@ -147,6 +147,17 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
             cancellationToken: cancellationToken);
     }
 
+    public async Task SendInterventionAsync(string runId, TakomiCode.Domain.Entities.InterventionAction action, string? payload = null, CancellationToken cancellationToken = default)
+    {
+        if (action == TakomiCode.Domain.Entities.InterventionAction.Cancel)
+        {
+            await CancelRunAsync(runId, cancellationToken);
+            return;
+        }
+
+        throw new NotSupportedException($"Intervention action '{action}' is not natively supported by the Codex CLI runtime.");
+    }
+
     private async Task<CodexRunResult> BuildRunResultAsync(
         string runId,
         int exitCode,

@@ -21,4 +21,5 @@ public interface IOrchestrationRepository
 
     Task<IEnumerable<TaskArtifact>> GetArtifactsForTaskAsync(string taskId, CancellationToken cancellationToken = default);
     Task SaveArtifactAsync(TaskArtifact artifact, CancellationToken cancellationToken = default);
+    Task<IEnumerable<OrchestrationRun>> GetActiveRunsAsync(CancellationToken cancellationToken = default);
 }

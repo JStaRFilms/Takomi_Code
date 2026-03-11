@@ -29,6 +29,7 @@ public partial class App : Application
                 services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ICodexRuntimeAdapter, TakomiCode.RuntimeAdapters.Codex.CodexCliAdapter>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ITakomiConfigurationLoader, TakomiCode.Infrastructure.Runtime.TakomiConfigurationLoader>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Services.IOrchestratorExecutionEngine, TakomiCode.Application.Services.OrchestratorExecutionEngine>();
+                services.AddSingleton<TakomiCode.Application.Contracts.Services.IInterventionCommandHandler, TakomiCode.Application.Services.InterventionCommandHandler>();
             })
             .Build();
 

@@ -117,6 +117,18 @@ public class LocalOrchestrationRepository : IOrchestrationRepository
         await PersistAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<OrchestrationRun>> GetActiveRunsAsync(CancellationToken cancellationToken = default)
+    {
+        await EnsureLoadedAsync(cancellationToken);
+        return _store!.Runs.Values
+            .Where(run => run.Status is TaskStatus.InProgress or TaskStatus.Queued or TaskStatus.Paused)
+            .Select(Clone)
+            .Where(run => run is not null)!
+            .Cast<OrchestrationRun>()
+            .OrderByDescending(run => run.StartedAt)
+            .ToList();
+    }
+
     public async Task<IEnumerable<TaskArtifact>> GetArtifactsForTaskAsync(string taskId, CancellationToken cancellationToken = default)
     {
         await EnsureLoadedAsync(cancellationToken);

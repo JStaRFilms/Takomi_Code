@@ -11,4 +11,5 @@ public interface ICodexRuntimeAdapter
 
     Task<CodexRunResult> StartRunAsync(CodexRunRequest request, CancellationToken cancellationToken = default);
     Task CancelRunAsync(string runId, CancellationToken cancellationToken = default);
+    Task SendInterventionAsync(string runId, TakomiCode.Domain.Entities.InterventionAction action, string? payload = null, CancellationToken cancellationToken = default);
 }

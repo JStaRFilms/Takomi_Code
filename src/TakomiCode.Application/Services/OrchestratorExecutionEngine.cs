@@ -270,12 +270,17 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
         {
             session.Status = TaskStatus.Failed;
         }
+        else if (tasks.Any(t => t.Status == TaskStatus.Cancelled))
+        {
+            session.Status = TaskStatus.Cancelled;
+            session.CompletedAt ??= DateTimeOffset.UtcNow;
+        }
         else if (tasks.All(t => t.Status == TaskStatus.Completed))
         {
             session.Status = TaskStatus.Completed;
             session.CompletedAt ??= DateTimeOffset.UtcNow;
         }
-        else if (tasks.Any(t => t.Status is TaskStatus.InProgress or TaskStatus.Queued or TaskStatus.Blocked))
+        else if (tasks.Any(t => t.Status is TaskStatus.InProgress or TaskStatus.Queued or TaskStatus.Blocked or TaskStatus.Paused))
         {
             session.Status = TaskStatus.InProgress;
         }
@@ -313,12 +318,41 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
                 return;
             }
 
+            if (runtimeResult.FinalState == CodexRuntimeState.Cancelled)
+            {
+                await MarkTaskCancelledAsync(task.Id, runtimeResult.ErrorMessage, cancellationToken);
+                return;
+            }
+
             await MarkTaskFailedAsync(task.Id, runtimeResult.ErrorMessage ?? "Codex runtime execution failed.", cancellationToken);
         }
         catch (Exception ex)
         {
             await MarkTaskFailedAsync(task.Id, ex.Message, cancellationToken);
         }
+    }
+
+    private async Task MarkTaskCancelledAsync(string taskId, string? details, CancellationToken cancellationToken)
+    {
+        var task = await _orchestrationRepository.GetTaskAsync(taskId, cancellationToken);
+        if (task == null)
+        {
+            return;
+        }
+
+        task.Status = TaskStatus.Cancelled;
+        task.CompletedAt = DateTimeOffset.UtcNow;
+
+        var activeRun = task.ExecutionRuns.LastOrDefault(r => r.Status is TaskStatus.InProgress or TaskStatus.Queued or TaskStatus.Paused);
+        if (activeRun != null)
+        {
+            activeRun.Status = TaskStatus.Cancelled;
+            activeRun.CompletedAt = DateTimeOffset.UtcNow;
+            activeRun.ErrorMessage = details;
+            await _orchestrationRepository.SaveRunAsync(activeRun, cancellationToken);
+        }
+
+        await _orchestrationRepository.SaveTaskAsync(task, cancellationToken);
     }
 
     private static string ResolveWorkingDirectory(OrchestrationTask task, string? workspacePath)

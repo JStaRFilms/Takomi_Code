@@ -12,6 +12,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="320" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -19,7 +20,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border Grid.ColumnSpan="2" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16">
+        <Border Grid.ColumnSpan="3" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16">
             <StackPanel>
                 <TextBlock Text="Takomi Code Session Core" FontSize="24" FontWeight="SemiBold" />
                 <TextBlock Text="{Binding StatusMessage}" Margin="0,4,0,0" Opacity="0.8" />
@@ -107,8 +108,73 @@
             </Grid>
         </Border>
 
+        <!-- Active Runs Pane -->
+        <Border Grid.Row="1"
+                Grid.Column="2"
+                Margin="8,16,16,16"
+                Padding="12"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                CornerRadius="8">
+            <Grid RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Active Runs" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Text="Select a run to intervene" FontSize="12" Opacity="0.7" />
+                </StackPanel>
+
+                <ListView Grid.Row="1"
+                          ItemsSource="{Binding ActiveRuns}"
+                          SelectedItem="{Binding SelectedActiveRun, Mode=TwoWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Spacing="2" Padding="0,4">
+                                <TextBlock Text="{Binding TaskId}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding RunId}" FontSize="12" Opacity="0.7" />
+                                <TextBlock Text="{Binding Status}" FontSize="12" Opacity="0.7" Foreground="{ThemeResource SystemAccentColor}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <StackPanel Grid.Row="2" Spacing="4">
+                    <Grid ColumnSpacing="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Pause" Command="{Binding PauseRunCommand}" HorizontalAlignment="Stretch" />
+                        <Button Grid.Column="1" Content="Resume" Command="{Binding ResumeRunCommand}" HorizontalAlignment="Stretch" />
+                        <Button Grid.Column="2" Content="Cancel" Command="{Binding CancelRunCommand}" HorizontalAlignment="Stretch" />
+                    </Grid>
+                    <Grid ColumnSpacing="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Reroute" Command="{Binding RerouteRunCommand}" HorizontalAlignment="Stretch" />
+                        <Button Grid.Column="1" Content="Guidance" Command="{Binding InjectGuidanceCommand}" HorizontalAlignment="Stretch" />
+                    </Grid>
+                    <Grid ColumnSpacing="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Replace" Command="{Binding ReplaceRunCommand}" HorizontalAlignment="Stretch" />
+                        <Button Grid.Column="1" Content="Migrate" Command="{Binding MigrateRunCommand}" HorizontalAlignment="Stretch" />
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <Border Grid.Row="2"
-                Grid.ColumnSpan="2"
+                Grid.ColumnSpan="3"
                 Margin="16,0,16,16"
                 Padding="12"
                 Background="{ThemeResource LayerFillColorAltBrush}"
