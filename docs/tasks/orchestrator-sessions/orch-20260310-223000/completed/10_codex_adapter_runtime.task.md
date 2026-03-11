@@ -29,10 +29,10 @@ Implement the local Codex adapter runtime and isolate Windows-specific execution
 
 ## Definition of Done
 
-- [ ] A local runtime adapter can start and monitor Codex-backed runs
-- [ ] Runtime state transitions are emitted as structured events
-- [ ] Failure handling is implemented for missing CLI, auth issues, and execution failures
-- [ ] Windows-specific compatibility handling is adapter-local
+- [x] A local runtime adapter can start and monitor Codex-backed runs ✅ Completed
+- [x] Runtime state transitions are emitted as structured events ✅ Completed
+- [x] Failure handling is implemented for missing CLI, auth issues, and execution failures ✅ Completed
+- [x] Windows-specific compatibility handling is adapter-local ✅ Completed
 
 ## Expected Artifacts
 
