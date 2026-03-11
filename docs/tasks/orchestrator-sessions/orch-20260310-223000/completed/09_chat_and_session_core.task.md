@@ -28,10 +28,10 @@ Implement the core project, chat, and sub-chat session model with transcript per
 
 ## Definition of Done
 
-- [ ] Project-scoped chats can be created
-- [ ] Child sessions can be linked to parent sessions
-- [ ] Transcript state persists and restores
-- [ ] Same-workspace inheritance is preserved by default
+- [x] Project-scoped chats can be created
+- [x] Child sessions can be linked to parent sessions
+- [x] Transcript state persists and restores
+- [x] Same-workspace inheritance is preserved by default
 
 ## Expected Artifacts
 

@@ -1,0 +1,76 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
+using TakomiCode.Domain.Entities;
+
+namespace TakomiCode.UI.ViewModels;
+
+public partial class ChatSessionViewModel : ObservableObject
+{
+    private readonly ChatSession _entity;
+    
+    public ChatSessionViewModel(ChatSession entity)
+    {
+        _entity = entity;
+        Messages = new ObservableCollection<ChatMessageViewModel>(
+            _entity.Transcript.Select(m => new ChatMessageViewModel(m))
+        );
+    }
+    
+    public string Id => _entity.Id;
+    public string WorkspaceId => _entity.WorkspaceId;
+    public string? ParentSessionId => _entity.ParentSessionId;
+    public bool IsChildSession => !string.IsNullOrWhiteSpace(_entity.ParentSessionId);
+    
+    public string Title
+    {
+        get => _entity.Title;
+        set
+        {
+            if (_entity.Title != value)
+            {
+                _entity.Title = value;
+                _entity.UpdatedAt = DateTimeOffset.UtcNow;
+                OnPropertyChanged();
+            }
+        }
+    }
+    
+    public string? ModeSlug => _entity.ModeSlug;
+    public string? WorktreePath => _entity.WorktreePath;
+    public DateTimeOffset UpdatedAt => _entity.UpdatedAt;
+    public DateTimeOffset CreatedAt => _entity.CreatedAt;
+
+    public ObservableCollection<ChatMessageViewModel> Messages { get; }
+    
+    public void AddMessage(string role, string content)
+    {
+        var msg = new ChatMessage
+        {
+            Role = role,
+            Content = content,
+            Timestamp = DateTimeOffset.UtcNow
+        };
+        _entity.Transcript.Add(msg);
+        _entity.UpdatedAt = DateTimeOffset.UtcNow;
+        Messages.Add(new ChatMessageViewModel(msg));
+        OnPropertyChanged(nameof(UpdatedAt));
+    }
+
+    // Helper to spawn a child session in the same workspace (inheritance preserved)
+    public ChatSession CreateChildSession(string title, string? modeSlug = null, string? overrideWorktreePath = null)
+    {
+        var child = new ChatSession
+        {
+            WorkspaceId = this.WorkspaceId,
+            ParentSessionId = this.Id,
+            Title = title,
+            ModeSlug = modeSlug ?? this.ModeSlug,
+            WorktreePath = overrideWorktreePath ?? this.WorktreePath
+        };
+        return child;
+    }
+    
+    public ChatSession GetEntity() => _entity;
+}

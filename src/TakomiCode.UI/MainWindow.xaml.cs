@@ -15,8 +15,24 @@ public sealed partial class MainWindow : Window
         this.RootGrid.DataContext = ViewModel;
     }
 
-    private void myButton_Click(object sender, RoutedEventArgs e)
+    private async void RootGrid_Loaded(object sender, RoutedEventArgs e)
     {
-        myButton.Content = "Clicked";
+        RootGrid.Loaded -= RootGrid_Loaded;
+        await ViewModel.InitializeAsync();
+    }
+
+    private async void CreateChatButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.CreateProjectChatAsync();
+    }
+
+    private async void CreateChildSessionButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.CreateChildSessionAsync();
+    }
+
+    private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.SendDraftAsync();
     }
 }
