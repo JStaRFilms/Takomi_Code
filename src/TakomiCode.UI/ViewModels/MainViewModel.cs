@@ -15,6 +15,7 @@ public partial class MainViewModel : ObservableObject
     private readonly TakomiCode.Application.Contracts.Services.IInterventionCommandHandler _interventionCommandHandler;
     private readonly TakomiCode.Application.Contracts.Services.IGitService _gitService;
     private readonly IAuditLogRepository _auditLogRepository;
+    private readonly TakomiCode.Application.Contracts.Services.IBillingService _billingService;
 
     [ObservableProperty]
     private string _statusMessage = "Welcome to Takomi Code Orchestrator";
@@ -46,13 +47,35 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _targetWorktreePath = string.Empty;
 
+    [ObservableProperty]
+    private bool _isProActive;
+
+    [ObservableProperty]
+    private string _billingStatusText = "Free Tier";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPendingCheckout))]
+    private string _billingCheckoutUrl = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPendingCheckout))]
+    private string _pendingBillingReference = string.Empty;
+
+    [ObservableProperty]
+    private string _billingEmail = "user@example.com";
+
+    public bool HasPendingCheckout =>
+        !string.IsNullOrWhiteSpace(BillingCheckoutUrl) &&
+        !string.IsNullOrWhiteSpace(PendingBillingReference);
+
     public MainViewModel(
         IChatSessionRepository chatSessionRepository,
         IWorkspaceRepository workspaceRepository,
         IOrchestrationRepository orchestrationRepository,
         TakomiCode.Application.Contracts.Services.IInterventionCommandHandler interventionCommandHandler,
         TakomiCode.Application.Contracts.Services.IGitService gitService,
-        IAuditLogRepository auditLogRepository)
+        IAuditLogRepository auditLogRepository,
+        TakomiCode.Application.Contracts.Services.IBillingService billingService)
     {
         _chatSessionRepository = chatSessionRepository;
         _workspaceRepository = workspaceRepository;
@@ -60,6 +83,7 @@ public partial class MainViewModel : ObservableObject
         _interventionCommandHandler = interventionCommandHandler;
         _gitService = gitService;
         _auditLogRepository = auditLogRepository;
+        _billingService = billingService;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
@@ -97,6 +121,8 @@ public partial class MainViewModel : ObservableObject
         }
 
         await ReloadActiveRunsAsync(cancellationToken);
+
+        await LoadBillingStateAsync(cancellationToken);
     }
 
     public async Task ReloadActiveRunsAsync(CancellationToken cancellationToken = default)
@@ -243,6 +269,67 @@ public partial class MainViewModel : ObservableObject
         catch (Exception ex)
         {
             StatusMessage = $"Action '{action}' failed: {ex.Message}";
+        }
+    }
+
+    private async Task LoadBillingStateAsync(CancellationToken cancellationToken = default)
+    {
+        var entitlement = await _billingService.GetEntitlementAsync(DefaultWorkspaceId, cancellationToken);
+        var pendingCheckout = await _billingService.GetPendingCheckoutAsync(DefaultWorkspaceId, cancellationToken);
+        UpdateBillingState(entitlement);
+        UpdatePendingCheckoutState(pendingCheckout);
+    }
+
+    private void UpdateBillingState(BillingEntitlement? entitlement)
+    {
+        IsProActive = entitlement?.IsActive ?? false;
+        BillingStatusText = IsProActive
+            ? $"{entitlement!.Provider} Pro active (since {entitlement.ActivatedAt:d})"
+            : "Free Tier";
+    }
+
+    private void UpdatePendingCheckoutState(BillingCheckoutSession? checkout)
+    {
+        BillingCheckoutUrl = checkout?.CheckoutUrl ?? string.Empty;
+        PendingBillingReference = checkout?.ReferenceId ?? string.Empty;
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task InitiateCheckoutAsync()
+    {
+        try
+        {
+            StatusMessage = "Initiating Paystack checkout...";
+            var url = await _billingService.CreateCheckoutSessionAsync(DefaultWorkspaceId, BillingEmail);
+            var pendingCheckout = await _billingService.GetPendingCheckoutAsync(DefaultWorkspaceId);
+            UpdatePendingCheckoutState(pendingCheckout);
+            StatusMessage = $"Checkout session started. Complete Paystack checkout at: {url}";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Checkout failed: {ex.Message}";
+        }
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task ConfirmCheckoutSuccessAsync()
+    {
+        if (string.IsNullOrWhiteSpace(PendingBillingReference))
+        {
+            StatusMessage = "Start a Paystack checkout before confirming payment.";
+            return;
+        }
+
+        try
+        {
+            var entitlement = await _billingService.ActivateEntitlementAsync(DefaultWorkspaceId, PendingBillingReference);
+            UpdateBillingState(entitlement);
+            UpdatePendingCheckoutState(null);
+            StatusMessage = "Paystack checkout success recorded. Pro tier activated.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Activation failed: {ex.Message}";
         }
     }
 

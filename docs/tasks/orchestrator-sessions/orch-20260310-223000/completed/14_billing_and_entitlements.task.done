@@ -1,0 +1,27 @@
+# Task Completion Summary
+
+**Task:** 14_billing_and_entitlements
+**Completed At:** 2026-03-11T20:53:00Z
+**Mode:** Code
+
+## Results
+
+Implemented a Paystack-style billing success path for demo use. Checkout initiation now creates a persisted pending checkout, and entitlement activation validates the pending reference before enabling Pro access and writing audit events.
+
+## Files Created/Modified
+
+- `src/TakomiCode.Domain/Entities/BillingEntitlement.cs` (Created)
+- `src/TakomiCode.Application/Contracts/Services/IBillingService.cs` (Created)
+- `src/TakomiCode.Infrastructure/Services/PaystackMockBillingService.cs` (Created)
+- `src/TakomiCode.UI/App.xaml.cs` (Modified)
+- `src/TakomiCode.UI/ViewModels/MainViewModel.cs` (Modified)
+- `src/TakomiCode.UI/MainWindow.xaml` (Modified)
+
+## Verification Status
+
+- [ ] Build: UNVERIFIED (`dotnet build` could not be executed because the .NET SDK is not installed in this environment)
+- [x] Acceptance criteria verified in static review
+
+## Notes
+
+The `dotnet` executable is unavailable on PATH, so compilation confirmation is still pending. A canonical result artifact now exists at `completed/14_billing_and_entitlements.result.md`.
