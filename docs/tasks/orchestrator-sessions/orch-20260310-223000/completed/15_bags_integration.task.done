@@ -1,0 +1,34 @@
+# Task Completion Summary
+
+**Task:** 15_bags_integration
+**Completed At:** 2026-03-11T23:53:00+01:00
+**Mode:** Code
+
+## Results
+
+Implemented a durable Bags token linkage and verification readiness flow:
+- The `Workspace` model stores `BagsTokenAddress` and `IsVerificationReady` state.
+- `IBagsService` remains the isolated boundary for token linking and readiness checks.
+- Workspace state now persists locally so Bags linkage and readiness survive app restarts.
+- The shell exposes token entry and readiness state without introducing fee-sharing concepts.
+- Audit events (`bags.token_linked` and `bags.verification_checked`) are emitted for state changes.
+
+## Files Created/Modified
+
+- `src/TakomiCode.Domain/Entities/Workspace.cs`
+- `src/TakomiCode.Application/Contracts/Services/IBagsService.cs` (Created)
+- `src/TakomiCode.Infrastructure/Services/BagsService.cs` (Created)
+- `src/TakomiCode.UI/App.xaml.cs`
+- `src/TakomiCode.UI/ViewModels/MainViewModel.cs`
+- `src/TakomiCode.UI/MainWindow.xaml`
+
+## Verification Status
+
+- [x] Bags logic isolated: PASS
+- [x] UI visibly handles token: PASS
+- [ ] Build: UNVERIFIED (`dotnet build` could not be executed because the .NET SDK is not installed in this environment)
+
+## Notes
+
+- This is still a demo-safe Bags flow rather than a live production Bags integration.
+- A canonical result artifact now exists at `completed/15_bags_integration.result.md`.

@@ -16,6 +16,7 @@ public partial class MainViewModel : ObservableObject
     private readonly TakomiCode.Application.Contracts.Services.IGitService _gitService;
     private readonly IAuditLogRepository _auditLogRepository;
     private readonly TakomiCode.Application.Contracts.Services.IBillingService _billingService;
+    private readonly TakomiCode.Application.Contracts.Services.IBagsService _bagsService;
 
     [ObservableProperty]
     private string _statusMessage = "Welcome to Takomi Code Orchestrator";
@@ -64,6 +65,16 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _billingEmail = "user@example.com";
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(VerificationStatusText))]
+    private string _bagsTokenAddress = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(VerificationStatusText))]
+    private bool _isVerificationReady;
+
+    public string VerificationStatusText => IsVerificationReady ? "Ready" : "Pending / Unlinked";
+
     public bool HasPendingCheckout =>
         !string.IsNullOrWhiteSpace(BillingCheckoutUrl) &&
         !string.IsNullOrWhiteSpace(PendingBillingReference);
@@ -75,7 +86,8 @@ public partial class MainViewModel : ObservableObject
         TakomiCode.Application.Contracts.Services.IInterventionCommandHandler interventionCommandHandler,
         TakomiCode.Application.Contracts.Services.IGitService gitService,
         IAuditLogRepository auditLogRepository,
-        TakomiCode.Application.Contracts.Services.IBillingService billingService)
+        TakomiCode.Application.Contracts.Services.IBillingService billingService,
+        TakomiCode.Application.Contracts.Services.IBagsService bagsService)
     {
         _chatSessionRepository = chatSessionRepository;
         _workspaceRepository = workspaceRepository;
@@ -84,19 +96,12 @@ public partial class MainViewModel : ObservableObject
         _gitService = gitService;
         _auditLogRepository = auditLogRepository;
         _billingService = billingService;
+        _bagsService = bagsService;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        var workspace = new Workspace
-        {
-            Id = DefaultWorkspaceId,
-            Name = "Takomi Code Workspace",
-            Path = Environment.CurrentDirectory,
-            IsAttached = true
-        };
-
-        await _workspaceRepository.SaveWorkspaceAsync(workspace, cancellationToken);
+        var workspace = await EnsureWorkspaceExistsAsync(cancellationToken);
 
         var sessions = (await _chatSessionRepository
             .GetSessionsByWorkspaceAsync(DefaultWorkspaceId, cancellationToken))
@@ -123,6 +128,7 @@ public partial class MainViewModel : ObservableObject
         await ReloadActiveRunsAsync(cancellationToken);
 
         await LoadBillingStateAsync(cancellationToken);
+        UpdateBagsState(workspace);
     }
 
     public async Task ReloadActiveRunsAsync(CancellationToken cancellationToken = default)
@@ -488,5 +494,77 @@ public partial class MainViewModel : ObservableObject
         };
 
         await _auditLogRepository.AppendEventAsync(audit);
+    }
+
+    private async Task<Workspace> EnsureWorkspaceExistsAsync(CancellationToken cancellationToken = default)
+    {
+        var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId, cancellationToken);
+        if (workspace is not null)
+        {
+            workspace.Path = string.IsNullOrWhiteSpace(workspace.Path) ? Environment.CurrentDirectory : workspace.Path;
+            workspace.Name = string.IsNullOrWhiteSpace(workspace.Name) ? "Takomi Code Workspace" : workspace.Name;
+            workspace.IsAttached = true;
+            await _workspaceRepository.SaveWorkspaceAsync(workspace, cancellationToken);
+            return workspace;
+        }
+
+        workspace = new Workspace
+        {
+            Id = DefaultWorkspaceId,
+            Name = "Takomi Code Workspace",
+            Path = Environment.CurrentDirectory,
+            IsAttached = true
+        };
+
+        await _workspaceRepository.SaveWorkspaceAsync(workspace, cancellationToken);
+        return workspace;
+    }
+
+    private void UpdateBagsState(Workspace? workspace)
+    {
+        BagsTokenAddress = workspace?.BagsTokenAddress ?? string.Empty;
+        IsVerificationReady = workspace?.IsVerificationReady ?? false;
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task LinkBagsTokenAsync()
+    {
+        if (string.IsNullOrWhiteSpace(BagsTokenAddress))
+        {
+            StatusMessage = "Enter a Bags token address before linking.";
+            return;
+        }
+
+        StatusMessage = "Linking Bags token...";
+        try
+        {
+            var trimmedTokenAddress = BagsTokenAddress.Trim();
+            await _bagsService.LinkTokenToWorkspaceAsync(DefaultWorkspaceId, trimmedTokenAddress);
+            var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+            UpdateBagsState(workspace);
+            StatusMessage = "Bags token linked successfully.";
+            await CheckVerificationReadinessAsync();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Bags token linking failed: {ex.Message}";
+        }
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task CheckVerificationReadinessAsync()
+    {
+        StatusMessage = "Checking Bags verification readiness...";
+        try
+        {
+            await _bagsService.CheckVerificationReadinessAsync(DefaultWorkspaceId);
+            var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+            UpdateBagsState(workspace);
+            StatusMessage = "Verification readiness updated.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Bags check failed: {ex.Message}";
+        }
     }
 }

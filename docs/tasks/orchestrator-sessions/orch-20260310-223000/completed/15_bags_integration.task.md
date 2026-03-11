@@ -28,10 +28,10 @@ Implement Bags token linkage, Bags API interactions, and verification-readiness 
 
 ## Definition of Done
 
-- [ ] A project can store Bags token linkage metadata
-- [ ] Planned Bags API calls are implemented behind a service boundary
-- [ ] Verification readiness is visible in the UI
-- [ ] Bags-related state changes are logged
+- [x] A project can store Bags token linkage metadata
+- [x] Planned Bags API calls are implemented behind a service boundary
+- [x] Verification readiness is visible in the UI
+- [x] Bags-related state changes are logged
 
 ## Expected Artifacts
 

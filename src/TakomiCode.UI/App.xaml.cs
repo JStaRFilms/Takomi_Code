@@ -32,6 +32,7 @@ public partial class App : Application
                 services.AddSingleton<TakomiCode.Application.Contracts.Services.IInterventionCommandHandler, TakomiCode.Application.Services.InterventionCommandHandler>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Services.IGitService, TakomiCode.Infrastructure.Services.GitService>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Services.IBillingService, TakomiCode.Infrastructure.Services.PaystackMockBillingService>();
+                services.AddSingleton<TakomiCode.Application.Contracts.Services.IBagsService, TakomiCode.Infrastructure.Services.BagsService>();
             })
             .Build();
 

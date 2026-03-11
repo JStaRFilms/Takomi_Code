@@ -191,7 +191,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Project-scoped chats, child session inheritance, transcript restore, and billing state are handled through local repositories and service adapters." VerticalAlignment="Center" />
+                <TextBlock Text="Project-scoped chats, child session inheritance, transcript restore, billing state, and Bags verification state are handled through local repositories and service adapters." VerticalAlignment="Center" />
 
                 <StackPanel Grid.Column="1" Spacing="6">
                     <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
@@ -209,6 +209,16 @@
                         <TextBlock Text="{Binding PendingBillingReference}" FontFamily="Consolas" />
                         <TextBlock Text="Checkout URL:" Opacity="0.7" />
                         <TextBlock Text="{Binding BillingCheckoutUrl}" MaxWidth="320" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" Margin="0,4,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <TextBlock Text="Bags Verif:" Opacity="0.7" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding VerificationStatusText}" FontWeight="SemiBold" Foreground="{ThemeResource SystemAccentColorLight2}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBox Text="{Binding BagsTokenAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="180" Height="28" Padding="4,2" FontSize="12" PlaceholderText="Bags Token Address" />
+                        <Button Content="Link Token" Command="{Binding LinkBagsTokenCommand}" Padding="12,4" />
+                        <Button Content="Check Readiness" Command="{Binding CheckVerificationReadinessCommand}" Padding="12,4" />
                     </StackPanel>
                 </StackPanel>
             </Grid>
