@@ -31,10 +31,10 @@ Build the task-graph orchestration engine that can generate, run, monitor, and s
 
 ## Definition of Done
 
-- [ ] Parent-child run trees are modeled and persisted
-- [ ] Dependencies between tasks are tracked
-- [ ] Background child execution is supported
-- [ ] Artifacts and results can be attached to tasks and runs
+- [x] Parent-child run trees are modeled and persisted
+- [x] Dependencies between tasks are tracked
+- [x] Background child execution is supported
+- [x] Artifacts and results can be attached to tasks and runs
 
 ## Expected Artifacts
 
