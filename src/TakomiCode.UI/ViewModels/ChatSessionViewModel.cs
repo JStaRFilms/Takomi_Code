@@ -71,6 +71,19 @@ public partial class ChatSessionViewModel : ObservableObject
         };
         return child;
     }
+
+    public void UpdateWorktreePath(string? worktreePath)
+    {
+        if (_entity.WorktreePath == worktreePath)
+        {
+            return;
+        }
+
+        _entity.WorktreePath = worktreePath;
+        _entity.UpdatedAt = DateTimeOffset.UtcNow;
+        OnPropertyChanged(nameof(WorktreePath));
+        OnPropertyChanged(nameof(UpdatedAt));
+    }
     
     public ChatSession GetEntity() => _entity;
 }

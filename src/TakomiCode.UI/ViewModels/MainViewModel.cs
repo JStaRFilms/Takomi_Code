@@ -13,6 +13,8 @@ public partial class MainViewModel : ObservableObject
     private readonly IWorkspaceRepository _workspaceRepository;
     private readonly IOrchestrationRepository _orchestrationRepository;
     private readonly TakomiCode.Application.Contracts.Services.IInterventionCommandHandler _interventionCommandHandler;
+    private readonly TakomiCode.Application.Contracts.Services.IGitService _gitService;
+    private readonly IAuditLogRepository _auditLogRepository;
 
     [ObservableProperty]
     private string _statusMessage = "Welcome to Takomi Code Orchestrator";
@@ -32,16 +34,32 @@ public partial class MainViewModel : ObservableObject
     public string CurrentSessionTitle => SelectedSession?.Title ?? "No session selected";
     public string CurrentSessionWorktree => SelectedSession?.WorktreePath ?? "Same workspace / default worktree";
 
+    [ObservableProperty]
+    private string _currentGitBranch = "unknown";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(GitDirtyIndicator))]
+    private bool _isGitDirty;
+
+    public string GitDirtyIndicator => IsGitDirty ? "*" : string.Empty;
+
+    [ObservableProperty]
+    private string _targetWorktreePath = string.Empty;
+
     public MainViewModel(
         IChatSessionRepository chatSessionRepository,
         IWorkspaceRepository workspaceRepository,
         IOrchestrationRepository orchestrationRepository,
-        TakomiCode.Application.Contracts.Services.IInterventionCommandHandler interventionCommandHandler)
+        TakomiCode.Application.Contracts.Services.IInterventionCommandHandler interventionCommandHandler,
+        TakomiCode.Application.Contracts.Services.IGitService gitService,
+        IAuditLogRepository auditLogRepository)
     {
         _chatSessionRepository = chatSessionRepository;
         _workspaceRepository = workspaceRepository;
         _orchestrationRepository = orchestrationRepository;
         _interventionCommandHandler = interventionCommandHandler;
+        _gitService = gitService;
+        _auditLogRepository = auditLogRepository;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
@@ -139,7 +157,7 @@ public partial class MainViewModel : ObservableObject
         StatusMessage = $"Saved transcript for '{SelectedSession.Title}'";
     }
 
-    partial void OnSelectedSessionChanged(ChatSessionViewModel? value)
+    async partial void OnSelectedSessionChanged(ChatSessionViewModel? value)
     {
         OnPropertyChanged(nameof(CurrentSessionTitle));
         OnPropertyChanged(nameof(CurrentSessionWorktree));
@@ -147,7 +165,17 @@ public partial class MainViewModel : ObservableObject
         if (value is not null)
         {
             StatusMessage = $"Active session: {value.Title}";
+            await RefreshGitStateAsync();
         }
+    }
+
+    private async Task RefreshGitStateAsync()
+    {
+        if (SelectedSession is null) return;
+        var path = await GetSelectedWorkspacePathAsync();
+        var state = await _gitService.GetCurrentStateAsync(path);
+        CurrentGitBranch = state.BranchName;
+        IsGitDirty = state.IsDirty;
     }
 
     private async Task PersistNewSessionAsync(ChatSession session, CancellationToken cancellationToken)
@@ -216,5 +244,162 @@ public partial class MainViewModel : ObservableObject
         {
             StatusMessage = $"Action '{action}' failed: {ex.Message}";
         }
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task CreateWorktreeAsync()
+    {
+        if (SelectedSession is null)
+        {
+            StatusMessage = "Select a session before creating a worktree.";
+            return;
+        }
+
+        var sourcePath = await GetSelectedWorkspacePathAsync();
+        var worktreeName = $"wt-{Guid.NewGuid().ToString().Substring(0, 8)}";
+        var branchName = $"branch-{worktreeName}";
+
+        try
+        {
+            var newPath = await _gitService.CreateWorktreeAsync(sourcePath, worktreeName, branchName);
+            TargetWorktreePath = newPath;
+            await AppendWorkspaceAuditAsync("workspace.worktree_created", $"Created worktree '{newPath}' on branch '{branchName}'.");
+            await SwitchWorktreeInternallyAsync(newPath, "Create Worktree");
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Create worktree failed: {ex.Message}";
+        }
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    private async Task SwitchWorktreeAsync()
+    {
+        if (SelectedSession is null)
+        {
+            StatusMessage = "Select a session before switching worktrees.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(TargetWorktreePath))
+        {
+            StatusMessage = "Enter a target worktree path.";
+            return;
+        }
+
+        try
+        {
+            await _gitService.EnsureWorktreeIsValidAsync(TargetWorktreePath);
+            await SwitchWorktreeInternallyAsync(TargetWorktreePath, "Switch Worktree");
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Switch worktree failed: {ex.Message}";
+        }
+    }
+
+    private async Task SwitchWorktreeInternallyAsync(string targetWorktreePath, string reason)
+    {
+        if (SelectedSession is null)
+        {
+            return;
+        }
+
+        var oldWorktreePath = SelectedSession.WorktreePath;
+        var subtreeSessions = GetSessionSubtree(SelectedSession.Id);
+
+        foreach (var session in subtreeSessions)
+        {
+            if (session.Id != SelectedSession.Id
+                && !string.Equals(session.WorktreePath, oldWorktreePath, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            session.UpdateWorktreePath(targetWorktreePath);
+            await _chatSessionRepository.SaveSessionAsync(session.GetEntity());
+        }
+
+        var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+        if (workspace is not null)
+        {
+            workspace.CurrentWorktreePath = targetWorktreePath;
+            await _workspaceRepository.SaveWorkspaceAsync(workspace);
+        }
+
+        await AppendWorkspaceAuditAsync(
+            "workspace.worktree_switched",
+            $"{reason}: Switched subtree rooted at '{SelectedSession.Title}' to '{targetWorktreePath}' ({subtreeSessions.Count} session(s) updated).");
+
+        TargetWorktreePath = targetWorktreePath;
+        OnPropertyChanged(nameof(CurrentSessionWorktree));
+        await RefreshGitStateAsync();
+        StatusMessage = $"Switched session to worktree '{targetWorktreePath}'";
+    }
+
+    private async Task<string> GetSelectedWorkspacePathAsync()
+    {
+        if (SelectedSession?.WorktreePath is { Length: > 0 } worktreePath)
+        {
+            return worktreePath;
+        }
+
+        var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+        return workspace?.CurrentWorktreePath
+            ?? workspace?.Path
+            ?? Environment.CurrentDirectory;
+    }
+
+    private List<ChatSessionViewModel> GetSessionSubtree(string rootSessionId)
+    {
+        var sessionsByParent = Sessions
+            .Where(session => !string.IsNullOrWhiteSpace(session.ParentSessionId))
+            .GroupBy(session => session.ParentSessionId!)
+            .ToDictionary(group => group.Key, group => group.ToList());
+
+        var result = new List<ChatSessionViewModel>();
+        var queue = new Queue<string>();
+        queue.Enqueue(rootSessionId);
+
+        while (queue.Count > 0)
+        {
+            var currentId = queue.Dequeue();
+            var currentSession = Sessions.FirstOrDefault(session => session.Id == currentId);
+            if (currentSession is null)
+            {
+                continue;
+            }
+
+            result.Add(currentSession);
+            if (!sessionsByParent.TryGetValue(currentId, out var children))
+            {
+                continue;
+            }
+
+            foreach (var child in children)
+            {
+                queue.Enqueue(child.Id);
+            }
+        }
+
+        return result;
+    }
+
+    private async Task AppendWorkspaceAuditAsync(string eventType, string description)
+    {
+        if (SelectedSession is null)
+        {
+            return;
+        }
+
+        var audit = new TakomiCode.Domain.Events.AuditEvent
+        {
+            SessionId = SelectedSession.Id,
+            WorkspaceId = DefaultWorkspaceId,
+            EventType = eventType,
+            Description = description
+        };
+
+        await _auditLogRepository.AppendEventAsync(audit);
     }
 }
