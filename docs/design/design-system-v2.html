@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi Code - Design System v2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            v2: {
+              bg: '#050505',
+              surface: '#0F0F11',
+              elevated: '#18181A',
+              accent: '#00E59B', /* Vibrant Emerald/Neon Green */
+              accentHover: '#00F0A3',
+              text: '#F4F4F5',
+              textMuted: '#A1A1AA',
+              border: '#ffffff12',
+              danger: '#FF4A6B',
+              warning: '#FBBF24',
+              success: '#00E59B',
+            }
+          },
+          boxShadow: {
+            'glow-accent': '0 0 20px -5px rgba(0, 229, 155, 0.4)',
+            'glow-danger': '0 0 20px -5px rgba(255, 74, 107, 0.4)',
+            'glass': '0 4px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
+            'inner-glow': 'inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050505;
+      color: #F4F4F5;
+      /* Subtle ambient background glow */
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 229, 155, 0.05), transparent 30%),
+        radial-gradient(circle at 90% 80%, rgba(0, 229, 155, 0.03), transparent 30%);
+      background-attachment: fixed;
+    }
+    .glass-panel {
+      background: linear-gradient(135deg, rgba(24, 24, 26, 0.6) 0%, rgba(15, 15, 17, 0.8) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body class="min-h-screen p-10 antialiased selection:bg-v2-accent selection:text-black">
+  <div class="max-w-6xl mx-auto space-y-16">
+    
+    <!-- Header -->
+    <header class="flex flex-col items-center text-center space-y-4 pt-10 pb-6">
+      <div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-v2-surface to-v2-elevated border border-v2-border shadow-glass flex items-center justify-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-v2-accent opacity-10 blur-xl"></div>
+        <svg class="w-8 h-8 text-v2-accent relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+      </div>
+      <div>
+        <h1 class="text-4xl font-bold tracking-tight mb-2">Takomi Code <span class="text-v2-accent font-light">v2</span></h1>
+        <p class="text-v2-textMuted text-lg font-medium">Modern / Fluid / Glassmorphic / Rounded</p>
+      </div>
+    </header>
+
+    <!-- Colors -->
+    <section>
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+        <svg class="w-6 h-6 text-v2-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
+        Color Palette
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+        <div class="glass-panel p-5 rounded-3xl text-center group transition-transform hover:-translate-y-1">
+          <div class="h-16 w-full rounded-2xl bg-v2-bg border border-v2-border shadow-inner mb-4 transition-all group-hover:shadow-[inset_0_0_20px_rgba(255,255,255,0.05)]"></div>
+          <span class="text-sm font-semibold block text-v2-text">Background</span>
+          <span class="text-xs text-v2-textMuted">#050505</span>
+        </div>
+        <div class="glass-panel p-5 rounded-3xl text-center group transition-transform hover:-translate-y-1">
+          <div class="h-16 w-full rounded-2xl bg-v2-surface border border-v2-border shadow-inner mb-4"></div>
+          <span class="text-sm font-semibold block text-v2-text">Surface</span>
+          <span class="text-xs text-v2-textMuted">#0F0F11</span>
+        </div>
+        <div class="glass-panel p-5 rounded-3xl text-center group transition-transform hover:-translate-y-1 relative">
+          <div class="absolute -inset-1 bg-v2-accent blur-xl opacity-20 rounded-3xl group-hover:opacity-40 transition-opacity"></div>
+          <div class="h-16 w-full rounded-2xl bg-v2-accent mb-4 shadow-glow-accent relative z-10 transition-transform group-hover:scale-105"></div>
+          <span class="text-sm font-semibold block text-v2-accent relative z-10">Accent Neon</span>
+          <span class="text-xs text-v2-textMuted relative z-10">#00E59B</span>
+        </div>
+        <div class="glass-panel p-5 rounded-3xl text-center group transition-transform hover:-translate-y-1 relative">
+           <div class="absolute -inset-1 bg-v2-danger blur-xl opacity-10 rounded-3xl group-hover:opacity-30 transition-opacity"></div>
+          <div class="h-16 w-full rounded-2xl bg-v2-danger mb-4 shadow-glow-danger relative z-10"></div>
+          <span class="text-sm font-semibold block text-v2-danger relative z-10">Danger</span>
+          <span class="text-xs text-v2-textMuted relative z-10">#FF4A6B</span>
+        </div>
+        <div class="glass-panel p-5 rounded-3xl text-center group transition-transform hover:-translate-y-1">
+          <div class="h-16 w-full rounded-2xl bg-v2-warning mb-4 shadow-glow"></div>
+          <span class="text-sm font-semibold block text-v2-warning">Warning</span>
+          <span class="text-xs text-v2-textMuted">#FBBF24</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section>
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+         <svg class="w-6 h-6 text-v2-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 011-1v1a2 2 0 104 0V4z" /></svg>
+        Typography
+      </h2>
+      <div class="glass-panel p-10 rounded-[40px] space-y-8">
+        <div>
+          <h1 class="text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/50">Display Bold</h1>
+          <p class="text-sm text-v2-textMuted mt-2 font-mono">Plus Jakarta Sans - text-6xl font-bold tracking-tight</p>
+        </div>
+        <div>
+          <h2 class="text-3xl font-semibold text-v2-text">Heading Semibold</h2>
+          <p class="text-sm text-v2-textMuted mt-1 font-mono">Plus Jakarta Sans - text-3xl font-semibold</p>
+        </div>
+        <div class="max-w-2xl">
+          <p class="text-base text-v2-textMuted leading-relaxed">
+            Body text. Meticulously crafted for extended readability and modern flair. It utilizes generous line height and a subtle off-white mute color to reduce eye strain against the pure dark background, allowing the neon accents to pop beautifully.
+          </p>
+          <p class="text-sm text-v2-text/50 mt-2 font-mono">text-base text-v2-textMuted leading-relaxed</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- UI Elements -->
+    <section>
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+         <svg class="w-6 h-6 text-v2-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
+        Components & Controls
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Interactive Elements -->
+        <div class="space-y-6 glass-panel p-8 rounded-[32px]">
+          <h3 class="text-xs uppercase tracking-[0.2em] font-bold text-v2-textMuted mb-6">Interactive</h3>
+          
+          <div class="flex flex-wrap items-center gap-4">
+            <!-- Primary Button -->
+            <button class="relative group">
+              <div class="absolute -inset-0.5 bg-gradient-to-r from-v2-accent to-[#00F0FF] rounded-full blur opacity-50 group-hover:opacity-100 transition duration-300"></div>
+              <div class="relative px-8 py-3 bg-v2-accent hover:bg-v2-accentHover rounded-full text-black font-bold tracking-wide transition-all shadow-inner-glow flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                Primary Action
+              </div>
+            </button>
+
+            <!-- Secondary Button -->
+            <button class="px-8 py-3 bg-v2-surface border border-v2-border hover:border-v2-accent/50 hover:bg-v2-elevated rounded-full font-semibold transition-all hover:shadow-[0_0_15px_rgba(0,229,155,0.15)] text-v2-text">
+              Secondary
+            </button>
+          </div>
+
+          <!-- Segmented Control -->
+          <div class="inline-flex p-1.5 bg-v2-bg border border-v2-border rounded-full shadow-glass mt-4">
+            <button class="px-6 py-2 rounded-full bg-v2-elevated text-white font-medium shadow-sm border border-v2-border/50">Runtime</button>
+            <button class="px-6 py-2 rounded-full text-v2-textMuted hover:text-white font-medium transition-colors">Logs</button>
+            <button class="px-6 py-2 rounded-full text-v2-textMuted hover:text-white font-medium transition-colors">Config</button>
+          </div>
+
+          <!-- Input -->
+          <div class="mt-4 relative group">
+             <div class="absolute -inset-0.5 bg-v2-accent rounded-full blur opacity-0 group-focus-within:opacity-30 transition duration-300"></div>
+             <div class="relative flex items-center bg-v2-bg border border-v2-border rounded-full px-5 py-3 shadow-inner">
+               <svg class="w-5 h-5 text-v2-textMuted mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+               <input type="text" placeholder="Search workflows or commands..." class="bg-transparent border-none outline-none w-full text-sm text-white placeholder-v2-textMuted font-medium">
+             </div>
+          </div>
+        </div>
+
+        <!-- Task Nodes / Activity -->
+        <div class="space-y-6 glass-panel p-8 rounded-[32px]">
+          <h3 class="text-xs uppercase tracking-[0.2em] font-bold text-v2-textMuted mb-6">Task Node States</h3>
+          
+          <div class="space-y-3">
+            <!-- Running Node -->
+            <div class="relative p-4 rounded-2xl bg-v2-elevated border border-v2-accent/30 flex items-center gap-4 overflow-hidden group hover:border-v2-accent transition-colors">
+              <div class="absolute inset-0 bg-gradient-to-r from-v2-accent/5 to-transparent"></div>
+              
+              <div class="relative w-10 h-10 rounded-full bg-v2-accent/10 border border-v2-accent/50 flex items-center justify-center shrink-0">
+                <div class="w-4 h-4 rounded-full border-2 border-v2-accent border-t-transparent animate-spin"></div>
+                <div class="absolute inset-0 rounded-full shadow-glow-accent opacity-50"></div>
+              </div>
+              
+              <div class="relative flex-1">
+                <h4 class="font-semibold text-white">Generating React Components</h4>
+                <p class="text-xs text-v2-accent mt-1 font-medium tracking-wide shadow-sm">RUNNING • 12s</p>
+              </div>
+              
+              <button class="relative w-8 h-8 rounded-full bg-v2-bg border border-v2-border flex items-center justify-center hover:bg-v2-surface hover:text-v2-accent transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+              </button>
+            </div>
+
+            <!-- Blocked/Intervention Node -->
+            <div class="relative p-4 rounded-2xl bg-v2-bg border border-v2-danger/40 flex flex-col gap-3 group">
+              <div class="absolute inset-0 bg-gradient-to-r from-v2-danger/5 to-transparent rounded-2xl"></div>
+              
+              <div class="relative flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-v2-danger/10 border border-v2-danger/50 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 text-v2-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-v2-danger">Human Intervention Required</h4>
+                  <p class="text-xs text-v2-textMuted mt-1">Missing API token in environment variables.</p>
+                </div>
+              </div>
+              
+              <div class="relative flex gap-2 pl-14">
+                <button class="px-4 py-2 bg-v2-danger/10 text-v2-danger hover:bg-v2-danger hover:text-white border border-v2-danger/30 rounded-full text-xs font-bold tracking-wide transition-all shadow-[0_0_10px_rgba(255,74,107,0)] hover:shadow-glow-danger">
+                  PROVIDE TOKEN
+                </button>
+                <button class="px-4 py-2 bg-v2-surface text-v2-textMuted hover:text-white border border-v2-border rounded-full text-xs font-semibold transition-all">
+                  SKIP
+                </button>
+              </div>
+            </div>
+
+            <!-- Success Node -->
+            <div class="relative p-4 rounded-2xl bg-v2-surface border border-transparent flex items-center gap-4 opacity-75 hover:opacity-100 transition-opacity">
+               <div class="w-10 h-10 rounded-full bg-v2-success/10 border border-v2-success/30 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 text-v2-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+               </div>
+               <div>
+                  <h4 class="font-medium text-v2-text strike line-through decoration-v2-textMuted/50 text-v2-textMuted">Analyze User Request</h4>
+                  <p class="text-xs text-v2-success opacity-80 mt-1 font-mono">COMPLETE • 0.8s</p>
+               </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

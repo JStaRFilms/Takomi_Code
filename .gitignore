@@ -15,9 +15,13 @@ __pycache__/
 venv/
 .venv/
 .env
+.env.local
+.env.*.local
 *.pkl
 *.pth
 *.safetensors
+*.pem
+*.key
 
 # --- Node / Web ---
 node_modules/
@@ -32,3 +36,7 @@ coverage/
 .vscode/
 .idea/
 *.swp
+
+# --- .NET ---
+bin/
+obj/

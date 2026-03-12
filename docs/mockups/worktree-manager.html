@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi Code - Worktree Manager v5</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {
+        fontFamily: { sans: ['"Segoe UI Variable Display"', '"Segoe UI"', 'Inter', 'sans-serif'], mono: ['"Cascadia Code"', '"JetBrains Mono"', 'monospace'] },
+        colors: { v5: { bg: '#141414', surface: '#1F1F1F', elevated: '#282828', accent: '#FFB900', accentHover: '#E5A600', accentMuted: '#FFB90022', text: '#F3F3F3', textMuted: '#888888', border: '#333333', borderSubtle: '#ffffff0A', danger: '#D13438', success: '#10893E', warning: '#FCE100' } },
+        boxShadow: { 'win-drop': '0 8px 32px rgba(0,0,0,0.6)', 'win-focus': '0 0 0 2px #141414, 0 0 0 4px #FFB900', 'win-card': '0 2px 8px rgba(0,0,0,0.3)' }
+      } }
+    }
+  </script>
+  <style>
+    body { background-color: #141414; color: #F3F3F3; font-family: 'Segoe UI Variable Display', 'Segoe UI', Inter, sans-serif; }
+    
+    .studio-acrylic { background: rgba(31, 31, 31, 0.7); backdrop-filter: blur(60px) saturate(140%); -webkit-backdrop-filter: blur(60px) saturate(140%); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+    .win-illuminated-border { position: relative; }
+    .win-illuminated-border::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.05) 100%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+    
+    .win-press:active { transform: scale(0.98); opacity: 0.85; transition: all 0.05s ease; }
+    
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #444; border-radius: 5px; border: 2px solid #141414; }
+    ::-webkit-scrollbar-thumb:hover { background: #666; }
+  </style>
+</head>
+<body class="h-screen flex items-center justify-center p-8 relative overflow-hidden">
+  
+  <!-- Faded Background Context -->
+  <div class="absolute inset-0 z-0 opacity-20 pointer-events-none filter blur-sm">
+      <div class="h-16 w-full border-b border-v5-border bg-[#1A1A1A]"></div>
+      <div class="flex h-full">
+          <div class="w-16 border-r border-v5-border bg-[#1F1F1F]"></div>
+          <div class="flex-1 bg-v5-bg"></div>
+      </div>
+  </div>
+
+  <!-- Worktree Manager Modal Overlayer -->
+  <div class="w-full max-w-2xl bg-[#1A1A1A] rounded-xl border border-v5-border shadow-win-drop win-illuminated-border flex flex-col z-20 max-h-[85vh]">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 flex items-center justify-between border-b border-v5-border bg-gradient-to-b from-[#1F1F1F] to-[#1A1A1A] rounded-t-xl">
+          <div class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-v5-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+              <div>
+                  <h2 class="text-sm font-semibold text-white">Worktree Manager</h2>
+                  <p class="text-[10px] text-v5-textMuted font-mono mt-0.5">C:\CreativeOS\01_Projects\Code\Takomi_Code</p>
+              </div>
+          </div>
+          <button class="w-6 h-6 rounded hover:bg-white/10 flex items-center justify-center text-v5-textMuted hover:text-white win-press transition-colors">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="px-6 py-3 border-b border-v5-border bg-black/20 flex items-center justify-between">
+          <p class="text-[11px] font-semibold text-v5-textMuted uppercase tracking-widest">Active Links: 2 / 5 Allowed</p>
+          <button class="px-3 py-1 bg-[#141414] hover:bg-white/5 border border-v5-border rounded text-xs font-semibold text-white win-press transition-colors flex items-center gap-2">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+              Create Manual Link
+          </button>
+      </div>
+
+      <!-- Worktree List -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-v5-bg rounded-b-xl">
+          
+          <!-- Parent Base Tree -->
+          <div class="bg-[#1F1F1F] border border-v5-border rounded-lg p-4 flex items-center justify-between win-illuminated-border opacity-70">
+              <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                      <svg class="w-4 h-4 text-v5-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                  </div>
+                  <div>
+                      <h4 class="text-xs font-semibold text-white flex items-center gap-2">
+                          Base Repository <span class="bg-[#141414] border border-v5-border px-1.5 py-0.5 rounded text-[10px] text-v5-textMuted font-mono">main</span>
+                      </h4>
+                      <p class="text-[10px] text-v5-textMuted font-mono mt-0.5">/C/CreativeOS/01_Projects/Code/Takomi_Code</p>
+                  </div>
+              </div>
+              <span class="text-[10px] text-v5-textMuted uppercase font-semibold border border-v5-border bg-[#141414] px-1.5 py-0.5 rounded">Host</span>
+          </div>
+
+          <!-- Active Linked Worktree -->
+          <div class="bg-[#1A1A1A] border border-v5-accent rounded-lg p-4 flex items-center justify-between relative shadow-[0_0_15px_rgba(255,185,0,0.05)] overflow-hidden">
+              <div class="absolute left-0 top-0 bottom-0 w-1 bg-v5-accent"></div>
+              
+              <div class="flex items-start gap-3 pl-2">
+                  <div class="w-8 h-8 rounded-full bg-v5-accentMuted flex items-center justify-center border border-v5-accent/50 text-v5-accent mt-1">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                  </div>
+                  <div>
+                      <div class="flex items-center gap-2">
+                          <h4 class="text-sm font-semibold text-white">ws-a8b2</h4>
+                          <span class="bg-v5-accent/20 border border-v5-accent/50 text-v5-accent px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase">Locked</span>
+                      </div>
+                      <p class="text-xs text-v5-textMuted mt-1">Orchestrator Session: orch-20260310-223000</p>
+                      
+                      <div class="mt-3 bg-[#141414] border border-v5-border rounded p-2 text-[10px] font-mono text-v5-textMuted inline-flex flex-col gap-1">
+                          <span class="flex gap-2"><b>Branch:</b> agent/ws-a8b2</span>
+                          <span class="flex gap-2"><b>Path:</b> .takomi/worktrees/ws-a8b2</span>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Controls -->
+              <div class="flex flex-col gap-2">
+                  <button class="px-3 py-1.5 bg-[#141414] hover:bg-white/5 border border-v5-border rounded text-xs font-semibold text-white win-press transition-colors text-center shadow-sm pointer-events-none opacity-50" disabled>
+                      Delete
+                  </button>
+                  <button class="px-3 py-1.5 bg-[#141414] hover:bg-white/5 border border-v5-border rounded text-xs font-semibold text-white win-press transition-colors text-center shadow-sm">
+                      Open Folder
+                  </button>
+              </div>
+          </div>
+
+          <!-- Orphaned / Inactive Worktree -->
+          <div class="bg-[#1F1F1F] border border-v5-border hover:border-white/20 rounded-lg p-4 flex items-center justify-between transition-colors win-illuminated-border">
+              <div class="flex items-start gap-3 pl-2">
+                  <div class="w-8 h-8 rounded-full bg-[#141414] flex items-center justify-center border border-v5-border mt-1">
+                      <svg class="w-4 h-4 text-v5-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                  </div>
+                  <div>
+                      <div class="flex items-center gap-2">
+                          <h4 class="text-sm font-semibold text-white">ws-f7c1</h4>
+                          <span class="bg-[#141414] border border-v5-border text-v5-textMuted px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase">Idle</span>
+                      </div>
+                      <p class="text-xs text-v5-textMuted mt-1">Status: Unclaimed / Orphaned</p>
+                      
+                      <div class="mt-3 bg-[#141414] border border-v5-border rounded p-2 text-[10px] font-mono text-v5-textMuted inline-flex flex-col gap-1">
+                          <span class="flex gap-2"><b>Branch:</b> agent/ws-f7c1</span>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Controls -->
+              <div class="flex flex-col gap-2">
+                  <button class="px-3 py-1.5 bg-v5-danger hover:bg-[#A32A2D] rounded text-xs font-semibold text-white win-press transition-colors text-center shadow-sm">
+                      Delete
+                  </button>
+              </div>
+          </div>
+
+      </div>
+  </div>
+
+</body>
+</html>

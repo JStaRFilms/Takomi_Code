@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi Code - Design System v5 (Graphite Complete)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Segoe UI Variable Display"', '"Segoe UI"', 'Inter', 'sans-serif'],
+            mono: ['"Cascadia Code"', '"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            v5: {
+              bg: '#141414',
+              surface: '#1F1F1F',
+              elevated: '#282828',
+              accent: '#FFB900',  
+              accentHover: '#E5A600',
+              accentMuted: '#FFB90022',
+              text: '#F3F3F3',
+              textMuted: '#888888',
+              border: '#333333',     
+              borderSubtle: '#ffffff0A',
+              danger: '#D13438',     
+              success: '#10893E',
+              warning: '#FCE100',
+            }
+          },
+          boxShadow: {
+            'win-drop': '0 8px 32px rgba(0,0,0,0.6)',
+            'win-focus': '0 0 0 2px #141414, 0 0 0 4px #FFB900',
+            'win-card': '0 2px 8px rgba(0,0,0,0.3)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #141414;
+      color: #F3F3F3;
+      background-image: 
+        radial-gradient(circle at top right, rgba(255, 185, 0, 0.03), transparent 40%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+    }
+
+    .studio-acrylic {
+      background: rgba(31, 31, 31, 0.7);
+      backdrop-filter: blur(60px) saturate(140%);
+      -webkit-backdrop-filter: blur(60px) saturate(140%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    
+    .win-illuminated-border {
+      position: relative;
+    }
+    .win-illuminated-border::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      /* Gradient that simulates cursor-tracking light */
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.05) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .win-press:active {
+      transform: scale(0.98);
+      opacity: 0.85;
+      transition: all 0.05s ease;
+    }
+
+    .focus-ring:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px #141414, 0 0 0 4px #FFB900;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #444; border-radius: 5px; border: 2px solid #141414; }
+    ::-webkit-scrollbar-thumb:hover { background: #666; }
+  </style>
+</head>
+<body class="min-h-screen p-10 antialiased selection:bg-v5-accent selection:text-black font-sans">
+  
+  <div class="max-w-6xl mx-auto space-y-16 relative z-10 pb-20">
+    
+    <!-- Header -->
+    <header class="flex flex-col items-start pt-8 pb-4 border-b border-v5-border">
+      <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-lg studio-acrylic flex items-center justify-center shadow-win-drop win-illuminated-border">
+            <svg class="w-6 h-6 text-v5-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" /></svg>
+          </div>
+          <div>
+              <h1 class="text-3xl font-semibold tracking-tight text-white m-0 leading-tight">Takomi Code <span class="text-v5-textMuted font-normal ml-2 text-xl">v5 Graphite Complete</span></h1>
+              <p class="text-sm text-v5-textMuted m-0 mt-1">Pro Studio / Windows 11 Sun Valley / High Density</p>
+          </div>
+      </div>
+    </header>
+
+    <!-- UI Core Components -->
+    <section>
+      <h2 class="text-sm uppercase tracking-wider font-semibold text-v5-textMuted mb-6">1. Core Primitives</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Palette Summary -->
+        <div class="col-span-1 md:col-span-2 lg:col-span-3">
+          <div class="grid grid-cols-5 gap-4 mb-4">
+            <div class="h-10 rounded bg-v5-bg border border-v5-border flex items-center justify-center text-[10px] text-white">Mica</div>
+            <div class="h-10 rounded bg-v5-surface border border-v5-border flex items-center justify-center text-[10px] text-white">Acrylic</div>
+            <div class="h-10 rounded bg-v5-accent text-black font-semibold flex items-center justify-center text-[10px]">Amber</div>
+            <div class="h-10 rounded bg-v5-danger text-white flex items-center justify-center text-[10px]">Critical</div>
+            <div class="h-10 rounded bg-v5-success text-white flex items-center justify-center text-[10px]">Success</div>
+          </div>
+        </div>
+
+        <!-- Typography -->
+        <div class="space-y-4 studio-acrylic p-6 rounded-[12px] win-illuminated-border">
+          <h3 class="text-xs uppercase text-v5-textMuted font-semibold mb-4">Typography</h3>
+          <h1 class="text-4xl font-semibold leading-tight">Large Title</h1>
+          <h2 class="text-2xl font-semibold leading-tight">Header Standard</h2>
+          <h3 class="text-lg font-medium text-white/90">Section Title</h3>
+          <p class="text-sm text-v5-textMuted leading-relaxed">Standard body text at 14px. Used for descriptions, logs, and general UI text fitting the high-density paradigm under Segoe UI standards.</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="space-y-6 studio-acrylic p-6 rounded-[12px] win-illuminated-border">
+            <h3 class="text-xs uppercase text-v5-textMuted font-semibold mb-2">Buttons</h3>
+            <div class="flex flex-col gap-3">
+                <button class="px-5 py-1.5 bg-v5-accent hover:bg-v5-accentHover text-black text-sm font-semibold rounded win-press focus-ring transition-colors shadow-sm w-full text-left">
+                    Execute Agent
+                </button>
+                <button class="px-5 py-1.5 bg-white/5 hover:bg-white/10 text-white text-sm font-medium rounded border border-white/10 win-press focus-ring transition-colors win-illuminated-border w-full text-left">
+                    Secondary Control
+                </button>
+                <button class="px-5 py-1.5 bg-transparent hover:bg-white/5 text-v5-textMuted hover:text-white text-sm font-medium rounded win-press transition-colors w-full text-left">
+                    Subtle Operation
+                </button>
+                <button class="px-5 py-1.5 bg-v5-danger hover:opacity-90 text-white text-sm font-medium rounded win-press transition-colors w-full flex justify-between items-center shadow-sm">
+                    Destructive Action
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Inputs & Forms -->
+        <div class="space-y-4 studio-acrylic p-6 rounded-[12px] win-illuminated-border">
+            <h3 class="text-xs uppercase text-v5-textMuted font-semibold mb-2">Forms</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-v5-textMuted mb-1">Standard Input</label>
+                    <div class="relative rounded group border border-v5-border bg-[rgba(26,26,26,0.5)] overflow-hidden focus-within:border-white/20 transition-colors">
+                        <input type="text" placeholder="Value..." class="w-full bg-transparent px-3 py-1.5 text-sm text-white outline-none">
+                        <div class="absolute bottom-0 left-0 right-0 h-[2px] bg-v5-accent scale-x-0 group-focus-within:scale-x-100 transition-transform origin-left duration-200"></div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-v5-textMuted mb-1">Dropdown Area</label>
+                    <button class="w-full flex justify-between items-center bg-[rgba(26,26,26,0.5)] border border-white/10 rounded px-3 py-1.5 text-sm text-white win-press win-illuminated-border">
+                        <span>Worktree: ws_omega</span>
+                        <svg class="w-4 h-4 text-v5-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                </div>
+                <!-- Toggle -->
+                <div class="flex items-center justify-between pt-2">
+                    <span class="text-sm text-white">Auto-Routing</span>
+                    <div class="w-10 h-5 bg-v5-accent rounded-full border border-transparent relative cursor-pointer win-press">
+                        <div class="absolute right-[1px] top-[1px] bottom-[1px] w-4 bg-black rounded-full shadow-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+        <h2 class="text-sm uppercase tracking-wider font-semibold text-v5-textMuted mb-6">3. Orchestration Nodes (Task Graph Hierarchy)</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="studio-acrylic p-3 rounded-lg border border-v5-border shadow-win-card win-illuminated-border flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-v5-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    <span class="text-xs font-semibold text-white">Success Node</span>
+                </div>
+            </div>
+
+            <div class="studio-acrylic p-3 rounded-lg border border-v5-accent shadow-win-card bg-v5-accentMuted win-illuminated-border flex flex-col gap-2 relative overflow-hidden">
+                <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-v5-accent opacity-50"></div>
+                <div class="flex items-center gap-2">
+                    <!-- Amber Ring -->
+                    <svg class="animate-spin w-4 h-4 text-v5-accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span class="text-xs font-semibold text-white">Running Check</span>
+                </div>
+            </div>
+
+            <div class="studio-acrylic p-3 rounded-lg border border-v5-danger shadow-sm bg-v5-danger/10 win-illuminated-border flex flex-col gap-2 relative">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-v5-danger rounded-l-lg"></div>
+                <div class="flex items-center gap-2 pl-2">
+                    <svg class="w-4 h-4 text-v5-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    <span class="text-xs font-semibold text-white">Blocked Required</span>
+                </div>
+            </div>
+
+            <div class="studio-acrylic p-3 rounded-lg border border-v5-border border-dashed opacity-60 flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 border border-v5-textMuted rounded-full"></div>
+                    <span class="text-xs font-medium text-white line-through decoration-v5-textMuted">Pending Operation</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+  </div>
+</body>
+</html>

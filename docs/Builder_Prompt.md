@@ -35,12 +35,9 @@ Takomi Code is a WinUI 3 desktop application that wraps Codex CLI with the Takom
 18. FR-018: Recovery workflows
 
 ## Mandatory Mockup-Driven Implementation
-
-The `/docs/mockups` folder is the source of truth for front-end behavior and information architecture during v0.001.
-
-- Do not improvise a different shell layout once mockups are approved.
-- If implementation pressure reveals a mismatch, update the design docs first, then build.
-- Keep the final WinUI shell faithful to the approved structure, interaction model, and visual hierarchy.
+The `/docs/mockups` folder is the **UNQUESTIONABLE source of truth** for all front-end UI/UX.
+You must NOT deviate from the layout, color palette, typography, or component structure defined in the mockups.
+Before implementing any page, open the corresponding mockup file and replicate it exactly.
 
 ## Special Considerations
 
