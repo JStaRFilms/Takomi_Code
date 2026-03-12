@@ -133,7 +133,6 @@ public class PaystackMockBillingService : IBillingService
     {
         var auditEvent = new AuditEvent
         {
-            SessionId = "system",
             WorkspaceId = projectId,
             EventType = eventType,
             Description = description

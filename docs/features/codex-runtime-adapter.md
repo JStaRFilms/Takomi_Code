@@ -24,10 +24,10 @@ Implements the local Windows runtime path. The adapter:
 - falls back to the Windows command shell for `.cmd` and `.bat` shims
 - emits structured lifecycle state changes
 - captures stdout and stderr as runtime output events
-- appends lifecycle events to the audit log repository
+- appends lifecycle events to the audit log repository with workspace/session/run/chat correlation metadata
 
 ### `CodexCloudAdapter`
-Implements a mock/proxy for remote execution. This allows for cloud-based orchestration without altering shell logic. It mirrors the local runtime semantics (events, output, interventions) but targets a remote environment.
+Implements a mock/proxy for remote execution. This allows for cloud-based orchestration without altering shell logic. It mirrors the local runtime semantics (events, output, interventions) but targets a remote environment and now pauses active work instead of only emitting paused state.
 
 ### `WorkspaceAwareCodexRuntimeAdapter`
 A delegating facade that routes execution to either the Local or Cloud adapter based on the workspace's `RuntimeTarget` setting. This ensures that the `OrchestratorExecutionEngine` and UI remain target-agnostic.
@@ -54,7 +54,8 @@ flowchart TD
 
 ## Current Behavior
 - Runtime state transitions are emitted as `Starting`, `Running`, `Completed`, `Failed`, `Cancelled`, or `Paused`.
-- Lifecycle transitions are mirrored into audit events using `runtime.*` (Local) or `runtime.cloud.*` (Cloud) event types.
+- `CodexRunRequest` carries `WorkspaceId`, orchestration `SessionId`, `RunId`, and optional `ChatSessionId` so both runtime adapters can emit coherent audit trails.
+- Lifecycle transitions are mirrored into audit events using `runtime.*` (Local) or `runtime.cloud.*` (Cloud) event types with the same correlation identifiers across producers.
 - Windows shell mediation is adapter-local and does not leak into UI logic.
 - Runtime target can be switched per workspace, persisting the selection.
 

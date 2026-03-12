@@ -1,0 +1,52 @@
+{
+  "date": "2026-03-12",
+  "mode": "FULL_SCAN",
+  "target": ".",
+  "rulesVersion": "security-audit-v1",
+  "summary": {
+    "filesScanned": 13,
+    "findings": 3,
+    "critical": 0,
+    "high": 0,
+    "warning": 3,
+    "info": 0,
+    "ignored": 0
+  },
+  "findings": [
+    {
+      "ruleId": "QLT-001",
+      "title": "console.log in committed code",
+      "severity": "WARNING",
+      "category": "QUALITY",
+      "file": ".agent/skills/stitch/react-components/scripts/validate.js",
+      "line": 29,
+      "message": "console.log left in source can leak noisy or sensitive runtime details.",
+      "recommendation": "Remove ad-hoc console logging or route the message through the project logger.",
+      "source": "deterministic"
+    },
+    {
+      "ruleId": "QLT-001",
+      "title": "console.log in committed code",
+      "severity": "WARNING",
+      "category": "QUALITY",
+      "file": ".agent/skills/stitch/react-components/scripts/validate.js",
+      "line": 41,
+      "message": "console.log left in source can leak noisy or sensitive runtime details.",
+      "recommendation": "Remove ad-hoc console logging or route the message through the project logger.",
+      "source": "deterministic"
+    },
+    {
+      "ruleId": "QLT-001",
+      "title": "console.log in committed code",
+      "severity": "WARNING",
+      "category": "QUALITY",
+      "file": ".agent/skills/stitch/shadcn-ui/examples/form-pattern.tsx",
+      "line": 62,
+      "message": "console.log left in source can leak noisy or sensitive runtime details.",
+      "recommendation": "Remove ad-hoc console logging or route the message through the project logger.",
+      "source": "deterministic"
+    }
+  ],
+  "ignoredFindings": [],
+  "recommendedAction": "Audit passed with warnings. Triage the 3 warning(s) for follow-up work."
+}

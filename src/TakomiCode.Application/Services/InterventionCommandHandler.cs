@@ -117,11 +117,21 @@ public class InterventionCommandHandler : IInterventionCommandHandler
 
     private async Task AppendAuditEventAsync(OrchestrationRun run, string eventType, string description, CancellationToken cancellationToken)
     {
+        var workspaceId = run.WorkspaceId;
+        if (string.IsNullOrWhiteSpace(workspaceId))
+        {
+            var session = await _orchestrationRepository.GetSessionAsync(run.SessionId, cancellationToken);
+            workspaceId = session?.WorkspaceId;
+        }
+
         await _auditLogRepository.AppendEventAsync(new AuditEvent
         {
             EventType = eventType,
             Description = description,
-            SessionId = run.SessionId
+            SessionId = run.SessionId,
+            WorkspaceId = workspaceId,
+            RunId = run.RunId,
+            ChatSessionId = run.ChatSessionId
         }, cancellationToken);
     }
 

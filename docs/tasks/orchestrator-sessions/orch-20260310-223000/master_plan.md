@@ -71,8 +71,8 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 | 14 | Billing and entitlements | Pending | `vibe-code` | `/vibe-build` | `takomi`, `sync-docs` |
 | 15 | Bags integration | Pending | `vibe-code` | `/vibe-build` | `takomi`, `sync-docs` |
 | 16 | Cloud runtime | Pending | `vibe-code` | `/vibe-build` | `takomi`, `sync-docs` |
-| 17 | Quality gate | Pending | `vibe-review` | `/mode-review` | `takomi`, `code-review`, `jstar-reviewer`, `security-audit` |
-| 18 | Fix loop | Pending | `vibe-debug` -> `vibe-code` | `/vibe-continueBuild` | `takomi`, `sync-docs` |
+| 17 | Quality gate | Completed | `vibe-review` | `/mode-review` | `takomi`, `code-review`, `jstar-reviewer`, `security-audit` |
+| 18 | Fix loop | Completed | `vibe-debug` -> `vibe-code` | `/vibe-continueBuild` | `takomi`, `sync-docs` |
 | 19 | Final handoff | Pending | `vibe-architect` | `/vibe-finalize` | `takomi`, `sync-docs` |
 
 ## Progress Checklist
@@ -85,7 +85,7 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 - [ ] Build foundation complete
 - [ ] Orchestration features complete
 - [ ] Payments and Bags integrations complete
-- [ ] Review and fix loop complete
+- [x] Review and fix loop complete
 - [ ] Final handoff complete
 
 ## Scope Guardrails

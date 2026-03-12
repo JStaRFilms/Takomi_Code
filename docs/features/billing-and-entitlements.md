@@ -20,3 +20,5 @@ Provide a Paystack-oriented billing success path that is concrete enough for dem
 ## Audit Trail
 - `billing.checkout_started`
 - `billing.entitlement_activated`
+
+Billing audit events are workspace-scoped. The billing service no longer writes a synthetic `"system"` session id, which keeps billing records queryable alongside orchestration/runtime events without overloading session identity.

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using TakomiCode.Application.Contracts.Persistence;
 using TakomiCode.Domain.Entities;
+using TaskStatus = TakomiCode.Domain.Entities.TaskStatus;
 
 namespace TakomiCode.Infrastructure.Persistence;
 

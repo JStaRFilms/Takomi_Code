@@ -19,7 +19,7 @@ Represents a top-level orchestration wave for a workspace. The session stores th
 Tracks a single orchestrated task file, its dependencies, target mode, optional parent task, optional execution command, execution runs, and attached artifacts.
 
 ### `OrchestrationRun`
-Represents a concrete task execution attempt. Runs can point to a parent run to model parent-child execution trees and can also link to the child chat session created for that run.
+Represents a concrete task execution attempt. Runs can point to a parent run to model parent-child execution trees, persist the owning workspace id for later correlation, and can also link to the child chat session created for that run.
 
 ### `OrchestratorExecutionEngine`
 The engine:
@@ -47,10 +47,12 @@ flowchart LR
 ## Current Behavior
 - Parent-child task relationships can be modeled through `ParentTaskId`.
 - Parent-child run relationships can be modeled through `ParentRunId`.
+- Run creation now snapshots `WorkspaceId` onto the run so background execution and later interventions do not need to reach back into transient session scope.
+- Runtime dispatch forwards workspace, orchestration session, run, and child chat session identifiers into the Codex runtime request so downstream audit events stay queryable across adapters.
 - Dependency-blocked tasks remain blocked until `BackgroundMonitorRunsAsync(...)` sees their prerequisites complete.
 - Result documents and other artifacts can be attached to a task/run pair explicitly.
 - Result file path derivation stays aligned with the existing `docs/tasks/.../*.task.md` to `*.result.md` convention.
 
 ## Constraints
 - The engine remains the state owner for task graph execution.
-- Full compile and runtime verification is still blocked until the .NET SDK is installed and `dotnet build` can be executed.
+- Verification is expected to include `dotnet build` across the affected projects because the engine depends on compile-time propagation of runtime correlation data.

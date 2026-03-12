@@ -12,5 +12,6 @@ Allow the shell and orchestration engine to switch between local and cloud Codex
 ## Data Flow
 - **Target Selection**: The shell updates `Workspace.RuntimeTarget` when the user switches between local and cloud execution.
 - **Run Start**: `WorkspaceAwareCodexRuntimeAdapter` resolves the correct adapter for the workspace and records the runtime target used for that run.
-- **Run Control**: Cancellation and interventions are routed back to the runtime that actually owns the run, even if the workspace target is changed while the run is active.
+- **Run Control**: Cancellation and interventions are routed back to the runtime that actually owns the run, even if the workspace target is changed while the run is active. Cloud `Pause` now suspends the active mock loop and `Resume` releases it, instead of only changing state.
 - **Shape Parity**: Both local and cloud paths emit shared `ICodexRuntimeAdapter` events and `CodexRunResult` shapes so orchestration code remains unchanged.
+- **Audit Correlation**: Cloud lifecycle events now preserve the same workspace, orchestration session, run, and child chat session identifiers used by the local adapter.

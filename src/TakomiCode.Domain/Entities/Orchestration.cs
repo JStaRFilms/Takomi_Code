@@ -19,6 +19,7 @@ public class OrchestrationRun
 {
     public string RunId { get; set; } = Guid.NewGuid().ToString();
     public string SessionId { get; set; } = string.Empty;
+    public string? WorkspaceId { get; set; }
     public string TaskId { get; set; } = string.Empty;
     public string? ParentRunId { get; set; }
     public string? ChatSessionId { get; set; } // Identifies the linked ChatSession

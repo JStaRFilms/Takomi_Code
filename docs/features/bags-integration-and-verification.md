@@ -15,5 +15,8 @@ Provide a demo-safe Bags flow that supports token linkage, service-isolated veri
 - **Readiness Check**: The user requests verification readiness -> `CheckVerificationReadinessAsync()` simulates a Bags API-style readiness check from the stored token -> workspace readiness is persisted -> `bags.verification_checked` is appended.
 - **Shell Restore**: On app startup, the workspace record is restored before shell state is loaded, so Bags token linkage and readiness survive restarts.
 
+## Audit Correlation
+Bags events remain workspace-scoped and do not overload orchestration or chat session ids. This keeps verification readiness checks queryable beside runtime, intervention, and billing events by shared workspace correlation.
+
 ## Scope Guardrail
 - Fee-sharing, payouts, and marketplace revenue logic remain explicitly out of scope.

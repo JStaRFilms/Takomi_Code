@@ -44,6 +44,30 @@ public class LocalAuditLogRepository : IAuditLogRepository
             .ToList();
     }
 
+    public async Task<IEnumerable<AuditEvent>> GetEventsByWorkspaceIdAsync(string workspaceId, CancellationToken cancellationToken = default)
+    {
+        await EnsureLoadedAsync(cancellationToken);
+        return _events!
+            .Where(e => e.WorkspaceId == workspaceId)
+            .Select(Clone)
+            .Where(e => e is not null)!
+            .Cast<AuditEvent>()
+            .OrderBy(e => e.Timestamp)
+            .ToList();
+    }
+
+    public async Task<IEnumerable<AuditEvent>> GetEventsByRunIdAsync(string runId, CancellationToken cancellationToken = default)
+    {
+        await EnsureLoadedAsync(cancellationToken);
+        return _events!
+            .Where(e => e.RunId == runId)
+            .Select(Clone)
+            .Where(e => e is not null)!
+            .Cast<AuditEvent>()
+            .OrderBy(e => e.Timestamp)
+            .ToList();
+    }
+
     private async Task EnsureLoadedAsync(CancellationToken cancellationToken)
     {
         if (_events is not null)

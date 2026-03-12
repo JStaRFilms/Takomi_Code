@@ -141,6 +141,7 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
         var run = new OrchestrationRun
         {
             SessionId = session.SessionId,
+            WorkspaceId = session.WorkspaceId,
             TaskId = task.Id,
             ParentRunId = parentRunId,
             ChatSessionId = childChatSession.Id,
@@ -302,13 +303,22 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
             run.Status = TaskStatus.InProgress;
             await _orchestrationRepository.SaveRunAsync(run, cancellationToken);
 
+            var workspaceId = run.WorkspaceId;
+            if (string.IsNullOrWhiteSpace(workspaceId))
+            {
+                var session = await _orchestrationRepository.GetSessionAsync(run.SessionId, cancellationToken);
+                workspaceId = session?.WorkspaceId;
+            }
+
             var runtimeResult = await _codexRuntimeAdapter.StartRunAsync(
                 new CodexRunRequest
                 {
                     RunId = run.RunId,
                     WorkingDirectory = run.WorkingDirectory ?? Environment.CurrentDirectory,
                     Command = task.ExecutionCommand,
-                    WorkspaceId = session.WorkspaceId
+                    WorkspaceId = workspaceId,
+                    SessionId = run.SessionId,
+                    ChatSessionId = run.ChatSessionId
                 },
                 cancellationToken);
 

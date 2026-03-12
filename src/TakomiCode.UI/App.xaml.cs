@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace TakomiCode.UI;
 
-public partial class App : Application
+public partial class App : Microsoft.UI.Xaml.Application
 {
     public static IHost? Host { get; private set; }
 

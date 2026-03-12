@@ -16,6 +16,7 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
 
     private readonly IAuditLogRepository _auditLogRepository;
     private readonly ConcurrentDictionary<string, Process> _runningProcesses = new();
+    private readonly ConcurrentDictionary<string, AuditContext> _runAuditContexts = new();
     private readonly ConcurrentDictionary<string, byte> _cancelledRuns = new();
 
     public CodexCliAdapter(IAuditLogRepository auditLogRepository)
@@ -25,13 +26,16 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
 
     public async Task<CodexRunResult> StartRunAsync(CodexRunRequest request, CancellationToken cancellationToken = default)
     {
+        var auditContext = AuditContext.FromRequest(request);
+        _runAuditContexts[request.RunId] = auditContext;
+
         var validationError = ValidateRequest(request);
         if (validationError is not null)
         {
-            return await FailRunAsync(request.RunId, validationError, cancellationToken);
+            return await FailRunAsync(request.RunId, validationError, auditContext, cancellationToken);
         }
 
-        await EmitStateAsync(request.RunId, CodexRuntimeState.Starting, cancellationToken: cancellationToken);
+        await EmitStateAsync(request.RunId, CodexRuntimeState.Starting, auditContext: auditContext, cancellationToken: cancellationToken);
 
         Process? process = null;
         CancellationTokenRegistration cancellationRegistration = default;
@@ -46,6 +50,7 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
                 return await FailRunAsync(
                     request.RunId,
                     "Codex CLI is not installed or not available on PATH",
+                    auditContext,
                     cancellationToken);
             }
 
@@ -104,6 +109,7 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
                 request.RunId,
                 CodexRuntimeState.Running,
                 details: $"Launched '{Path.GetFileName(codexExecutable)}'",
+                auditContext: auditContext,
                 cancellationToken: cancellationToken);
 
             await process.WaitForExitAsync(CancellationToken.None);
@@ -113,7 +119,11 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
         {
             _cancelledRuns[request.RunId] = 0;
             TryTerminateProcess(process);
-            await EmitStateAsync(request.RunId, CodexRuntimeState.Cancelled, cancellationToken: CancellationToken.None);
+            await EmitStateAsync(
+                request.RunId,
+                CodexRuntimeState.Cancelled,
+                auditContext: auditContext,
+                cancellationToken: CancellationToken.None);
             return new CodexRunResult
             {
                 RunId = request.RunId,
@@ -122,12 +132,13 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
         }
         catch (Exception ex)
         {
-            return await FailRunAsync(request.RunId, ex.Message, CancellationToken.None);
+            return await FailRunAsync(request.RunId, ex.Message, auditContext, CancellationToken.None);
         }
         finally
         {
             cancellationRegistration.Dispose();
             _runningProcesses.TryRemove(request.RunId, out _);
+            _runAuditContexts.TryRemove(request.RunId, out _);
             process?.Dispose();
         }
     }
@@ -144,6 +155,7 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
             runId,
             CodexRuntimeState.Cancelled,
             details: "Cancellation requested for an inactive run",
+            auditContext: TryGetAuditContext(runId),
             cancellationToken: cancellationToken);
     }
 
@@ -171,6 +183,7 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
                 runId,
                 CodexRuntimeState.Cancelled,
                 details: "Run cancelled before completion",
+                auditContext: TryGetAuditContext(runId),
                 cancellationToken: cancellationToken);
 
             return new CodexRunResult
@@ -183,7 +196,8 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
 
         if (!string.IsNullOrWhiteSpace(authFailureMessage))
         {
-            await EmitStateAsync(runId, CodexRuntimeState.Failed, authFailureMessage, cancellationToken);
+            var auditContext = TryGetAuditContext(runId);
+            await EmitStateAsync(runId, CodexRuntimeState.Failed, authFailureMessage, auditContext, cancellationToken);
             return new CodexRunResult
             {
                 RunId = runId,
@@ -199,6 +213,7 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
                 runId,
                 CodexRuntimeState.Completed,
                 details: "Process exited successfully",
+                auditContext: TryGetAuditContext(runId),
                 cancellationToken: cancellationToken);
 
             return new CodexRunResult
@@ -210,7 +225,7 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
         }
 
         var errorMessage = BuildExecutionFailureMessage(exitCode, errorLines);
-        await EmitStateAsync(runId, CodexRuntimeState.Failed, errorMessage, cancellationToken);
+        await EmitStateAsync(runId, CodexRuntimeState.Failed, errorMessage, TryGetAuditContext(runId), cancellationToken);
 
         return new CodexRunResult
         {
@@ -221,9 +236,13 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
         };
     }
 
-    private async Task<CodexRunResult> FailRunAsync(string runId, string errorMessage, CancellationToken cancellationToken)
+    private async Task<CodexRunResult> FailRunAsync(
+        string runId,
+        string errorMessage,
+        AuditContext? auditContext,
+        CancellationToken cancellationToken)
     {
-        await EmitStateAsync(runId, CodexRuntimeState.Failed, errorMessage, cancellationToken);
+        await EmitStateAsync(runId, CodexRuntimeState.Failed, errorMessage, auditContext, cancellationToken);
         return new CodexRunResult
         {
             RunId = runId,
@@ -236,18 +255,23 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
         string runId,
         CodexRuntimeState state,
         string? details = null,
+        AuditContext? auditContext = null,
         CancellationToken cancellationToken = default)
     {
         StateChanged?.Invoke(this, new CodexRuntimeStateEventArgs(runId, state, details));
 
         try
         {
+            var resolvedAuditContext = auditContext ?? TryGetAuditContext(runId);
             await _auditLogRepository.AppendEventAsync(
                 new AuditEvent
                 {
                     EventType = $"runtime.{state.ToString().ToLowerInvariant()}",
                     Description = details ?? state.ToString(),
-                    SessionId = runId
+                    SessionId = resolvedAuditContext?.SessionId,
+                    WorkspaceId = resolvedAuditContext?.WorkspaceId,
+                    RunId = resolvedAuditContext?.RunId ?? runId,
+                    ChatSessionId = resolvedAuditContext?.ChatSessionId
                 },
                 cancellationToken);
         }
@@ -276,6 +300,12 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
         }
 
         return null;
+    }
+
+    private AuditContext? TryGetAuditContext(string runId)
+    {
+        _runAuditContexts.TryGetValue(runId, out var auditContext);
+        return auditContext;
     }
 
     private static string ResolveWorkingDirectory(string? workingDirectory)
@@ -422,5 +452,24 @@ public class CodexCliAdapter : ICodexRuntimeAdapter
         }
 
         return $"Process exited with code {exitCode}: {detail}";
+    }
+
+    private sealed class AuditContext
+    {
+        public string? WorkspaceId { get; init; }
+        public string? SessionId { get; init; }
+        public string? ChatSessionId { get; init; }
+        public string RunId { get; init; } = string.Empty;
+
+        public static AuditContext FromRequest(CodexRunRequest request)
+        {
+            return new AuditContext
+            {
+                WorkspaceId = request.WorkspaceId,
+                SessionId = request.SessionId,
+                ChatSessionId = request.ChatSessionId,
+                RunId = request.RunId
+            };
+        }
     }
 }

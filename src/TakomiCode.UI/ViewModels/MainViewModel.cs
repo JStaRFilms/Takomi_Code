@@ -517,8 +517,8 @@ public partial class MainViewModel : ObservableObject
 
         var audit = new TakomiCode.Domain.Events.AuditEvent
         {
-            SessionId = SelectedSession.Id,
             WorkspaceId = DefaultWorkspaceId,
+            ChatSessionId = SelectedSession.Id,
             EventType = eventType,
             Description = description
         };

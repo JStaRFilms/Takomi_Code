@@ -8,4 +8,6 @@ public class AuditEvent
     public string Description { get; set; } = string.Empty;
     public string? SessionId { get; set; }
     public string? WorkspaceId { get; set; }
+    public string? RunId { get; set; }
+    public string? ChatSessionId { get; set; }
 }
