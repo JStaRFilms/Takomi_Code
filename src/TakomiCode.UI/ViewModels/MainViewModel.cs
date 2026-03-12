@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Linq;
+using TakomiCode.Application.Configuration;
 using TakomiCode.Application.Contracts.Persistence;
 using TakomiCode.Domain.Entities;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -8,7 +9,7 @@ namespace TakomiCode.UI.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    private const string DefaultWorkspaceId = "workspace-default";
+    private readonly string _workspaceId;
     private readonly IChatSessionRepository _chatSessionRepository;
     private readonly IWorkspaceRepository _workspaceRepository;
     private readonly IOrchestrationRepository _orchestrationRepository;
@@ -97,6 +98,7 @@ public partial class MainViewModel : ObservableObject
         TakomiCode.Application.Contracts.Services.IBillingService billingService,
         TakomiCode.Application.Contracts.Services.IBagsService bagsService)
     {
+        _workspaceId = WorkspaceDefaults.ResolveWorkspaceId();
         _chatSessionRepository = chatSessionRepository;
         _workspaceRepository = workspaceRepository;
         _orchestrationRepository = orchestrationRepository;
@@ -112,7 +114,7 @@ public partial class MainViewModel : ObservableObject
         var workspace = await EnsureWorkspaceExistsAsync(cancellationToken);
 
         var sessions = (await _chatSessionRepository
-            .GetSessionsByWorkspaceAsync(DefaultWorkspaceId, cancellationToken))
+            .GetSessionsByWorkspaceAsync(_workspaceId, cancellationToken))
             .Select(session => new ChatSessionViewModel(session))
             .OrderByDescending(session => session.UpdatedAt)
             .ToList();
@@ -152,7 +154,7 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+        var workspace = await _workspaceRepository.GetWorkspaceAsync(_workspaceId);
         if (workspace != null && workspace.RuntimeTarget != value)
         {
             workspace.RuntimeTarget = normalizedValue;
@@ -175,7 +177,7 @@ public partial class MainViewModel : ObservableObject
     {
         var session = new ChatSession
         {
-            WorkspaceId = DefaultWorkspaceId,
+            WorkspaceId = _workspaceId,
             Title = title ?? $"Project Chat {Sessions.Count + 1}"
         };
 
@@ -310,8 +312,8 @@ public partial class MainViewModel : ObservableObject
 
     private async Task LoadBillingStateAsync(CancellationToken cancellationToken = default)
     {
-        var entitlement = await _billingService.GetEntitlementAsync(DefaultWorkspaceId, cancellationToken);
-        var pendingCheckout = await _billingService.GetPendingCheckoutAsync(DefaultWorkspaceId, cancellationToken);
+        var entitlement = await _billingService.GetEntitlementAsync(_workspaceId, cancellationToken);
+        var pendingCheckout = await _billingService.GetPendingCheckoutAsync(_workspaceId, cancellationToken);
         UpdateBillingState(entitlement);
         UpdatePendingCheckoutState(pendingCheckout);
     }
@@ -336,8 +338,8 @@ public partial class MainViewModel : ObservableObject
         try
         {
             StatusMessage = "Initiating Paystack checkout...";
-            var url = await _billingService.CreateCheckoutSessionAsync(DefaultWorkspaceId, BillingEmail);
-            var pendingCheckout = await _billingService.GetPendingCheckoutAsync(DefaultWorkspaceId);
+            var url = await _billingService.CreateCheckoutSessionAsync(_workspaceId, BillingEmail);
+            var pendingCheckout = await _billingService.GetPendingCheckoutAsync(_workspaceId);
             UpdatePendingCheckoutState(pendingCheckout);
             StatusMessage = $"Checkout session started. Complete Paystack checkout at: {url}";
         }
@@ -358,7 +360,7 @@ public partial class MainViewModel : ObservableObject
 
         try
         {
-            var entitlement = await _billingService.ActivateEntitlementAsync(DefaultWorkspaceId, PendingBillingReference);
+            var entitlement = await _billingService.ActivateEntitlementAsync(_workspaceId, PendingBillingReference);
             UpdateBillingState(entitlement);
             UpdatePendingCheckoutState(null);
             StatusMessage = "Paystack checkout success recorded. Pro tier activated.";
@@ -443,7 +445,7 @@ public partial class MainViewModel : ObservableObject
             await _chatSessionRepository.SaveSessionAsync(session.GetEntity());
         }
 
-        var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+        var workspace = await _workspaceRepository.GetWorkspaceAsync(_workspaceId);
         if (workspace is not null)
         {
             workspace.CurrentWorktreePath = targetWorktreePath;
@@ -467,7 +469,7 @@ public partial class MainViewModel : ObservableObject
             return worktreePath;
         }
 
-        var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+        var workspace = await _workspaceRepository.GetWorkspaceAsync(_workspaceId);
         return workspace?.CurrentWorktreePath
             ?? workspace?.Path
             ?? Environment.CurrentDirectory;
@@ -517,7 +519,7 @@ public partial class MainViewModel : ObservableObject
 
         var audit = new TakomiCode.Domain.Events.AuditEvent
         {
-            WorkspaceId = DefaultWorkspaceId,
+            WorkspaceId = _workspaceId,
             ChatSessionId = SelectedSession.Id,
             EventType = eventType,
             Description = description
@@ -528,7 +530,7 @@ public partial class MainViewModel : ObservableObject
 
     private async Task<Workspace> EnsureWorkspaceExistsAsync(CancellationToken cancellationToken = default)
     {
-        var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId, cancellationToken);
+        var workspace = await _workspaceRepository.GetWorkspaceAsync(_workspaceId, cancellationToken);
         if (workspace is not null)
         {
             workspace.Path = string.IsNullOrWhiteSpace(workspace.Path) ? Environment.CurrentDirectory : workspace.Path;
@@ -541,7 +543,7 @@ public partial class MainViewModel : ObservableObject
 
         workspace = new Workspace
         {
-            Id = DefaultWorkspaceId,
+            Id = _workspaceId,
             Name = "Takomi Code Workspace",
             Path = Environment.CurrentDirectory,
             IsAttached = true
@@ -577,8 +579,8 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var trimmedTokenAddress = BagsTokenAddress.Trim();
-            await _bagsService.LinkTokenToWorkspaceAsync(DefaultWorkspaceId, trimmedTokenAddress);
-            var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+            await _bagsService.LinkTokenToWorkspaceAsync(_workspaceId, trimmedTokenAddress);
+            var workspace = await _workspaceRepository.GetWorkspaceAsync(_workspaceId);
             UpdateBagsState(workspace);
             StatusMessage = "Bags token linked successfully.";
             await CheckVerificationReadinessAsync();
@@ -595,8 +597,8 @@ public partial class MainViewModel : ObservableObject
         StatusMessage = "Checking Bags verification readiness...";
         try
         {
-            await _bagsService.CheckVerificationReadinessAsync(DefaultWorkspaceId);
-            var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+            await _bagsService.CheckVerificationReadinessAsync(_workspaceId);
+            var workspace = await _workspaceRepository.GetWorkspaceAsync(_workspaceId);
             UpdateBagsState(workspace);
             StatusMessage = "Verification readiness updated.";
         }

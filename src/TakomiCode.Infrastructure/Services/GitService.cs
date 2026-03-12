@@ -41,8 +41,12 @@ public class GitService : IGitService
 
         var normalizedWorkspacePath = Path.GetFullPath(workspacePath);
         var parentDir = Path.GetDirectoryName(normalizedWorkspacePath) ?? normalizedWorkspacePath;
+        var parentDirPath = Path.GetFullPath(parentDir);
         var repoName = Path.GetFileName(normalizedWorkspacePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-        var newPath = Path.Combine(parentDir, $"{repoName}-{worktreeName}");
+        var safeWorktreeName = ValidateWorktreeName(worktreeName);
+        var newPath = Path.GetFullPath(Path.Combine(parentDirPath, $"{repoName}-{safeWorktreeName}"));
+
+        EnsurePathStaysWithinParent(parentDirPath, newPath);
 
         if (Directory.Exists(newPath))
         {
@@ -123,5 +127,45 @@ public class GitService : IGitService
         }
 
         return output;
+    }
+
+    private static string ValidateWorktreeName(string worktreeName)
+    {
+        if (string.IsNullOrWhiteSpace(worktreeName))
+        {
+            throw new InvalidOperationException("Worktree name is required.");
+        }
+
+        var normalizedName = worktreeName.Trim();
+        if (normalizedName is "." or "..")
+        {
+            throw new InvalidOperationException("Worktree name must not be a relative path segment.");
+        }
+
+        if (normalizedName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new InvalidOperationException($"Worktree name contains invalid path characters: {worktreeName}");
+        }
+
+        if (normalizedName.Contains(Path.DirectorySeparatorChar) || normalizedName.Contains(Path.AltDirectorySeparatorChar))
+        {
+            throw new InvalidOperationException("Worktree name must be a single path segment.");
+        }
+
+        return normalizedName;
+    }
+
+    private static void EnsurePathStaysWithinParent(string parentDirPath, string candidatePath)
+    {
+        var relativePath = Path.GetRelativePath(parentDirPath, candidatePath);
+        var escapesParent = relativePath.Equals("..", StringComparison.Ordinal)
+            || relativePath.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+            || relativePath.StartsWith($"..{Path.AltDirectorySeparatorChar}", StringComparison.Ordinal)
+            || Path.IsPathRooted(relativePath);
+
+        if (escapesParent)
+        {
+            throw new InvalidOperationException("Worktree path would escape the repository parent directory.");
+        }
     }
 }

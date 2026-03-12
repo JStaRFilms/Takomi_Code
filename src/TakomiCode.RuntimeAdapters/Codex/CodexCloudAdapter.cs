@@ -8,6 +8,10 @@ using TakomiCode.Domain.Events;
 
 namespace TakomiCode.RuntimeAdapters.Codex;
 
+/// <summary>
+/// Development-only cloud runtime adapter that simulates remote Codex execution.
+/// It does not talk to a real cloud backend and must not be used as a production runtime.
+/// </summary>
 public class CodexCloudAdapter : ICodexRuntimeAdapter
 {
     public event EventHandler<CodexRuntimeStateEventArgs>? StateChanged;
@@ -31,7 +35,7 @@ public class CodexCloudAdapter : ICodexRuntimeAdapter
             await EmitStateAsync(
                 request.RunId,
                 CodexRuntimeState.Starting,
-                "Initiating cloud execution request...",
+                "Initiating mock cloud execution request...",
                 runControl.AuditContext,
                 runControl.CancellationTokenSource.Token);
 
@@ -39,24 +43,24 @@ public class CodexCloudAdapter : ICodexRuntimeAdapter
             await EmitStateAsync(
                 request.RunId,
                 CodexRuntimeState.Running,
-                "Cloud allocation secured. Executing...",
+                "Mock cloud allocation secured. Simulating execution...",
                 runControl.AuditContext,
                 runControl.CancellationTokenSource.Token);
 
-            OutputReceived?.Invoke(this, new CodexRuntimeOutputEventArgs(request.RunId, "[Cloud] Connecting to Takomi Nexus...", false));
+            OutputReceived?.Invoke(this, new CodexRuntimeOutputEventArgs(request.RunId, "[Cloud Mock] Connecting to Takomi Nexus...", false));
             await ControlledDelayAsync(TimeSpan.FromMilliseconds(1000), runControl);
 
             await WaitIfPausedAsync(runControl);
-            OutputReceived?.Invoke(this, new CodexRuntimeOutputEventArgs(request.RunId, $"[Cloud] Executing command: {request.Command}", false));
+            OutputReceived?.Invoke(this, new CodexRuntimeOutputEventArgs(request.RunId, $"[Cloud Mock] Executing command: {request.Command}", false));
             await ControlledDelayAsync(TimeSpan.FromMilliseconds(2000), runControl);
 
             await WaitIfPausedAsync(runControl);
-            OutputReceived?.Invoke(this, new CodexRuntimeOutputEventArgs(request.RunId, "[Cloud] Execution mock complete. Synchronizing output artifacts...", false));
+            OutputReceived?.Invoke(this, new CodexRuntimeOutputEventArgs(request.RunId, "[Cloud Mock] Execution mock complete. Synchronizing output artifacts...", false));
 
             await EmitStateAsync(
                 request.RunId,
                 CodexRuntimeState.Completed,
-                "Cloud execution completed successfully",
+                "Mock cloud execution completed successfully",
                 runControl.AuditContext,
                 runControl.CancellationTokenSource.Token);
 
@@ -72,7 +76,7 @@ public class CodexCloudAdapter : ICodexRuntimeAdapter
             await EmitStateAsync(
                 request.RunId,
                 CodexRuntimeState.Cancelled,
-                "Cloud execution cancelled",
+                "Mock cloud execution cancelled",
                 runControl.AuditContext,
                 CancellationToken.None);
             return new CodexRunResult
@@ -86,7 +90,7 @@ public class CodexCloudAdapter : ICodexRuntimeAdapter
             await EmitStateAsync(
                 request.RunId,
                 CodexRuntimeState.Failed,
-                $"Cloud execution error: {ex.Message}",
+                $"Mock cloud execution error: {ex.Message}",
                 runControl.AuditContext,
                 CancellationToken.None);
             return new CodexRunResult
@@ -141,7 +145,7 @@ public class CodexCloudAdapter : ICodexRuntimeAdapter
                 await EmitStateAsync(
                     runId,
                     CodexRuntimeState.Paused,
-                    "Cloud execution paused via intervention",
+                    "Mock cloud execution paused via intervention",
                     runControl.AuditContext,
                     cancellationToken);
             }
@@ -162,7 +166,7 @@ public class CodexCloudAdapter : ICodexRuntimeAdapter
                 await EmitStateAsync(
                     runId,
                     CodexRuntimeState.Running,
-                    "Cloud execution resumed via intervention",
+                    "Mock cloud execution resumed via intervention",
                     runControl.AuditContext,
                     cancellationToken);
             }

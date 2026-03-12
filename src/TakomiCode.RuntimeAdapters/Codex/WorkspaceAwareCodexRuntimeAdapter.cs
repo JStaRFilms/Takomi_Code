@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using TakomiCode.Application.Configuration;
 using TakomiCode.Application.Contracts.Persistence;
 using TakomiCode.Application.Contracts.Runtime;
 using TakomiCode.Domain.Entities;
@@ -13,7 +14,7 @@ public class WorkspaceAwareCodexRuntimeAdapter : ICodexRuntimeAdapter
     private readonly CodexCliAdapter _localAdapter;
     private readonly CodexCloudAdapter _cloudAdapter;
     private readonly IWorkspaceRepository _workspaceRepository;
-    private const string DefaultWorkspaceId = "workspace-default";
+    private readonly string _defaultWorkspaceId;
     private readonly ConcurrentDictionary<string, string> _runTargets = new();
 
     public event EventHandler<CodexRuntimeStateEventArgs>? StateChanged;
@@ -27,6 +28,7 @@ public class WorkspaceAwareCodexRuntimeAdapter : ICodexRuntimeAdapter
         _localAdapter = localAdapter;
         _cloudAdapter = cloudAdapter;
         _workspaceRepository = workspaceRepository;
+        _defaultWorkspaceId = WorkspaceDefaults.ResolveWorkspaceId();
 
         _localAdapter.StateChanged += (s, e) => StateChanged?.Invoke(this, e);
         _localAdapter.OutputReceived += (s, e) => OutputReceived?.Invoke(this, e);
@@ -37,7 +39,7 @@ public class WorkspaceAwareCodexRuntimeAdapter : ICodexRuntimeAdapter
 
     private async Task<ICodexRuntimeAdapter> GetAdapterAsync(string? workspaceId, CancellationToken cancellationToken)
     {
-        var id = workspaceId ?? DefaultWorkspaceId;
+        var id = string.IsNullOrWhiteSpace(workspaceId) ? _defaultWorkspaceId : workspaceId;
         var workspace = await _workspaceRepository.GetWorkspaceAsync(id, cancellationToken);
         if (workspace != null && string.Equals(workspace.RuntimeTarget, "Cloud", StringComparison.OrdinalIgnoreCase))
         {
@@ -65,7 +67,7 @@ public class WorkspaceAwareCodexRuntimeAdapter : ICodexRuntimeAdapter
             return;
         }
 
-        var adapter = await GetAdapterAsync(DefaultWorkspaceId, cancellationToken);
+        var adapter = await GetAdapterAsync(_defaultWorkspaceId, cancellationToken);
         await adapter.CancelRunAsync(runId, cancellationToken);
     }
 
@@ -77,7 +79,7 @@ public class WorkspaceAwareCodexRuntimeAdapter : ICodexRuntimeAdapter
             return;
         }
 
-        var adapter = await GetAdapterAsync(DefaultWorkspaceId, cancellationToken);
+        var adapter = await GetAdapterAsync(_defaultWorkspaceId, cancellationToken);
         await adapter.SendInterventionAsync(runId, action, payload, cancellationToken);
     }
 

@@ -80,6 +80,8 @@ public class InterventionCommandHandler : IInterventionCommandHandler
                 await _orchestrationRepository.SaveRunAsync(run, cancellationToken);
                 await UpdateTaskStatusAsync(run.TaskId, TaskStatus.InProgress, "Resumed by user intervention.", cancellationToken);
                 break;
+            default:
+                throw new NotSupportedException($"Intervention action '{action}' does not have a defined orchestration state transition.");
         }
     }
 

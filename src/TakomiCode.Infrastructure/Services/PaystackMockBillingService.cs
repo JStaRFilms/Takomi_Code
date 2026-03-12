@@ -6,6 +6,10 @@ using TakomiCode.Domain.Events;
 
 namespace TakomiCode.Infrastructure.Services;
 
+/// <summary>
+/// Development-only billing service that simulates Paystack checkout and entitlement activation.
+/// Billing state is persisted to a local JSON file and no real payment provider is contacted.
+/// </summary>
 public class PaystackMockBillingService : IBillingService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
@@ -58,7 +62,7 @@ public class PaystackMockBillingService : IBillingService
         await AppendAuditEventAsync(
             "billing.checkout_started",
             projectId,
-            $"Started Paystack checkout for project '{projectId}' with reference '{referenceId}'.",
+            $"Started mock Paystack checkout for project '{projectId}' with reference '{referenceId}'.",
             cancellationToken);
 
         return checkoutUrl;
@@ -109,7 +113,7 @@ public class PaystackMockBillingService : IBillingService
         await AppendAuditEventAsync(
             "billing.entitlement_activated",
             projectId,
-            $"Activated Pro entitlement for project '{projectId}' using Paystack reference '{referenceId}'.",
+            $"Activated mock Pro entitlement for project '{projectId}' using Paystack reference '{referenceId}'.",
             cancellationToken);
 
         return Clone(entitlement)!;

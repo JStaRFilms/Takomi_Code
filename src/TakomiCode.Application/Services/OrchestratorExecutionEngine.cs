@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -154,7 +155,7 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
         await _orchestrationRepository.SaveRunAsync(run, cancellationToken);
         await _orchestrationRepository.SaveTaskAsync(task, cancellationToken);
 
-        _ = Task.Run(() => ExecuteRunAsync(task, run, CancellationToken.None), CancellationToken.None);
+        _ = Task.Run(() => ExecuteRunInBackgroundAsync(task.Id, run.RunId), CancellationToken.None);
         return run;
     }
     
@@ -289,6 +290,31 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
         await _orchestrationRepository.SaveSessionAsync(session, cancellationToken);
     }
 
+    private async Task ExecuteRunInBackgroundAsync(string taskId, string runId)
+    {
+        try
+        {
+            var task = await _orchestrationRepository.GetTaskAsync(taskId, CancellationToken.None);
+            if (task == null)
+            {
+                throw new InvalidOperationException($"Task {taskId} not found.");
+            }
+
+            var run = await _orchestrationRepository.GetRunAsync(runId, CancellationToken.None);
+            if (run == null)
+            {
+                throw new InvalidOperationException($"Run {runId} not found.");
+            }
+
+            await ExecuteRunAsync(task, run, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Trace.TraceError($"Background orchestration run '{runId}' failed unexpectedly: {ex}");
+            await TryRecordBackgroundFailureAsync(taskId, runId, ex);
+        }
+    }
+
     private async Task ExecuteRunAsync(OrchestrationTask task, OrchestrationRun run, CancellationToken cancellationToken)
     {
         try
@@ -340,6 +366,53 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
         catch (Exception ex)
         {
             await MarkTaskFailedAsync(task.Id, ex.Message, cancellationToken);
+        }
+    }
+
+    private async Task TryRecordBackgroundFailureAsync(string taskId, string runId, Exception exception)
+    {
+        try
+        {
+            var failedAt = DateTimeOffset.UtcNow;
+
+            var run = await _orchestrationRepository.GetRunAsync(runId, CancellationToken.None);
+            if (run != null)
+            {
+                run.Status = TaskStatus.Failed;
+                run.CompletedAt = failedAt;
+                if (string.IsNullOrWhiteSpace(run.ErrorMessage))
+                {
+                    run.ErrorMessage = exception.Message;
+                }
+
+                await _orchestrationRepository.SaveRunAsync(run, CancellationToken.None);
+            }
+
+            var task = await _orchestrationRepository.GetTaskAsync(taskId, CancellationToken.None);
+            if (task == null)
+            {
+                return;
+            }
+
+            task.Status = TaskStatus.Failed;
+            task.CompletedAt = failedAt;
+
+            var taskRun = task.ExecutionRuns.LastOrDefault(r => string.Equals(r.RunId, runId, StringComparison.Ordinal));
+            if (taskRun != null)
+            {
+                taskRun.Status = TaskStatus.Failed;
+                taskRun.CompletedAt = failedAt;
+                if (string.IsNullOrWhiteSpace(taskRun.ErrorMessage))
+                {
+                    taskRun.ErrorMessage = exception.Message;
+                }
+            }
+
+            await _orchestrationRepository.SaveTaskAsync(task, CancellationToken.None);
+        }
+        catch (Exception persistenceException)
+        {
+            Trace.TraceError($"Failed to persist background orchestration error for run '{runId}': {persistenceException}");
         }
     }
 
