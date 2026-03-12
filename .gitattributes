@@ -1,0 +1,6 @@
+.agent/** linguist-documentation
+docs/** linguist-documentation
+00_Notes/** linguist-documentation
+.jstar/** linguist-generated
+src/**/bin/** linguist-generated
+src/**/obj/** linguist-generated
