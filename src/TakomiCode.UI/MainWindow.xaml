@@ -87,6 +87,12 @@
                         
                         <TextBox PlaceholderText="Enter new worktree path..." Text="{Binding TargetWorktreePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="180" Height="28" Padding="4,2" FontSize="12" />
                         <Button Content="Switch" Command="{Binding SwitchWorktreeCommand}" Padding="8,2" FontSize="10" />
+
+                        <TextBlock Text="Target:" FontSize="12" Opacity="0.7" VerticalAlignment="Center" Margin="8,0,0,0" />
+                        <ComboBox SelectedItem="{Binding RuntimeTarget, Mode=TwoWay}" MinWidth="100" Height="28" Padding="8,2" FontSize="12">
+                            <x:String>Local</x:String>
+                            <x:String>Cloud</x:String>
+                        </ComboBox>
                     </StackPanel>
                 </StackPanel>
 

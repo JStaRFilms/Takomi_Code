@@ -49,6 +49,14 @@ public partial class MainViewModel : ObservableObject
     private string _targetWorktreePath = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCloudTarget))]
+    [NotifyPropertyChangedFor(nameof(IsLocalTarget))]
+    private string _runtimeTarget = "Local";
+
+    public bool IsCloudTarget => RuntimeTarget == "Cloud";
+    public bool IsLocalTarget => RuntimeTarget == "Local";
+
+    [ObservableProperty]
     private bool _isProActive;
 
     [ObservableProperty]
@@ -129,6 +137,28 @@ public partial class MainViewModel : ObservableObject
 
         await LoadBillingStateAsync(cancellationToken);
         UpdateBagsState(workspace);
+        RuntimeTarget = NormalizeRuntimeTarget(workspace.RuntimeTarget);
+    }
+
+    async partial void OnRuntimeTargetChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsCloudTarget));
+        OnPropertyChanged(nameof(IsLocalTarget));
+
+        var normalizedValue = NormalizeRuntimeTarget(value);
+        if (!string.Equals(value, normalizedValue, StringComparison.Ordinal))
+        {
+            RuntimeTarget = normalizedValue;
+            return;
+        }
+
+        var workspace = await _workspaceRepository.GetWorkspaceAsync(DefaultWorkspaceId);
+        if (workspace != null && workspace.RuntimeTarget != value)
+        {
+            workspace.RuntimeTarget = normalizedValue;
+            await _workspaceRepository.SaveWorkspaceAsync(workspace);
+            StatusMessage = $"Runtime target switched to {normalizedValue}";
+        }
     }
 
     public async Task ReloadActiveRunsAsync(CancellationToken cancellationToken = default)
@@ -503,6 +533,7 @@ public partial class MainViewModel : ObservableObject
         {
             workspace.Path = string.IsNullOrWhiteSpace(workspace.Path) ? Environment.CurrentDirectory : workspace.Path;
             workspace.Name = string.IsNullOrWhiteSpace(workspace.Name) ? "Takomi Code Workspace" : workspace.Name;
+            workspace.RuntimeTarget = NormalizeRuntimeTarget(workspace.RuntimeTarget);
             workspace.IsAttached = true;
             await _workspaceRepository.SaveWorkspaceAsync(workspace, cancellationToken);
             return workspace;
@@ -518,6 +549,13 @@ public partial class MainViewModel : ObservableObject
 
         await _workspaceRepository.SaveWorkspaceAsync(workspace, cancellationToken);
         return workspace;
+    }
+
+    private static string NormalizeRuntimeTarget(string? runtimeTarget)
+    {
+        return string.Equals(runtimeTarget, "Cloud", StringComparison.OrdinalIgnoreCase)
+            ? "Cloud"
+            : "Local";
     }
 
     private void UpdateBagsState(Workspace? workspace)

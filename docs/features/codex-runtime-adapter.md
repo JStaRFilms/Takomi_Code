@@ -9,6 +9,8 @@ The Codex runtime adapter isolates local Codex CLI execution from the WinUI shel
 - **Run result model:** `src/TakomiCode.Application/Contracts/Runtime/CodexRunResult.cs`
 - **Lifecycle events:** `src/TakomiCode.Application/Contracts/Runtime/CodexRuntimeStateEventArgs.cs`
 - **Local adapter:** `src/TakomiCode.RuntimeAdapters/Codex/CodexCliAdapter.cs`
+- **Cloud adapter:** `src/TakomiCode.RuntimeAdapters/Codex/CodexCloudAdapter.cs`
+- **Delegating adapter:** `src/TakomiCode.RuntimeAdapters/Codex/WorkspaceAwareCodexRuntimeAdapter.cs`
 
 ## Key Components
 
@@ -24,9 +26,15 @@ Implements the local Windows runtime path. The adapter:
 - captures stdout and stderr as runtime output events
 - appends lifecycle events to the audit log repository
 
+### `CodexCloudAdapter`
+Implements a mock/proxy for remote execution. This allows for cloud-based orchestration without altering shell logic. It mirrors the local runtime semantics (events, output, interventions) but targets a remote environment.
+
+### `WorkspaceAwareCodexRuntimeAdapter`
+A delegating facade that routes execution to either the Local or Cloud adapter based on the workspace's `RuntimeTarget` setting. This ensures that the `OrchestratorExecutionEngine` and UI remain target-agnostic.
+
 ### Failure Handling
 The adapter treats these cases as first-class runtime failures:
-- missing Codex CLI on `PATH`
+- missing Codex CLI on `PATH` (Local)
 - invalid working directory or request payload
 - authentication-related output from Codex
 - non-zero process exit codes
@@ -35,19 +43,22 @@ The adapter treats these cases as first-class runtime failures:
 ## Data Flow
 
 ```mermaid
-flowchart LR
-    A["Shell / Orchestrator"] --> B["ICodexRuntimeAdapter"]
+flowchart TD
+    A["Shell / Orchestrator"] --> B["ICodexRuntimeAdapter (WorkspaceAware)"]
     B --> C["CodexCliAdapter"]
-    C --> D["Codex CLI process"]
-    C --> E["IAuditLogRepository"]
+    B --> D["CodexCloudAdapter"]
+    C --> E["Local Codex CLI"]
+    D --> F["Cloud Runtime Endpoint"]
+    C & D --> G["IAuditLogRepository"]
 ```
 
 ## Current Behavior
-- Runtime state transitions are emitted as `Starting`, `Running`, `Completed`, `Failed`, or `Cancelled`.
-- Lifecycle transitions are mirrored into audit events using `runtime.*` event types.
+- Runtime state transitions are emitted as `Starting`, `Running`, `Completed`, `Failed`, `Cancelled`, or `Paused`.
+- Lifecycle transitions are mirrored into audit events using `runtime.*` (Local) or `runtime.cloud.*` (Cloud) event types.
 - Windows shell mediation is adapter-local and does not leak into UI logic.
-- Cancellation attempts terminate the full process tree for the active run.
+- Runtime target can be switched per workspace, persisting the selection.
 
 ## Constraints
-- The adapter still depends on a locally installed Codex CLI.
-- Full compilation and adapter execution tests remain pending until the .NET SDK is installed and `dotnet build` is available.
+- The Local adapter requires a locally installed Codex CLI.
+- The Cloud adapter is currently a mock for verification and parity testing.
+- Intervention handling (Pause/Resume/Cancel) is supported across both targets.

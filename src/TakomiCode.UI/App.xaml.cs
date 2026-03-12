@@ -26,7 +26,9 @@ public partial class App : Application
                 services.AddSingleton<TakomiCode.Application.Contracts.Persistence.IChatSessionRepository, TakomiCode.Infrastructure.Persistence.LocalChatSessionRepository>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Persistence.IOrchestrationRepository, TakomiCode.Infrastructure.Persistence.LocalOrchestrationRepository>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Persistence.IWorkspaceRepository, TakomiCode.Infrastructure.Persistence.LocalWorkspaceRepository>();
-                services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ICodexRuntimeAdapter, TakomiCode.RuntimeAdapters.Codex.CodexCliAdapter>();
+                services.AddSingleton<TakomiCode.RuntimeAdapters.Codex.CodexCliAdapter>();
+                services.AddSingleton<TakomiCode.RuntimeAdapters.Codex.CodexCloudAdapter>();
+                services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ICodexRuntimeAdapter, TakomiCode.RuntimeAdapters.Codex.WorkspaceAwareCodexRuntimeAdapter>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ITakomiConfigurationLoader, TakomiCode.Infrastructure.Runtime.TakomiConfigurationLoader>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Services.IOrchestratorExecutionEngine, TakomiCode.Application.Services.OrchestratorExecutionEngine>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Services.IInterventionCommandHandler, TakomiCode.Application.Services.InterventionCommandHandler>();

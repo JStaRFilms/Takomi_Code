@@ -9,4 +9,5 @@ public class Workspace
     public bool IsAttached { get; set; }
     public string? BagsTokenAddress { get; set; }
     public bool IsVerificationReady { get; set; }
+    public string RuntimeTarget { get; set; } = "Local";
 }

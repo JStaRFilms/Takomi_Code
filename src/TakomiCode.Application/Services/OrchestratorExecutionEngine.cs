@@ -307,7 +307,8 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
                 {
                     RunId = run.RunId,
                     WorkingDirectory = run.WorkingDirectory ?? Environment.CurrentDirectory,
-                    Command = task.ExecutionCommand
+                    Command = task.ExecutionCommand,
+                    WorkspaceId = session.WorkspaceId
                 },
                 cancellationToken);
 

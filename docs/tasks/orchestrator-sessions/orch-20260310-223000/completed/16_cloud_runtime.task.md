@@ -28,10 +28,10 @@ Implement the cloud execution runtime so the shell can switch between local and 
 
 ## Definition of Done
 
-- [ ] Shared runtime contracts are enforced across local and cloud paths
-- [ ] Cloud runtime requests and event handling exist
-- [ ] Runtime target switching is visible and persisted
-- [ ] Artifact and event shapes match the local runtime
+- [x] Shared runtime contracts are enforced across local and cloud paths
+- [x] Cloud runtime requests and event handling exist
+- [x] Runtime target switching is visible and persisted
+- [x] Artifact and event shapes match the local runtime
 
 ## Expected Artifacts
 

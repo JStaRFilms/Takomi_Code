@@ -7,5 +7,6 @@ public enum CodexRuntimeState
     Running,
     Completed,
     Failed,
-    Cancelled
+    Cancelled,
+    Paused
 }
