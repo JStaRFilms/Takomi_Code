@@ -2,17 +2,18 @@
     x:Class="TakomiCode.UI.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:TakomiCode.UI"
     xmlns:viewModels="using:TakomiCode.UI.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:Name="RootGrid" Loaded="RootGrid_Loaded">
+    <Grid x:Name="RootGrid"
+          Loaded="RootGrid_Loaded"
+          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="300" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -20,40 +21,68 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border Grid.ColumnSpan="3" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16">
-            <StackPanel>
-                <TextBlock Text="Takomi Code Session Core" FontSize="24" FontWeight="SemiBold" />
-                <TextBlock Text="{Binding StatusMessage}" Margin="0,4,0,0" Opacity="0.8" />
+        <Border Grid.ColumnSpan="3"
+                Margin="20,20,20,0"
+                Padding="20"
+                Background="{ThemeResource AccentFillColorSecondaryBrush}"
+                CornerRadius="18">
+            <StackPanel Spacing="6">
+                <TextBlock Text="Takomi Code"
+                           FontSize="28"
+                           FontWeight="SemiBold" />
+                <TextBlock Text="Orchestrator shell"
+                           FontSize="14"
+                           Opacity="0.78" />
+                <Border Padding="12"
+                        CornerRadius="12"
+                        Background="{ThemeResource LayerOnAccentAcrylicFillColorDefaultBrush}">
+                    <TextBlock Text="{Binding StatusMessage}"
+                               TextWrapping="WrapWholeWords" />
+                </Border>
             </StackPanel>
         </Border>
 
         <Border Grid.Row="1"
-                Margin="16,16,8,16"
-                Padding="12"
+                Margin="20,20,10,20"
+                Padding="18"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderThickness="1"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                CornerRadius="8">
+                CornerRadius="16">
             <Grid RowSpacing="12">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Button Content="New Chat" Click="CreateChatButton_Click" />
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Sessions" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Text="Project chats and child threads" FontSize="13" Opacity="0.7" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
+                    <Button Content="New Chat"
+                            Click="CreateChatButton_Click"
+                            Style="{ThemeResource AccentButtonStyle}" />
                     <Button Content="New Child" Click="CreateChildSessionButton_Click" />
                 </StackPanel>
 
-                <ListView Grid.Row="1"
+                <ListView Grid.Row="2"
                           ItemsSource="{Binding Sessions}"
                           SelectedItem="{Binding SelectedSession, Mode=TwoWay}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="viewModels:ChatSessionViewModel">
-                            <StackPanel Spacing="2" Padding="0,4">
-                                <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" />
-                                <TextBlock Text="{x:Bind WorkspaceId}" FontSize="12" Opacity="0.7" />
-                                <TextBlock Text="{x:Bind ParentSessionId}" FontSize="12" Opacity="0.7" />
-                            </StackPanel>
+                            <Border Margin="0,0,0,10"
+                                    Padding="12"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" TextWrapping="WrapWholeWords" />
+                                    <TextBlock Text="{x:Bind WorkspaceId}" FontSize="12" Opacity="0.72" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{x:Bind ParentSessionId}" FontSize="12" Opacity="0.58" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </Border>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
@@ -62,11 +91,12 @@
 
         <Border Grid.Row="1"
                 Grid.Column="1"
-                Margin="8,16,16,16"
-                Padding="12"
+                Margin="10,20,10,20"
+                Padding="18"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderThickness="1"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                CornerRadius="8">
+                CornerRadius="16">
             <Grid RowSpacing="12">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -74,26 +104,42 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <StackPanel>
+                <StackPanel Spacing="12">
                     <TextBlock Text="{Binding CurrentSessionTitle}"
                                FontSize="20"
                                FontWeight="SemiBold" />
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="{Binding CurrentSessionWorktree}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
-                        <TextBlock Text="|" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding CurrentGitBranch}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding GitDirtyIndicator}" FontSize="12" Foreground="Goldenrod" FontWeight="Bold" VerticalAlignment="Center" />
-                        <Button Content="New Worktree" Command="{Binding CreateWorktreeCommand}" Padding="8,2" FontSize="10" />
-                        
-                        <TextBox PlaceholderText="Enter new worktree path..." Text="{Binding TargetWorktreePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="180" Height="28" Padding="4,2" FontSize="12" />
-                        <Button Content="Switch" Command="{Binding SwitchWorktreeCommand}" Padding="8,2" FontSize="10" />
-
-                        <TextBlock Text="Target:" FontSize="12" Opacity="0.7" VerticalAlignment="Center" Margin="8,0,0,0" />
-                        <ComboBox SelectedItem="{Binding RuntimeTarget, Mode=TwoWay}" MinWidth="100" Height="28" Padding="8,2" FontSize="12">
-                            <x:String>Local</x:String>
-                            <x:String>Cloud</x:String>
-                        </ComboBox>
-                    </StackPanel>
+                    <Border Padding="12"
+                            CornerRadius="12"
+                            Background="{ThemeResource LayerFillColorDefaultBrush}">
+                        <StackPanel Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Worktree" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding CurrentSessionWorktree}" FontSize="12" Opacity="0.72" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Branch" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding CurrentGitBranch}" FontSize="12" Opacity="0.72" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding GitDirtyIndicator}" FontSize="12" Foreground="Goldenrod" FontWeight="Bold" VerticalAlignment="Center" />
+                                <TextBlock Text="Runtime" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0" />
+                                <ComboBox SelectedItem="{Binding RuntimeTarget, Mode=TwoWay}" MinWidth="110" Height="30">
+                                    <x:String>Local</x:String>
+                                    <x:String>Cloud</x:String>
+                                </ComboBox>
+                            </StackPanel>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Content="New Worktree" Command="{Binding CreateWorktreeCommand}" />
+                                <TextBox Grid.Column="1"
+                                         PlaceholderText="Enter target worktree path"
+                                         Text="{Binding TargetWorktreePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button Grid.Column="2" Content="Switch" Command="{Binding SwitchWorktreeCommand}" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
                 <ListView Grid.Row="1"
@@ -101,8 +147,8 @@
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="viewModels:ChatMessageViewModel">
                             <Border Margin="0,0,0,8"
-                                    Padding="10"
-                                    CornerRadius="6"
+                                    Padding="12"
+                                    CornerRadius="12"
                                     Background="{ThemeResource SubtleFillColorSecondaryBrush}">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="{x:Bind Role}" FontWeight="SemiBold" />
@@ -114,21 +160,34 @@
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <StackPanel Grid.Row="2" Spacing="8">
-                    <TextBox Text="{Binding DraftMessage, Mode=TwoWay}" PlaceholderText="Type a message to persist into the transcript" />
-                    <Button Content="Save Message" HorizontalAlignment="Right" Click="SendMessageButton_Click" />
-                </StackPanel>
+                <Border Grid.Row="2"
+                        Padding="12"
+                        CornerRadius="12"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}">
+                    <StackPanel Spacing="10">
+                        <TextBox Text="{Binding DraftMessage, Mode=TwoWay}"
+                                 PlaceholderText="Type a message to persist into the transcript"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="84" />
+                        <Button Content="Save Message"
+                                HorizontalAlignment="Right"
+                                Click="SendMessageButton_Click"
+                                Style="{ThemeResource AccentButtonStyle}" />
+                    </StackPanel>
+                </Border>
             </Grid>
         </Border>
 
         <!-- Active Runs Pane -->
         <Border Grid.Row="1"
                 Grid.Column="2"
-                Margin="8,16,16,16"
-                Padding="12"
+                Margin="10,20,20,20"
+                Padding="18"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderThickness="1"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                CornerRadius="8">
+                CornerRadius="16">
             <Grid RowSpacing="12">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -136,9 +195,9 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <StackPanel>
+                <StackPanel Spacing="4">
                     <TextBlock Text="Active Runs" FontSize="20" FontWeight="SemiBold" />
-                    <TextBlock Text="Select a run to intervene" FontSize="12" Opacity="0.7" />
+                    <TextBlock Text="Select a run to intervene" FontSize="13" Opacity="0.7" />
                 </StackPanel>
 
                 <ListView Grid.Row="1"
@@ -146,17 +205,22 @@
                           SelectedItem="{Binding SelectedActiveRun, Mode=TwoWay}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Spacing="2" Padding="0,4">
-                                <TextBlock Text="{Binding TaskId}" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding RunId}" FontSize="12" Opacity="0.7" />
-                                <TextBlock Text="{Binding Status}" FontSize="12" Opacity="0.7" Foreground="{ThemeResource SystemAccentColor}" />
-                            </StackPanel>
+                            <Border Margin="0,0,0,10"
+                                    Padding="12"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{Binding TaskId}" FontWeight="SemiBold" TextWrapping="WrapWholeWords" />
+                                    <TextBlock Text="{Binding RunId}" FontSize="12" Opacity="0.7" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Status}" FontSize="12" FontWeight="SemiBold" Foreground="{ThemeResource SystemAccentColor}" />
+                                </StackPanel>
+                            </Border>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <StackPanel Grid.Row="2" Spacing="4">
-                    <Grid ColumnSpacing="4">
+                <StackPanel Grid.Row="2" Spacing="8">
+                    <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -166,7 +230,7 @@
                         <Button Grid.Column="1" Content="Resume" Command="{Binding ResumeRunCommand}" HorizontalAlignment="Stretch" />
                         <Button Grid.Column="2" Content="Cancel" Command="{Binding CancelRunCommand}" HorizontalAlignment="Stretch" />
                     </Grid>
-                    <Grid ColumnSpacing="4">
+                    <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -174,7 +238,7 @@
                         <Button Grid.Column="0" Content="Reroute" Command="{Binding RerouteRunCommand}" HorizontalAlignment="Stretch" />
                         <Button Grid.Column="1" Content="Guidance" Command="{Binding InjectGuidanceCommand}" HorizontalAlignment="Stretch" />
                     </Grid>
-                    <Grid ColumnSpacing="4">
+                    <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -188,45 +252,90 @@
 
         <Border Grid.Row="2"
                 Grid.ColumnSpan="3"
-                Margin="16,0,16,16"
-                Padding="12"
+                Margin="20,0,20,20"
+                Padding="16"
                 Background="{ThemeResource LayerFillColorAltBrush}"
-                CornerRadius="8">
-            <Grid>
+                CornerRadius="16">
+            <Grid ColumnSpacing="16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Project-scoped chats, child session inheritance, transcript restore, billing state, and Bags verification state are handled through local repositories and service adapters." VerticalAlignment="Center" />
 
-                <StackPanel Grid.Column="1" Spacing="6">
-                    <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                <Border Padding="14"
+                        CornerRadius="14"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Billing"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="Demo-safe Paystack entitlement flow"
+                                   FontSize="13"
+                                   Opacity="0.72" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="Status:" Opacity="0.7" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding BillingStatusText}" FontWeight="SemiBold" Foreground="{ThemeResource SystemAccentColorLight2}" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding BillingStatusText}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource SystemAccentColorLight2}"
+                                       VerticalAlignment="Center" />
                         </StackPanel>
-                        <TextBox Text="{Binding BillingEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="180" PlaceholderText="Paystack customer email" />
-                        <Button Content="Start Paystack Checkout" Command="{Binding InitiateCheckoutCommand}" Style="{ThemeResource AccentButtonStyle}" Padding="12,4" />
-                        <Button Content="Confirm Paystack Success" Command="{Binding ConfirmCheckoutSuccessCommand}" Padding="12,4" />
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                        <TextBlock Text="Pending Ref:" Opacity="0.7" />
+                        <TextBox Text="{Binding BillingEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Paystack customer email" />
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0"
+                                    Content="Start Checkout"
+                                    Command="{Binding InitiateCheckoutCommand}"
+                                    Style="{ThemeResource AccentButtonStyle}" />
+                            <Button Grid.Column="1"
+                                    Content="Confirm Success"
+                                    Command="{Binding ConfirmCheckoutSuccessCommand}" />
+                        </Grid>
                         <TextBlock Text="{Binding PendingBillingReference}" FontFamily="Consolas" />
-                        <TextBlock Text="Checkout URL:" Opacity="0.7" />
-                        <TextBlock Text="{Binding BillingCheckoutUrl}" MaxWidth="320" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding BillingCheckoutUrl}" TextWrapping="WrapWholeWords" />
                     </StackPanel>
+                </Border>
 
-                    <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" Margin="0,4,0,0">
-                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                            <TextBlock Text="Bags Verif:" Opacity="0.7" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding VerificationStatusText}" FontWeight="SemiBold" Foreground="{ThemeResource SystemAccentColorLight2}" VerticalAlignment="Center" />
+                <Border Grid.Column="1"
+                        Padding="14"
+                        CornerRadius="14"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Bags Verification"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="Token linkage and readiness surface"
+                                   FontSize="13"
+                                   Opacity="0.72" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Status:" Opacity="0.7" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding VerificationStatusText}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource SystemAccentColorLight2}"
+                                       VerticalAlignment="Center" />
                         </StackPanel>
-                        <TextBox Text="{Binding BagsTokenAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="180" Height="28" Padding="4,2" FontSize="12" PlaceholderText="Bags Token Address" />
-                        <Button Content="Link Token" Command="{Binding LinkBagsTokenCommand}" Padding="12,4" />
-                        <Button Content="Check Readiness" Command="{Binding CheckVerificationReadinessCommand}" Padding="12,4" />
+                        <TextBox Text="{Binding BagsTokenAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Bags token address" />
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0"
+                                    Content="Link Token"
+                                    Command="{Binding LinkBagsTokenCommand}" />
+                            <Button Grid.Column="1"
+                                    Content="Check Readiness"
+                                    Command="{Binding CheckVerificationReadinessCommand}" />
+                        </Grid>
+                        <TextBlock Text="Project-scoped chats, transcript restore, billing state, and verification readiness are all persisted locally through repositories and service adapters."
+                                   TextWrapping="WrapWholeWords"
+                                   Opacity="0.76" />
                     </StackPanel>
-                </StackPanel>
+                </Border>
             </Grid>
         </Border>
     </Grid>
