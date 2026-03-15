@@ -42,6 +42,8 @@ public partial class ChatSessionViewModel : ObservableObject
     public DateTimeOffset UpdatedAt => _entity.UpdatedAt;
     public DateTimeOffset CreatedAt => _entity.CreatedAt;
 
+    public string LastActiveFormatted => UpdatedAt.LocalDateTime.ToString("g");
+
     public ObservableCollection<ChatMessageViewModel> Messages { get; }
     
     public void AddMessage(string role, string content)

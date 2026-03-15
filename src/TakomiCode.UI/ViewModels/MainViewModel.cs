@@ -59,6 +59,7 @@ public partial class MainViewModel : ObservableObject
     public int SessionCount => Sessions.Count;
     public int ActiveRunCount => ActiveRuns.Count;
     public int BlockedRunCount => ActiveRuns.Count(run => run.Status == TakomiCode.Domain.Entities.TaskStatus.Blocked);
+    public string BlockedRunCountLabel => $"{BlockedRunCount} Task Node(s) Blocked";
     public int HealthyRunCount => ActiveRuns.Count(run => run.Status is TakomiCode.Domain.Entities.TaskStatus.InProgress or TakomiCode.Domain.Entities.TaskStatus.Queued or TakomiCode.Domain.Entities.TaskStatus.Paused);
     public bool HasSessions => Sessions.Count > 0;
     public bool HasActiveRuns => ActiveRuns.Count > 0;
