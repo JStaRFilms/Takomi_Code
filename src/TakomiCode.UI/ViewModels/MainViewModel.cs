@@ -1,10 +1,16 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using System.Text;
 using TakomiCode.Application.Configuration;
 using TakomiCode.Application.Contracts.Persistence;
+using TakomiCode.Application.Contracts.Runtime;
+using TakomiCode.Application.Contracts.Services;
 using TakomiCode.Domain.Entities;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Dispatching;
+using TaskStatus = TakomiCode.Domain.Entities.TaskStatus;
 
 namespace TakomiCode.UI.ViewModels;
 
@@ -14,11 +20,18 @@ public partial class MainViewModel : ObservableObject
     private readonly IChatSessionRepository _chatSessionRepository;
     private readonly IWorkspaceRepository _workspaceRepository;
     private readonly IOrchestrationRepository _orchestrationRepository;
-    private readonly TakomiCode.Application.Contracts.Services.IInterventionCommandHandler _interventionCommandHandler;
-    private readonly TakomiCode.Application.Contracts.Services.IGitService _gitService;
+    private readonly IInterventionCommandHandler _interventionCommandHandler;
+    private readonly IGitService _gitService;
     private readonly IAuditLogRepository _auditLogRepository;
-    private readonly TakomiCode.Application.Contracts.Services.IBillingService _billingService;
-    private readonly TakomiCode.Application.Contracts.Services.IBagsService _bagsService;
+    private readonly IBillingService _billingService;
+    private readonly IBagsService _bagsService;
+    private readonly IOrchestratorExecutionEngine _orchestratorExecutionEngine;
+    private readonly ICodexRuntimeAdapter _codexRuntimeAdapter;
+    private readonly DispatcherQueue _dispatcherQueue;
+    private readonly Dictionary<string, string> _runOutputFiles = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _runSessionIds = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, List<string>> _runErrorLines = new(StringComparer.Ordinal);
+    private ChatSessionViewModel? _draftSession;
 
     [ObservableProperty]
     private string _statusMessage = "Welcome to Takomi Code Orchestrator";
@@ -40,6 +53,14 @@ public partial class MainViewModel : ObservableObject
     private string _draftMessage = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelectedRun))]
+    [NotifyPropertyChangedFor(nameof(SelectedRunDisplayName))]
+    [NotifyPropertyChangedFor(nameof(SelectedRunStatusText))]
+    [NotifyPropertyChangedFor(nameof(SelectedRunTaskReference))]
+    [NotifyPropertyChangedFor(nameof(SelectedRunWorkingDirectoryLabel))]
+    [NotifyPropertyChangedFor(nameof(SelectedRunDetailText))]
+    [NotifyPropertyChangedFor(nameof(SelectedRunDetailLabel))]
+    [NotifyPropertyChangedFor(nameof(SelectedRunStatusBrushKey))]
     private OrchestrationRun? _selectedActiveRun;
 
     [ObservableProperty]
@@ -67,11 +88,38 @@ public partial class MainViewModel : ObservableObject
     public int HealthyRunCount => ActiveRuns.Count(run => run.Status is TakomiCode.Domain.Entities.TaskStatus.InProgress or TakomiCode.Domain.Entities.TaskStatus.Queued or TakomiCode.Domain.Entities.TaskStatus.Paused);
     public bool HasSessions => Sessions.Count > 0;
     public bool HasActiveRuns => ActiveRuns.Count > 0;
+    public bool HasSelectedRun => SelectedActiveRun is not null;
     public bool IsHomeSection => SelectedShellSection == "Home";
     public bool IsSessionsSection => SelectedShellSection == "Sessions";
     public bool IsWorktreesSection => SelectedShellSection == "Worktrees";
     public bool IsBillingSection => SelectedShellSection == "Billing";
     public bool IsSettingsSection => SelectedShellSection == "Settings";
+    public string SelectedRunDisplayName => SelectedActiveRun is null
+        ? "No active execution"
+        : $"Run {SelectedActiveRun.RunId[..Math.Min(8, SelectedActiveRun.RunId.Length)]}";
+    public string SelectedRunStatusText => SelectedActiveRun?.Status switch
+    {
+        TaskStatus.Queued => "Queued",
+        TaskStatus.InProgress => "Running",
+        TaskStatus.Paused => "Paused",
+        TaskStatus.Completed => "Completed",
+        TaskStatus.Cancelled => "Cancelled",
+        TaskStatus.Failed => "Failed",
+        TaskStatus.Blocked => "Blocked",
+        _ => "Idle"
+    };
+    public string SelectedRunTaskReference => SelectedActiveRun?.TaskId ?? "No task selected";
+    public string SelectedRunWorkingDirectoryLabel => SelectedActiveRun?.WorkingDirectory ?? "No working directory";
+    public string SelectedRunDetailText => SelectedActiveRun?.ErrorMessage
+        ?? SelectedActiveRun?.ResultFilePath
+        ?? "Waiting for Codex output.";
+    public string SelectedRunDetailLabel => string.IsNullOrWhiteSpace(SelectedActiveRun?.ErrorMessage) ? "Details" : "Error";
+    public string SelectedRunStatusBrushKey => SelectedActiveRun?.Status switch
+    {
+        TaskStatus.Completed => "SuccessBrush",
+        TaskStatus.Failed or TaskStatus.Blocked or TaskStatus.Cancelled => "DangerBrush",
+        _ => "AccentBrush"
+    };
     public string ActiveSectionTitle => SelectedShellSection switch
     {
         "Sessions" => "Session Workspace",
@@ -144,11 +192,13 @@ public partial class MainViewModel : ObservableObject
         IChatSessionRepository chatSessionRepository,
         IWorkspaceRepository workspaceRepository,
         IOrchestrationRepository orchestrationRepository,
-        TakomiCode.Application.Contracts.Services.IInterventionCommandHandler interventionCommandHandler,
-        TakomiCode.Application.Contracts.Services.IGitService gitService,
+        IInterventionCommandHandler interventionCommandHandler,
+        IGitService gitService,
         IAuditLogRepository auditLogRepository,
-        TakomiCode.Application.Contracts.Services.IBillingService billingService,
-        TakomiCode.Application.Contracts.Services.IBagsService bagsService)
+        IBillingService billingService,
+        IBagsService bagsService,
+        IOrchestratorExecutionEngine orchestratorExecutionEngine,
+        ICodexRuntimeAdapter codexRuntimeAdapter)
     {
         _workspaceId = WorkspaceDefaults.ResolveWorkspaceId();
         _chatSessionRepository = chatSessionRepository;
@@ -159,6 +209,11 @@ public partial class MainViewModel : ObservableObject
         _auditLogRepository = auditLogRepository;
         _billingService = billingService;
         _bagsService = bagsService;
+        _orchestratorExecutionEngine = orchestratorExecutionEngine;
+        _codexRuntimeAdapter = codexRuntimeAdapter;
+        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        _codexRuntimeAdapter.StateChanged += OnCodexRuntimeStateChanged;
+        _codexRuntimeAdapter.OutputReceived += OnCodexRuntimeOutputReceived;
     }
 
     public void SelectShellSection(string section)
@@ -199,8 +254,21 @@ public partial class MainViewModel : ObservableObject
             ?? Environment.CurrentDirectory;
         WorkspaceDisplayName = workspace.Name;
 
-        var sessions = (await _chatSessionRepository
+        var persistedSessions = (await _chatSessionRepository
             .GetSessionsByWorkspaceAsync(_workspaceId, cancellationToken))
+            .ToList();
+
+        var emptySessions = persistedSessions
+            .Where(session => session.Transcript.Count == 0)
+            .ToList();
+
+        foreach (var emptySession in emptySessions)
+        {
+            await _chatSessionRepository.DeleteSessionAsync(emptySession.Id, cancellationToken);
+        }
+
+        var sessions = persistedSessions
+            .Where(session => session.Transcript.Count > 0)
             .Select(session => new ChatSessionViewModel(session))
             .OrderByDescending(session => session.UpdatedAt)
             .ToList();
@@ -213,7 +281,8 @@ public partial class MainViewModel : ObservableObject
 
         if (Sessions.Count == 0)
         {
-            await CreateProjectChatAsync(cancellationToken: cancellationToken);
+            SelectedSession = EnsureDraftSession();
+            StatusMessage = "Ready to start a new session draft";
         }
         else
         {
@@ -260,6 +329,7 @@ public partial class MainViewModel : ObservableObject
 
     public async Task ReloadActiveRunsAsync(CancellationToken cancellationToken = default)
     {
+        var selectedRunId = SelectedActiveRun?.RunId;
         var runs = await _orchestrationRepository.GetActiveRunsAsync(cancellationToken);
         ActiveRuns.Clear();
         foreach (var run in runs)
@@ -267,25 +337,22 @@ public partial class MainViewModel : ObservableObject
             ActiveRuns.Add(run);
         }
 
+        SelectedActiveRun = runs.FirstOrDefault(run => string.Equals(run.RunId, selectedRunId, StringComparison.Ordinal))
+            ?? ActiveRuns.FirstOrDefault();
         NotifyRunMetricsChanged();
     }
 
     public async Task CreateProjectChatAsync(string? title = null, CancellationToken cancellationToken = default)
     {
-        var session = new ChatSession
-        {
-            WorkspaceId = _workspaceId,
-            Title = title ?? $"Project Chat {Sessions.Count + 1}"
-        };
-
-        await PersistNewSessionAsync(session, cancellationToken);
+        SelectedSession = EnsureDraftSession(title);
+        DraftMessage = string.Empty;
         SelectedShellSection = "Sessions";
-        StatusMessage = $"Created chat '{session.Title}'";
+        StatusMessage = "Opened a blank session draft";
     }
 
     public async Task CreateChildSessionAsync(CancellationToken cancellationToken = default)
     {
-        if (SelectedSession is null)
+        if (SelectedSession is null || SelectedSession.IsTransient)
         {
             StatusMessage = "Select a parent chat before creating a child session";
             return;
@@ -303,8 +370,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (SelectedSession is null)
         {
-            StatusMessage = "Select a chat before sending a message";
-            return;
+            SelectedSession = EnsureDraftSession();
         }
 
         if (string.IsNullOrWhiteSpace(DraftMessage))
@@ -313,11 +379,31 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        SelectedSession.AddMessage("User", DraftMessage.Trim());
+        if (SelectedSession!.IsTransient)
+        {
+            if (string.IsNullOrWhiteSpace(SelectedSession.Title) || SelectedSession.Title == "New Chat")
+            {
+                SelectedSession.Title = $"Project Chat {GetNextSessionNumber()}";
+            }
+
+            await _chatSessionRepository.SaveSessionAsync(SelectedSession.GetEntity(), cancellationToken);
+            SelectedSession.MarkPersisted();
+            if (!Sessions.Contains(SelectedSession))
+            {
+                Sessions.Insert(0, SelectedSession);
+                NotifySessionMetricsChanged();
+            }
+
+            _draftSession = null;
+        }
+
+        var prompt = DraftMessage.Trim();
+
+        SelectedSession.AddMessage("User", prompt);
         DraftMessage = string.Empty;
         await _chatSessionRepository.SaveSessionAsync(SelectedSession.GetEntity(), cancellationToken);
         MoveSessionToTop(SelectedSession);
-        StatusMessage = $"Saved transcript for '{SelectedSession.Title}'";
+        await StartCodexRunForSessionAsync(SelectedSession, prompt, cancellationToken);
     }
 
     async partial void OnSelectedSessionChanged(ChatSessionViewModel? value)
@@ -330,6 +416,18 @@ public partial class MainViewModel : ObservableObject
             StatusMessage = $"Active session: {value.Title}";
             await RefreshGitStateAsync();
         }
+    }
+
+    partial void OnSelectedActiveRunChanged(OrchestrationRun? value)
+    {
+        OnPropertyChanged(nameof(HasSelectedRun));
+        OnPropertyChanged(nameof(SelectedRunDisplayName));
+        OnPropertyChanged(nameof(SelectedRunStatusText));
+        OnPropertyChanged(nameof(SelectedRunTaskReference));
+        OnPropertyChanged(nameof(SelectedRunWorkingDirectoryLabel));
+        OnPropertyChanged(nameof(SelectedRunDetailText));
+        OnPropertyChanged(nameof(SelectedRunDetailLabel));
+        OnPropertyChanged(nameof(SelectedRunStatusBrushKey));
     }
 
     private async Task RefreshGitStateAsync()
@@ -355,6 +453,48 @@ public partial class MainViewModel : ObservableObject
         return Sessions.Count(session => session.ParentSessionId == parentSessionId);
     }
 
+    private ChatSessionViewModel EnsureDraftSession(string? title = null)
+    {
+        if (_draftSession is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                _draftSession.Title = title;
+            }
+
+            return _draftSession;
+        }
+
+        var session = new ChatSession
+        {
+            WorkspaceId = _workspaceId,
+            Title = title ?? "New Chat"
+        };
+
+        _draftSession = new ChatSessionViewModel(session, isTransient: true);
+        return _draftSession;
+    }
+
+    private int GetNextSessionNumber()
+    {
+        var maxNumber = Sessions
+            .Select(session => session.Title)
+            .Select(title =>
+            {
+                const string prefix = "Project Chat ";
+                if (!title.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return 0;
+                }
+
+                return int.TryParse(title[prefix.Length..], out var value) ? value : 0;
+            })
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return maxNumber + 1;
+    }
+
     private void MoveSessionToTop(ChatSessionViewModel session)
     {
         var index = Sessions.IndexOf(session);
@@ -367,6 +507,349 @@ public partial class MainViewModel : ObservableObject
         Sessions.Insert(0, session);
         SelectedSession = session;
         NotifySessionMetricsChanged();
+    }
+
+    private async Task StartCodexRunForSessionAsync(
+        ChatSessionViewModel session,
+        string prompt,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var workspacePath = await GetSelectedWorkspacePathAsync();
+            var orchestrationSession = await _orchestratorExecutionEngine.InitiateSessionAsync(_workspaceId, prompt, cancellationToken);
+            var (taskFilePath, outputFilePath) = BuildRoutedTaskPaths(orchestrationSession.SessionId, session.Id);
+
+            await WriteRoutedTaskEnvelopeAsync(taskFilePath, session, prompt, workspacePath, cancellationToken);
+
+            var task = await _orchestratorExecutionEngine.AddTaskAsync(
+                orchestrationSession.SessionId,
+                BuildTaskName(prompt),
+                prompt,
+                targetMode: "mode-code",
+                taskFilePath: taskFilePath,
+                executionCommand: BuildCodexExecutionCommand(session, prompt, outputFilePath),
+                workingDirectoryOverride: workspacePath,
+                cancellationToken: cancellationToken);
+
+            var run = await _orchestratorExecutionEngine.StartTaskExecutionAsync(
+                task.Id,
+                chatSessionId: session.Id,
+                cancellationToken: cancellationToken);
+
+            _runOutputFiles[run.RunId] = outputFilePath;
+            _runSessionIds[run.RunId] = session.Id;
+            _runErrorLines[run.RunId] = new List<string>();
+
+            session.AddMessage("Assistant", $"Routing request to Codex in {Path.GetFileName(workspacePath)}...");
+            await _chatSessionRepository.SaveSessionAsync(session.GetEntity(), cancellationToken);
+
+            await ReloadActiveRunsAsync(cancellationToken);
+            SelectedActiveRun = ActiveRuns.FirstOrDefault(activeRun => string.Equals(activeRun.RunId, run.RunId, StringComparison.Ordinal))
+                ?? run;
+
+            StatusMessage = $"Codex is working on '{session.Title}'.";
+        }
+        catch (Exception ex)
+        {
+            session.AddMessage("Assistant", $"Unable to start a Codex run: {ex.Message}");
+            await _chatSessionRepository.SaveSessionAsync(session.GetEntity(), cancellationToken);
+            StatusMessage = $"Route failed: {ex.Message}";
+        }
+    }
+
+    private void OnCodexRuntimeStateChanged(object? sender, CodexRuntimeStateEventArgs e)
+    {
+        _dispatcherQueue.TryEnqueue(async () => await HandleCodexRuntimeStateChangedAsync(e));
+    }
+
+    private void OnCodexRuntimeOutputReceived(object? sender, CodexRuntimeOutputEventArgs e)
+    {
+        _dispatcherQueue.TryEnqueue(() => HandleCodexRuntimeOutputReceived(e));
+    }
+
+    private void HandleCodexRuntimeOutputReceived(CodexRuntimeOutputEventArgs e)
+    {
+        if (!e.IsError || string.IsNullOrWhiteSpace(e.Content))
+        {
+            return;
+        }
+
+        if (!_runErrorLines.TryGetValue(e.RunId, out var errorLines))
+        {
+            errorLines = new List<string>();
+            _runErrorLines[e.RunId] = errorLines;
+        }
+
+        errorLines.Add(e.Content.Trim());
+        if (errorLines.Count > 12)
+        {
+            errorLines.RemoveAt(0);
+        }
+    }
+
+    private async Task HandleCodexRuntimeStateChangedAsync(CodexRuntimeStateEventArgs e)
+    {
+        switch (e.State)
+        {
+            case CodexRuntimeState.Starting:
+                StatusMessage = "Launching Codex run...";
+                break;
+            case CodexRuntimeState.Running:
+                StatusMessage = "Codex run in progress...";
+                break;
+            case CodexRuntimeState.Completed:
+                await FinalizeTrackedRunAsync(e.RunId, e.Details, cancellationToken: CancellationToken.None);
+                break;
+            case CodexRuntimeState.Cancelled:
+                await FinalizeTrackedRunAsync(e.RunId, e.Details ?? "Run cancelled.", isFailure: true, cancellationToken: CancellationToken.None);
+                break;
+            case CodexRuntimeState.Failed:
+                await FinalizeTrackedRunAsync(e.RunId, e.Details, isFailure: true, cancellationToken: CancellationToken.None);
+                break;
+        }
+
+        await ReloadActiveRunsAsync(CancellationToken.None);
+        if (SelectedActiveRun is null && ActiveRuns.Count > 0)
+        {
+            SelectedActiveRun = ActiveRuns[0];
+        }
+    }
+
+    private async Task FinalizeTrackedRunAsync(
+        string runId,
+        string? details,
+        bool isFailure = false,
+        CancellationToken cancellationToken = default)
+    {
+        var session = await TryResolveRunSessionAsync(runId, cancellationToken);
+        if (session is null)
+        {
+            CleanupTrackedRun(runId);
+            StatusMessage = details ?? (isFailure ? "Codex run failed." : "Codex run completed.");
+            return;
+        }
+
+        string finalMessage;
+        if (isFailure)
+        {
+            finalMessage = BuildFailureMessage(runId, details);
+        }
+        else
+        {
+            finalMessage = await ReadRunOutputMessageAsync(runId, cancellationToken)
+                ?? details
+                ?? "Codex finished without returning a final message.";
+        }
+
+        session.AddMessage("Assistant", finalMessage);
+        await _chatSessionRepository.SaveSessionAsync(session.GetEntity(), cancellationToken);
+        MoveSessionToTop(session);
+        CleanupTrackedRun(runId);
+        StatusMessage = isFailure ? "Codex run failed." : "Codex run completed.";
+    }
+
+    private async Task<ChatSessionViewModel?> TryResolveRunSessionAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (_runSessionIds.TryGetValue(runId, out var sessionId))
+        {
+            return Sessions.FirstOrDefault(session => string.Equals(session.Id, sessionId, StringComparison.Ordinal))
+                ?? (SelectedSession is not null && string.Equals(SelectedSession.Id, sessionId, StringComparison.Ordinal)
+                    ? SelectedSession
+                    : null);
+        }
+
+        var run = await _orchestrationRepository.GetRunAsync(runId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(run?.ChatSessionId))
+        {
+            return null;
+        }
+
+        return Sessions.FirstOrDefault(session => string.Equals(session.Id, run.ChatSessionId, StringComparison.Ordinal))
+            ?? (SelectedSession is not null && string.Equals(SelectedSession.Id, run.ChatSessionId, StringComparison.Ordinal)
+                ? SelectedSession
+                : null);
+    }
+
+    private async Task<string?> ReadRunOutputMessageAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!_runOutputFiles.TryGetValue(runId, out var outputPath) || !File.Exists(outputPath))
+        {
+            return null;
+        }
+
+        var message = await File.ReadAllTextAsync(outputPath, cancellationToken);
+        return string.IsNullOrWhiteSpace(message) ? null : message.Trim();
+    }
+
+    private string BuildFailureMessage(string runId, string? details)
+    {
+        if (_runErrorLines.TryGetValue(runId, out var errorLines) && errorLines.Count > 0)
+        {
+            var joinedErrors = string.Join(Environment.NewLine, errorLines);
+            return $"Codex run failed.{Environment.NewLine}{Environment.NewLine}{joinedErrors}";
+        }
+
+        return string.IsNullOrWhiteSpace(details)
+            ? "Codex run failed."
+            : $"Codex run failed.{Environment.NewLine}{Environment.NewLine}{details}";
+    }
+
+    private void CleanupTrackedRun(string runId)
+    {
+        _runOutputFiles.Remove(runId);
+        _runSessionIds.Remove(runId);
+        _runErrorLines.Remove(runId);
+    }
+
+    private static string BuildTaskName(string prompt)
+    {
+        var singleLinePrompt = NormalizePromptForExecution(prompt);
+        const int maxLength = 48;
+        return singleLinePrompt.Length <= maxLength
+            ? singleLinePrompt
+            : $"{singleLinePrompt[..maxLength].TrimEnd()}...";
+    }
+
+    private static (string TaskFilePath, string OutputFilePath) BuildRoutedTaskPaths(string orchestrationSessionId, string chatSessionId)
+    {
+        var root = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "TakomiCode",
+            "routed-tasks");
+
+        var pendingDirectory = Path.Combine(root, "pending");
+        var completedDirectory = Path.Combine(root, "completed");
+        Directory.CreateDirectory(pendingDirectory);
+        Directory.CreateDirectory(completedDirectory);
+
+        var baseName = $"{orchestrationSessionId}-{chatSessionId[..Math.Min(8, chatSessionId.Length)]}-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}";
+        return (
+            Path.Combine(pendingDirectory, $"{baseName}.task.md"),
+            Path.Combine(completedDirectory, $"{baseName}.result.md"));
+    }
+
+    private static async Task WriteRoutedTaskEnvelopeAsync(
+        string taskFilePath,
+        ChatSessionViewModel session,
+        string prompt,
+        string workspacePath,
+        CancellationToken cancellationToken)
+    {
+        var content = $$"""
+            # Routed Session Task
+
+            - Session: {{session.Title}}
+            - ChatSessionId: {{session.Id}}
+            - Workspace: {{workspacePath}}
+            - RoutedAt: {{DateTimeOffset.UtcNow:O}}
+
+            ## Prompt
+
+            {{prompt}}
+            """;
+
+        await File.WriteAllTextAsync(taskFilePath, content, cancellationToken);
+    }
+
+    private string BuildCodexExecutionCommand(ChatSessionViewModel session, string prompt, string outputFilePath)
+    {
+        var transcriptContext = BuildTranscriptContext(session);
+        var executionPrompt = $$"""
+            You are handling a routed request from the Takomi desktop app inside the active repository workspace.
+            Execute the user's latest request now.
+
+            Rules:
+            - Do not introduce yourself.
+            - Do not ask what to work on.
+            - Do not reply with workflow acknowledgements or generic Takomi setup text.
+            - Use the repository instructions and relevant Takomi guidance only as implementation constraints.
+            - If the user asked for file/code changes, make them directly in this workspace before replying.
+            - If the user asked a simple conversational question, answer it briefly.
+            - End with a concise summary of what you changed or why you were blocked.
+
+            Recent conversation context:
+            {{transcriptContext}}
+
+            Latest user request:
+            {{prompt}}
+            """;
+
+        return string.Join(
+            " ",
+            "exec",
+            "--skip-git-repo-check",
+            "--dangerously-bypass-approvals-and-sandbox",
+            "--color",
+            "never",
+            "-o",
+            QuoteCommandArgument(outputFilePath),
+            QuoteCommandArgument(executionPrompt));
+    }
+
+    private static string BuildTranscriptContext(ChatSessionViewModel session)
+    {
+        var recentMessages = session.Messages
+            .TakeLast(6)
+            .Select(message => $"{message.Role}: {NormalizePromptForExecution(message.Content)}");
+
+        return string.Join(Environment.NewLine, recentMessages);
+    }
+
+    private static string NormalizePromptForExecution(string prompt)
+    {
+        return string.Join(" ", prompt
+            .Split(new[] { '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+    }
+
+    private static string QuoteCommandArgument(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return "\"\"";
+        }
+
+        var builder = new StringBuilder();
+        var needsQuotes = value.Any(character => char.IsWhiteSpace(character) || character == '"');
+        if (!needsQuotes)
+        {
+            return value;
+        }
+
+        builder.Append('"');
+        var backslashCount = 0;
+        foreach (var character in value)
+        {
+            if (character == '\\')
+            {
+                backslashCount++;
+                continue;
+            }
+
+            if (character == '"')
+            {
+                builder.Append('\\', backslashCount * 2 + 1);
+                builder.Append(character);
+                backslashCount = 0;
+                continue;
+            }
+
+            if (backslashCount > 0)
+            {
+                builder.Append('\\', backslashCount);
+                backslashCount = 0;
+            }
+
+            builder.Append(character);
+        }
+
+        if (backslashCount > 0)
+        {
+            builder.Append('\\', backslashCount * 2);
+        }
+
+        builder.Append('"');
+        return builder.ToString();
     }
 
     [CommunityToolkit.Mvvm.Input.RelayCommand]

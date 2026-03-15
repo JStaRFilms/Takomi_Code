@@ -380,16 +380,12 @@
                                                             <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{StaticResource DangerBrush}" />
                                                         </Border>
                                                         <StackPanel Spacing="12">
-                                                            <Border Background="#1A1F1414" BorderBrush="#80D13438" BorderThickness="1" CornerRadius="8" Padding="16">
+                                                            <Border Background="#1Affffff" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
                                                                 <StackPanel Spacing="8">
-                                                                    <TextBlock Text="Block Encountered: Build Failure" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource DangerBrush}" />
+                                                                    <TextBlock Text="Codex" FontSize="14" FontWeight="SemiBold" Foreground="White" />
                                                                     <TextBlock Text="{Binding Content}" FontSize="14" Foreground="White" Opacity="0.9" TextWrapping="Wrap" />
-                                                                    <Border Background="Black" Opacity="0.5" CornerRadius="4" Padding="12" Margin="0,8,0,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
-                                                                         <TextBlock Text="src/utils.ts(23,15): error TS2304: Cannot find name 'TailwindConfig'." FontSize="11" FontFamily="{StaticResource V5MonoFontFamily}" Foreground="{StaticResource DangerBrush}" />
-                                                                    </Border>
                                                                 </StackPanel>
                                                             </Border>
-                                                            <Button Content="Suggest Fix" Padding="16,4" FontSize="12" Background="#1Affffff" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" IsEnabled="False" Opacity="0.55" />
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Grid>
@@ -458,47 +454,90 @@
                                     <ScrollViewer Grid.Row="1" Padding="16" Background="#141414">
                                         <StackPanel Spacing="16">
                                             <TextBlock Text="CURRENT EXECUTION" Style="{StaticResource Win5HeaderLabelStyle}" />
-                                            
-                                            <StackPanel Spacing="4">
-                                                <Border Padding="12,8" CornerRadius="4" Background="#1Affffff">
-                                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <Border Width="12" Height="12" CornerRadius="6" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" Background="#4010893E">
-                                                            <FontIcon Glyph="&#xE73E;" FontSize="8" Foreground="{StaticResource SuccessBrush}" FontWeight="Black" />
-                                                        </Border>
-                                                        <TextBlock Text="Understand Requirement" FontSize="12" Foreground="White" />
-                                                    </StackPanel>
-                                                </Border>
-                                                
-                                                <Border Padding="12,8" CornerRadius="4" Background="#1Affffff">
-                                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <Border Width="12" Height="12" CornerRadius="6" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" Background="#4010893E">
-                                                            <FontIcon Glyph="&#xE73E;" FontSize="8" Foreground="{StaticResource SuccessBrush}" FontWeight="Black" />
-                                                        </Border>
-                                                        <TextBlock Text="Generate Code" FontSize="12" Foreground="White" />
-                                                    </StackPanel>
-                                                </Border>
+                                            <TextBlock Text="Codex-backed runs now appear here as they start and finish."
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       TextWrapping="Wrap" />
 
-                                                <Border Background="#26D13438" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" CornerRadius="4" Padding="12,8">
-                                                    <Grid>
-                                                        <StackPanel Orientation="Horizontal" Spacing="12">
-                                                            <Ellipse Width="12" Height="12" Stroke="{StaticResource DangerBrush}" StrokeThickness="2" VerticalAlignment="Center" />
-                                                            <TextBlock Text="Compile TS" FontSize="12" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold" />
-                                                        </StackPanel>
-                                                        <Button Content="Fix" HorizontalAlignment="Right" Background="{StaticResource DangerBrush}" Foreground="White" FontSize="10" Padding="8,0" Height="20" CornerRadius="2" />
+                                            <Border Style="{StaticResource StudioCardStyle}"
+                                                    Padding="16"
+                                                    Visibility="{Binding HasSelectedRun, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <StackPanel Spacing="10">
+                                                    <TextBlock Text="{Binding SelectedRunDisplayName}" Foreground="White" FontSize="14" FontWeight="SemiBold" />
+                                                    <Grid ColumnSpacing="12">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="Status" Style="{StaticResource Win5HeaderLabelStyle}" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding SelectedRunStatusText}" Foreground="White" FontSize="12" />
                                                     </Grid>
-                                                </Border>
-
-                                                <StackPanel Margin="24,0,0,0" Spacing="4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0" Padding="12,4">
-                                                    <TextBlock Text="run tsc --noEmit" FontSize="10" Foreground="White" Opacity="0.6" FontFamily="{StaticResource V5MonoFontFamily}" />
+                                                    <Grid ColumnSpacing="12">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="Task" Style="{StaticResource Win5HeaderLabelStyle}" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding SelectedRunTaskReference}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" TextWrapping="Wrap" />
+                                                    </Grid>
+                                                    <Grid ColumnSpacing="12">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="Folder" Style="{StaticResource Win5HeaderLabelStyle}" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding SelectedRunWorkingDirectoryLabel}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" TextWrapping="Wrap" FontFamily="{StaticResource V5MonoFontFamily}" />
+                                                    </Grid>
+                                                    <Grid ColumnSpacing="12">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding SelectedRunDetailLabel}" Style="{StaticResource Win5HeaderLabelStyle}" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding SelectedRunDetailText}" Foreground="White" FontSize="11" TextWrapping="Wrap" />
+                                                    </Grid>
                                                 </StackPanel>
+                                            </Border>
 
-                                                <Border Padding="12,8" CornerRadius="4" Opacity="0.5">
-                                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <Ellipse Width="12" Height="12" Stroke="{StaticResource TextMutedBrush}" StrokeThickness="1" StrokeDashArray="2,1" VerticalAlignment="Center" />
-                                                        <TextBlock Text="End Run" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
-                                                    </StackPanel>
-                                                </Border>
-                                            </StackPanel>
+                                            <Border Style="{StaticResource StudioCardStyle}"
+                                                    Padding="12"
+                                                    Visibility="{Binding HasActiveRuns, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <StackPanel Spacing="8">
+                                                    <TextBlock Text="ACTIVE RUNS" Style="{StaticResource Win5HeaderLabelStyle}" />
+                                                    <ListView ItemsSource="{Binding ActiveRuns}"
+                                                              SelectedItem="{Binding SelectedActiveRun, Mode=TwoWay}"
+                                                              SelectionMode="Single"
+                                                              MaxHeight="260">
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style TargetType="ListViewItem">
+                                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                                <Setter Property="Padding" Value="0" />
+                                                                <Setter Property="Margin" Value="0,2" />
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                        <ListView.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Background="#1Affffff" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12,8">
+                                                                    <StackPanel Spacing="4">
+                                                                        <TextBlock Text="{Binding RunId}" Foreground="White" FontSize="11" FontFamily="{StaticResource V5MonoFontFamily}" TextTrimming="CharacterEllipsis" />
+                                                                        <TextBlock Text="{Binding Status}" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="SemiBold" />
+                                                                        <TextBlock Text="{Binding WorkingDirectory}" Foreground="{StaticResource TextMutedBrush}" FontSize="10" TextTrimming="CharacterEllipsis" FontFamily="{StaticResource V5MonoFontFamily}" />
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ListView.ItemTemplate>
+                                                    </ListView>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Style="{StaticResource StudioCardStyle}"
+                                                    Padding="16"
+                                                    Visibility="{Binding HasActiveRuns, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                                                <TextBlock Text="No active Codex runs. Route a message to start one."
+                                                           Foreground="{StaticResource TextMutedBrush}"
+                                                           FontSize="12"
+                                                           TextWrapping="Wrap" />
+                                            </Border>
                                         </StackPanel>
                                     </ScrollViewer>
                                 </Grid>
