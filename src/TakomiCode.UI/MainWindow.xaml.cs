@@ -61,7 +61,13 @@ public sealed partial class MainWindow : Window
     {
         if (e.PropertyName == nameof(MainViewModel.SelectedShellSection))
         {
-            SyncNavigationSelection(ViewModel.SelectedShellSection);
+            if (DispatcherQueue.HasThreadAccess)
+            {
+                SyncNavigationSelection(ViewModel.SelectedShellSection);
+                return;
+            }
+
+            DispatcherQueue.TryEnqueue(() => SyncNavigationSelection(ViewModel.SelectedShellSection));
         }
     }
 

@@ -287,43 +287,57 @@
                             <Border Grid.Column="0" Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="40" />
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     
-                                    <TextBlock Text="SESSIONS" Style="{StaticResource Win5HeaderLabelStyle}" Margin="16,24,16,16" />
+                                    <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="16,0">
+                                        <TextBlock Text="SESSIONS" Style="{StaticResource Win5HeaderLabelStyle}" VerticalAlignment="Center" />
+                                    </Border>
                                     
                                     <ListView Grid.Row="1" ItemsSource="{Binding Sessions}" SelectedItem="{Binding SelectedSession, Mode=TwoWay}" Padding="8">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                <Setter Property="Padding" Value="0" />
+                                                <Setter Property="Margin" Value="0,2" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid Padding="12,8" Margin="0,2">
+                                                <Border CornerRadius="6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="#1F1F1F" Padding="12,8">
                                                     <StackPanel Spacing="2">
                                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                                             <FontIcon Glyph="&#xE751;" FontSize="14" Foreground="{StaticResource AccentBrush}" />
-                                                            <TextBlock Text="{Binding Title}" FontSize="13" Foreground="White" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="{Binding Title}" FontSize="12" Foreground="White" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
                                                         </StackPanel>
-                                                        <TextBlock Text="ws-a8b2" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontFamily="Cascadia Code" Margin="22,0,0,0" />
+                                                        <TextBlock Text="{Binding WorktreePath}" FontSize="9" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" Margin="22,0,0,0" TextTrimming="CharacterEllipsis" />
                                                     </StackPanel>
-                                                </Grid>
+                                                </Border>
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
                                     </ListView>
                                     
-                                    <Button Grid.Row="2" Content="New Session" Click="CreateChatButton_Click" Margin="16" HorizontalAlignment="Stretch" />
+                                    <Button Grid.Row="2" Margin="16" HorizontalAlignment="Stretch" Padding="12,8" CornerRadius="4" Click="CreateChatButton_Click">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE710;" FontSize="12" />
+                                            <TextBlock Text="New Session" FontSize="12" FontWeight="SemiBold" />
+                                        </StackPanel>
+                                    </Button>
                                 </Grid>
                             </Border>
 
                             <!-- Central Workspace (Center) -->
                             <Grid Grid.Column="1" Background="#141414">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="40" />
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
                                 <!-- Workspace Header -->
-                                <Border Grid.Row="0" Background="#1F1F1F" Height="40" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="16,0">
+                                <Border Grid.Row="0" Background="#1F1F1F" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="16,0">
                                     <Grid>
                                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                             <Border Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8,2">
@@ -331,15 +345,15 @@
                                                     <TextBlock Text="CONTEXT" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" />
                                                     <TextBlock Text="{Binding WorkspaceName}" FontSize="11" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center" />
                                                     <TextBlock Text="/" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" />
-                                                    <TextBlock Text="ws-a8b2" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontFamily="Cascadia Code" VerticalAlignment="Center" />
+                                                    <TextBlock Text="ws-a8b2" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" VerticalAlignment="Center" />
                                                 </StackPanel>
                                             </Border>
                                         </StackPanel>
-                                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                            <Border Background="#26FFFFFF" Padding="8,2" CornerRadius="4">
+                                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                            <Border Background="#1Affffff" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="8,2" CornerRadius="4">
                                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                                     <FontIcon Glyph="&#xE8BD;" FontSize="12" Foreground="{StaticResource AccentBrush}" />
-                                                    <TextBlock Text="Sub-Chat Active" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" FontFamily="Cascadia Code" />
+                                                    <TextBlock Text="Sub-Chat Active" FontSize="10" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" FontFamily="{StaticResource V5MonoFontFamily}" />
                                                 </StackPanel>
                                             </Border>
                                         </StackPanel>
@@ -347,32 +361,35 @@
                                 </Border>
 
                                 <!-- Chat Transcript -->
-                                <ScrollViewer Grid.Row="1" Padding="24" VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl ItemsSource="{Binding SelectedSession.Messages}" MaxWidth="800" HorizontalAlignment="Center">
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding SelectedSession.Messages}" MaxWidth="800" HorizontalAlignment="Center" Margin="0,32">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="0,0,0,24">
                                                     <!-- User Message -->
-                                                    <Border Visibility="{Binding IsUser, Converter={StaticResource BooleanToVisibilityConverter}}" HorizontalAlignment="Right" Background="{StaticResource AccentBrush}" CornerRadius="12" Padding="16,12" MaxWidth="600">
+                                                    <Border Visibility="{Binding IsUser, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                                            HorizontalAlignment="Right" Background="{StaticResource AccentBrush}" 
+                                                            CornerRadius="8" Padding="16,12" MaxWidth="600">
                                                         <TextBlock Text="{Binding Content}" Foreground="Black" FontSize="14" FontWeight="Medium" TextWrapping="Wrap" />
                                                     </Border>
                                                     
                                                     <!-- Agent Message -->
-                                                    <StackPanel Visibility="{Binding IsUser, Converter={StaticResource InverseBooleanToVisibilityConverter}}" HorizontalAlignment="Left" Orientation="Horizontal" Spacing="16" MaxWidth="700">
+                                                    <StackPanel Visibility="{Binding IsUser, Converter={StaticResource InverseBooleanToVisibilityConverter}}" 
+                                                                HorizontalAlignment="Left" Orientation="Horizontal" Spacing="16" MaxWidth="700">
                                                         <Border Width="32" Height="32" Background="#1F1F1F" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" VerticalAlignment="Top">
                                                             <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{StaticResource DangerBrush}" />
                                                         </Border>
                                                         <StackPanel Spacing="12">
-                                                            <Border Background="#1F1414" BorderBrush="#80D13438" BorderThickness="1" CornerRadius="12" Padding="16">
+                                                            <Border Background="#1A1F1414" BorderBrush="#80D13438" BorderThickness="1" CornerRadius="8" Padding="16">
                                                                 <StackPanel Spacing="8">
                                                                     <TextBlock Text="Block Encountered: Build Failure" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource DangerBrush}" />
                                                                     <TextBlock Text="{Binding Content}" FontSize="14" Foreground="White" Opacity="0.9" TextWrapping="Wrap" />
-                                                                    <Border Background="Black" Opacity="0.5" CornerRadius="4" Padding="12" Margin="0,8,0,0">
-                                                                         <TextBlock Text="src/utils.ts(23,15): error TS2304..." FontSize="11" FontFamily="Cascadia Code" Foreground="{StaticResource DangerBrush}" />
+                                                                    <Border Background="Black" Opacity="0.5" CornerRadius="4" Padding="12" Margin="0,8,0,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                                                         <TextBlock Text="src/utils.ts(23,15): error TS2304: Cannot find name 'TailwindConfig'." FontSize="11" FontFamily="{StaticResource V5MonoFontFamily}" Foreground="{StaticResource DangerBrush}" />
                                                                     </Border>
                                                                 </StackPanel>
                                                             </Border>
-                                                            <Button Content="Suggest Fix" Padding="16,4" FontSize="12" />
+                                                            <Button Content="Suggest Fix" Padding="16,4" FontSize="12" Background="#1Affffff" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" IsEnabled="False" Opacity="0.55" />
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </Grid>
@@ -382,34 +399,35 @@
                                 </ScrollViewer>
 
                                 <!-- Studio Input Area -->
-                                <Border Grid.Row="2" Background="#1F1F1F" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="16">
-                                    <StackPanel MaxWidth="800" HorizontalAlignment="Center" Spacing="8">
+                                <Border Grid.Row="2" Background="#1F1F1F" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="24">
+                                    <StackPanel MaxWidth="800" HorizontalAlignment="Center" Spacing="12">
                                         <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8">
                                             <StackPanel>
-                                                <Border Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="8,4">
+                                                <Border Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,8">
                                                     <Grid>
-                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <StackPanel Orientation="Horizontal" Spacing="12">
                                                             <FontIcon Glyph="&#xE71B;" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+                                                            <FontIcon Glyph="&#xE8B7;" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
                                                         </StackPanel>
-                                                        <Border HorizontalAlignment="Right" Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6,1">
-                                                            <TextBlock Text="SUB-CHAT CONTEXT" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" />
+                                                        <Border HorizontalAlignment="Right" Background="#141414" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8,2">
+                                                            <TextBlock Text="SUB-CHAT CONTEXT" FontSize="9" FontWeight="Black" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" />
                                                         </Border>
                                                     </Grid>
                                                 </Border>
                                                 <Grid>
                                                     <TextBox Text="{Binding DraftMessage, Mode=TwoWay}"
                                                              PlaceholderText="Ask agent to resolve, or provide context..."
-                                                             AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80"
-                                                             Background="Transparent" BorderThickness="0" Padding="12"
+                                                             AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100"
+                                                             Background="Transparent" BorderThickness="0" Padding="16"
                                                              FontSize="14" />
                                                     <Button Content="Route" Click="SendMessageButton_Click"
                                                             Background="{StaticResource AccentBrush}" Foreground="Black" FontWeight="SemiBold"
-                                                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12" Padding="16,4" />
+                                                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12" Padding="24,6" CornerRadius="4" />
                                                 </Grid>
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Text="Codex runs locally. No fee-sharing. Bags Protocol verified." 
-                                                   FontSize="10" FontFamily="Cascadia Code" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" />
+                                                   FontSize="10" FontFamily="{StaticResource V5MonoFontFamily}" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" />
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -428,54 +446,58 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <Border BorderBrush="{StaticResource AccentBrush}" BorderThickness="0,0,0,2" Padding="0,10">
+                                        <Border BorderBrush="{StaticResource AccentBrush}" BorderThickness="0,0,0,2" Padding="0,12">
                                             <TextBlock Text="Task Graph" Foreground="White" FontWeight="SemiBold" FontSize="11" HorizontalAlignment="Center" />
                                         </Border>
-                                        <Border Grid.Column="1" Padding="0,10">
+                                        <Border Grid.Column="1" Padding="0,12">
                                             <TextBlock Text="Artifacts" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold" FontSize="11" HorizontalAlignment="Center" />
                                         </Border>
                                     </Grid>
 
                                     <!-- Task Tree Content -->
-                                    <ScrollViewer Grid.Row="1" Padding="12">
+                                    <ScrollViewer Grid.Row="1" Padding="16" Background="#141414">
                                         <StackPanel Spacing="16">
                                             <TextBlock Text="CURRENT EXECUTION" Style="{StaticResource Win5HeaderLabelStyle}" />
                                             
-                                            <StackPanel Spacing="8">
-                                                <Grid Padding="4">
+                                            <StackPanel Spacing="4">
+                                                <Border Padding="12,8" CornerRadius="4" Background="#1Affffff">
                                                     <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <Ellipse Width="12" Height="12" Fill="{StaticResource SuccessBrush}" Opacity="0.3" VerticalAlignment="Center" />
+                                                        <Border Width="12" Height="12" CornerRadius="6" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" Background="#4010893E">
+                                                            <FontIcon Glyph="&#xE73E;" FontSize="8" Foreground="{StaticResource SuccessBrush}" FontWeight="Black" />
+                                                        </Border>
                                                         <TextBlock Text="Understand Requirement" FontSize="12" Foreground="White" />
                                                     </StackPanel>
-                                                </Grid>
+                                                </Border>
                                                 
-                                                <Grid Padding="4">
+                                                <Border Padding="12,8" CornerRadius="4" Background="#1Affffff">
                                                     <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <Ellipse Width="12" Height="12" Fill="{StaticResource SuccessBrush}" Opacity="0.3" VerticalAlignment="Center" />
+                                                        <Border Width="12" Height="12" CornerRadius="6" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" Background="#4010893E">
+                                                            <FontIcon Glyph="&#xE73E;" FontSize="8" Foreground="{StaticResource SuccessBrush}" FontWeight="Black" />
+                                                        </Border>
                                                         <TextBlock Text="Generate Code" FontSize="12" Foreground="White" />
                                                     </StackPanel>
-                                                </Grid>
+                                                </Border>
 
-                                                <Border Background="#26D13438" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" CornerRadius="4" Padding="8,6">
+                                                <Border Background="#26D13438" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" CornerRadius="4" Padding="12,8">
                                                     <Grid>
                                                         <StackPanel Orientation="Horizontal" Spacing="12">
                                                             <Ellipse Width="12" Height="12" Stroke="{StaticResource DangerBrush}" StrokeThickness="2" VerticalAlignment="Center" />
                                                             <TextBlock Text="Compile TS" FontSize="12" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold" />
                                                         </StackPanel>
-                                                        <Button Content="Fix" HorizontalAlignment="Right" Background="{StaticResource DangerBrush}" Foreground="White" FontSize="10" Padding="8,0" Height="20" />
+                                                        <Button Content="Fix" HorizontalAlignment="Right" Background="{StaticResource DangerBrush}" Foreground="White" FontSize="10" Padding="8,0" Height="20" CornerRadius="2" />
                                                     </Grid>
                                                 </Border>
 
-                                                <StackPanel Margin="24,0,0,0" Spacing="4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0" Padding="12,0">
-                                                    <TextBlock Text="run tsc --noEmit" FontSize="10" Foreground="White" Opacity="0.6" />
+                                                <StackPanel Margin="24,0,0,0" Spacing="4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0" Padding="12,4">
+                                                    <TextBlock Text="run tsc --noEmit" FontSize="10" Foreground="White" Opacity="0.6" FontFamily="{StaticResource V5MonoFontFamily}" />
                                                 </StackPanel>
 
-                                                <Grid Padding="4" Opacity="0.5">
+                                                <Border Padding="12,8" CornerRadius="4" Opacity="0.5">
                                                     <StackPanel Orientation="Horizontal" Spacing="12">
                                                         <Ellipse Width="12" Height="12" Stroke="{StaticResource TextMutedBrush}" StrokeThickness="1" StrokeDashArray="2,1" VerticalAlignment="Center" />
                                                         <TextBlock Text="End Run" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
                                                     </StackPanel>
-                                                </Grid>
+                                                </Border>
                                             </StackPanel>
                                         </StackPanel>
                                     </ScrollViewer>
@@ -504,7 +526,7 @@
                                     <Border Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16,12">
                                         <Grid>
                                             <TextBlock Text="ACTIVE LINKS: 2 / 5 ALLOWED" Style="{StaticResource Win5HeaderLabelStyle}" VerticalAlignment="Center" />
-                                            <Button HorizontalAlignment="Right" Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="12,6" CornerRadius="4">
+                                                <Button HorizontalAlignment="Right" Background="{StaticResource AppBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="12,6" CornerRadius="4" IsEnabled="False" Opacity="0.55">
                                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                                     <FontIcon Glyph="&#xE710;" FontSize="12" />
                                                     <TextBlock Text="Create Manual Link" FontSize="12" FontWeight="SemiBold" />
@@ -576,7 +598,7 @@
 
                                                     <StackPanel Grid.Column="2" Spacing="8">
                                                         <Button Content="Delete" IsEnabled="False" Width="100" Opacity="0.5" FontSize="12" />
-                                                        <Button Content="Open Folder" Width="100" FontSize="12" />
+                                                        <Button Content="Open Folder" Width="100" FontSize="12" IsEnabled="False" Opacity="0.55" />
                                                     </StackPanel>
                                                 </Grid>
                                             </Grid>
@@ -605,7 +627,7 @@
                                                     <TextBlock Text="Status: Unclaimed / Orphaned" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
                                                 </StackPanel>
 
-                                                <Button Grid.Column="2" Content="Delete" Background="{StaticResource DangerBrush}" Foreground="White" FontWeight="SemiBold" Width="100" FontSize="12" />
+                                                <Button Grid.Column="2" Content="Delete" Background="{StaticResource DangerBrush}" Foreground="White" FontWeight="SemiBold" Width="100" FontSize="12" IsEnabled="False" Opacity="0.55" />
                                             </Grid>
                                         </Border>
 
@@ -654,7 +676,7 @@
                                                         <TextBlock Text="Linked Identity: user_9x0f...f2a1" FontSize="10" FontFamily="{StaticResource V5MonoFontFamily}" Foreground="{StaticResource TextMutedBrush}" />
                                                     </Border>
 
-                                                    <Button Content="Revoke Link" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMutedBrush}" FontSize="11" Padding="0" />
+                                                    <Button Content="Revoke Link" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMutedBrush}" FontSize="11" Padding="0" IsEnabled="False" Opacity="0.55" />
                                                 </StackPanel>
                                                 <FontIcon Grid.Column="1" Glyph="&#xE73E;" FontSize="48" Foreground="{StaticResource SuccessBrush}" Opacity="0.3" VerticalAlignment="Top" />
                                             </Grid>
@@ -685,7 +707,7 @@
                                                         </StackPanel>
                                                     </Border>
 
-                                                    <Button Content="Open Billing History" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMutedBrush}" FontSize="11" Padding="0" />
+                                                    <Button Content="Open Billing History" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMutedBrush}" FontSize="11" Padding="0" IsEnabled="False" Opacity="0.55" />
                                                 </StackPanel>
                                                 <FontIcon Grid.Column="1" Glyph="&#xEAFD;" FontSize="48" Foreground="{StaticResource AccentBrush}" Opacity="0.3" VerticalAlignment="Top" />
                                             </Grid>
@@ -725,23 +747,24 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="SETTINGS" Style="{StaticResource Win5HeaderLabelStyle}" Margin="12,0,0,16" />
                                         
-                                        <Button Content="General" Style="{StaticResource SettingsSubNavButtonStyle}" />
+                                        <Button Content="General" Style="{StaticResource SettingsSubNavButtonStyle}" IsEnabled="False" Opacity="0.55" />
                                         
                                         <Grid>
-                                            <Button Content="Runtime Config" 
+                                        <Button Content="Runtime Config" 
                                                     Style="{StaticResource SettingsSubNavButtonStyle}" 
                                                     Foreground="White" 
                                                     FontWeight="SemiBold"
-                                                    Background="#1Affffff" />
+                                                    Background="#1Affffff"
+                                                    IsEnabled="False" />
                                             <Border HorizontalAlignment="Left" Width="3" Margin="0,8" Background="{StaticResource AccentBrush}" CornerRadius="0,2,2,0" />
                                         </Grid>
 
-                                        <Button Content="Language Models" Style="{StaticResource SettingsSubNavButtonStyle}" />
-                                        <Button Content="Tools &amp; Packages" Style="{StaticResource SettingsSubNavButtonStyle}" />
+                                        <Button Content="Language Models" Style="{StaticResource SettingsSubNavButtonStyle}" IsEnabled="False" Opacity="0.55" />
+                                        <Button Content="Tools &amp; Packages" Style="{StaticResource SettingsSubNavButtonStyle}" IsEnabled="False" Opacity="0.55" />
                                         
                                         <Border Margin="12,12" Background="{StaticResource BorderBrush}" Height="1" HorizontalAlignment="Stretch" />
                                         
-                                        <Button Content="Account &amp; Node" Style="{StaticResource SettingsSubNavButtonStyle}" />
+                                        <Button Content="Account &amp; Node" Style="{StaticResource SettingsSubNavButtonStyle}" IsEnabled="False" Opacity="0.55" />
                                     </StackPanel>
                                 </Border>
 
@@ -837,7 +860,7 @@
                                                         <TextBlock Text="Automatically delete git worktrees when a session completes successfully to save disk space." 
                                                                    FontSize="11" Foreground="{StaticResource TextMutedBrush}" MaxWidth="500" />
                                                     </StackPanel>
-                                                    <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="True" />
+                                                    <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsOn="True" IsEnabled="False" />
                                                 </Grid>
                                             </Border>
                                         </StackPanel>
@@ -858,7 +881,7 @@
                                                     <StackPanel Spacing="12">
                                                         <TextBlock Text="Max Concurrent Sessions" Foreground="White" FontWeight="SemiBold" FontSize="14" />
                                                         <TextBlock Text="Maximum active orchestrated runs." FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
-                                                        <NumberBox Value="3" SpinButtonPlacementMode="Compact" HorizontalAlignment="Left" Width="120" Background="#141414" />
+                                                        <NumberBox Value="3" SpinButtonPlacementMode="Compact" HorizontalAlignment="Left" Width="120" Background="#141414" IsEnabled="False" />
                                                     </StackPanel>
                                                 </Border>
 
@@ -866,7 +889,7 @@
                                                     <StackPanel Spacing="12">
                                                         <TextBlock Text="Timeout Per Task Node" Foreground="White" FontWeight="SemiBold" FontSize="14" />
                                                         <TextBlock Text="Time before agent intervention triggers (seconds)." FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
-                                                        <NumberBox Value="300" SpinButtonPlacementMode="Compact" HorizontalAlignment="Left" Width="120" Background="#141414" />
+                                                        <NumberBox Value="300" SpinButtonPlacementMode="Compact" HorizontalAlignment="Left" Width="120" Background="#141414" IsEnabled="False" />
                                                     </StackPanel>
                                                 </Border>
                                             </Grid>
@@ -885,7 +908,7 @@
                                                         <TextBlock Text="Allow orchestrator tools and sub-agents to make external HTTP requests during builds." 
                                                                    FontSize="11" Foreground="{StaticResource TextMutedBrush}" MaxWidth="500" />
                                                     </StackPanel>
-                                                    <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                    <ToggleSwitch HorizontalAlignment="Right" VerticalAlignment="Center" IsEnabled="False" />
                                                 </Grid>
                                             </Border>
                                         </StackPanel>
@@ -902,7 +925,9 @@
                                             FontWeight="SemiBold" 
                                             Padding="32,8"
                                             CornerRadius="4"
-                                            HorizontalAlignment="Right" />
+                                            HorizontalAlignment="Right"
+                                            IsEnabled="False"
+                                            Opacity="0.55" />
                                 </Border>
                             </Grid>
                         </Grid>
@@ -911,18 +936,147 @@
             </NavigationView>
         </Grid>
 
+        <!-- Overlays -->
+        
+        <!-- Intervention Overlay (Manual Human Rescue) -->
+        <Grid x:Name="InterventionOverlay" Visibility="Collapsed" Grid.RowSpan="2" Background="#CC000000">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" 
+                    Width="900" Height="640" 
+                    Background="#141414" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" 
+                    CornerRadius="12">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#26D13438" Padding="24,16" BorderBrush="{StaticResource DangerBrush}" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <FontIcon Glyph="&#xE7BA;" Foreground="{StaticResource DangerBrush}" FontSize="24" VerticalAlignment="Center" />
+                                <StackPanel>
+                                    <TextBlock Text="Manual Intervention Required" Foreground="White" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock Text="ORCHESTRATOR EXECUTION PAUSED / TOOL ERROR" Style="{StaticResource Win5HeaderLabelStyle}" Foreground="{StaticResource DangerBrush}" />
+                                </StackPanel>
+                            </StackPanel>
+                            <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="#33D13438" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" CornerRadius="4" Padding="8,2">
+                                <TextBlock Text="Node: err_compile_x8" FontSize="10" FontWeight="Black" Foreground="{StaticResource DangerBrush}" FontFamily="{StaticResource V5MonoFontFamily}" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="360" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0" Padding="32">
+                            <StackPanel Spacing="32">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Failure Reason" Style="{StaticResource Win5HeaderLabelStyle}" Foreground="White" />
+                                    <Border Background="#141414" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="20">
+                                        <Grid>
+                                            <Border HorizontalAlignment="Left" Width="4" Margin="-20,-20,0,-20" Background="{StaticResource DangerBrush}" CornerRadius="4,0,0,4" />
+                                            <StackPanel Spacing="8">
+                                                <TextBlock Text="// Agent attempted to compile project but TS choked." FontSize="11" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" />
+                                                <TextBlock Text="Error: TS2304" FontSize="11" Foreground="{StaticResource DangerBrush}" FontFamily="{StaticResource V5MonoFontFamily}" />
+                                                <TextBlock Text="Cannot find name 'TailwindConfig' in src/utils.ts:23:15" FontSize="11" Foreground="White" FontFamily="{StaticResource V5MonoFontFamily}" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Context Dump" Style="{StaticResource Win5HeaderLabelStyle}" Foreground="White" />
+                                    <Border Background="Black" CornerRadius="8" Padding="16">
+                                        <TextBlock Text="{Binding StatusMessage}" FontSize="10" Foreground="#A6C0D5}" FontFamily="{StaticResource V5MonoFontFamily}" TextWrapping="Wrap" />
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Background="#1F1F1F" Padding="24">
+                            <StackPanel Spacing="24">
+                                <TextBlock Text="RESOLUTION ACTIONS" Style="{StaticResource Win5HeaderLabelStyle}" />
+                                <Border Style="{StaticResource StudioCardStyle}" Padding="16" BorderBrush="{StaticResource AccentBrush}">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Instruct Agent" Foreground="White" FontWeight="SemiBold" FontSize="13" />
+                                        <TextBox PlaceholderText="Provide natural language fix..." AcceptsReturn="True" Height="80" Background="#141414" FontSize="12" />
+                                        <Button Content="Send &amp; Resume" Background="{StaticResource AccentBrush}" Foreground="Black" FontWeight="SemiBold" HorizontalAlignment="Stretch" IsEnabled="False" Opacity="0.55" />
+                                    </StackPanel>
+                                </Border>
+                                <Button Content="Open IDE in Workspace" Background="#1Affffff" HorizontalAlignment="Stretch" Padding="8" CornerRadius="4" IsEnabled="False" Opacity="0.55" />
+                                <Button Content="Terminate Run" Background="{StaticResource DangerBrush}" Foreground="White" FontWeight="SemiBold" HorizontalAlignment="Stretch" IsEnabled="False" Opacity="0.55" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Task Tree Overlay (Monitor) -->
+        <Grid x:Name="TaskTreeOverlay" Visibility="Collapsed" Grid.RowSpan="2" Background="#F2141414">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="56" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,0">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                            <Button Padding="8" Background="Transparent" BorderThickness="0">
+                                <FontIcon Glyph="&#xE72B;" FontSize="16" Foreground="White" />
+                            </Button>
+                            <TextBlock Text="Task Tree Monitor" Foreground="White" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                            <TextBlock Text="#ws-a8b2" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="1">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="100" Spacing="48">
+                            <Border Style="{StaticResource StudioCardStyle}" Width="260" Padding="16">
+                                <StackPanel Spacing="8">
+                                    <Border Background="#1A10893E" BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1" CornerRadius="4" Padding="6,1" HorizontalAlignment="Left">
+                                        <TextBlock Text="DONE" FontSize="9" FontWeight="Black" Foreground="{StaticResource SuccessBrush}" />
+                                    </Border>
+                                    <TextBlock Text="Environment Genesis" Foreground="White" FontWeight="SemiBold" FontSize="13" />
+                                </StackPanel>
+                            </Border>
+                            <Border Width="2" Height="40" Background="{StaticResource BorderBrush}" />
+                            <Border Style="{StaticResource StudioCardStyle}" Width="320" Padding="16" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="Generate Mockup Prototypes" Foreground="White" FontWeight="SemiBold" FontSize="14" />
+                                    <ProgressBar Value="57" Foreground="{StaticResource AccentBrush}" Height="4" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Grid>
+
         <!-- Global Status Bar -->
-        <Border Grid.Row="1" Height="24" Background="#0067C0">
+        <Border Grid.Row="1" Height="28" Background="#0067C0">
             <Grid Padding="12,0">
                 <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE943;" FontSize="12" Foreground="White" />
-                        <TextBlock Text="Takomi / Local" FontSize="10" Foreground="White" FontWeight="Bold" FontFamily="Cascadia Code" />
+                        <FontIcon Glyph="&#xE946;" FontSize="12" Foreground="White" />
+                        <TextBlock Text="Takomi / Local" FontSize="11" FontWeight="SemiBold" Foreground="White" />
                     </StackPanel>
-                    <TextBlock Text="Engine Ready" FontSize="10" Foreground="White" Opacity="0.8" />
+                    <TextBlock Text="ws-a8b2" FontSize="11" Foreground="White" Opacity="0.7" FontFamily="{StaticResource V5MonoFontFamily}" />
+                    <TextBlock Text="BLOCKED" FontSize="11" Foreground="White" Opacity="0.6" FontWeight="Bold" />
                 </StackPanel>
-                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                    <TextBlock Text="Bags Protocol Verified" FontSize="10" Foreground="White" Opacity="0.8" />
+
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse Width="8" Height="8" Fill="White" VerticalAlignment="Center" />
+                        <TextBlock Text="Engine Ready" FontSize="11" Foreground="White" />
+                    </StackPanel>
+                    <TextBlock Text="Logs" FontSize="11" Foreground="White" />
                 </StackPanel>
             </Grid>
         </Border>

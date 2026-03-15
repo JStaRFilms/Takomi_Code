@@ -181,7 +181,7 @@ public partial class MainViewModel : ObservableObject
         WorkspaceDisplayName = workspaceVm.Name;
         IsProjectOpen = true;
         StatusMessage = $"Project {workspaceVm.Name} opened.";
-        await InitializeAsync();
+        await InitializeAsync(openProjectShell: true);
     }
 
     [CommunityToolkit.Mvvm.Input.RelayCommand]
@@ -191,7 +191,7 @@ public partial class MainViewModel : ObservableObject
         StatusMessage = "Project closed.";
     }
 
-    public async Task InitializeAsync(CancellationToken cancellationToken = default)
+    public async Task InitializeAsync(bool openProjectShell = false, CancellationToken cancellationToken = default)
     {
         var workspace = await EnsureWorkspaceExistsAsync(cancellationToken);
         WorkspacePath = workspace.CurrentWorktreePath
@@ -232,7 +232,7 @@ public partial class MainViewModel : ObservableObject
             RecentWorkspaces.Add(new WorkspaceViewModel { Name = "Agent_Core_V2", Path = @"C:\CreativeOS\01_Projects\Code\Agent_Core_V2", LastOpenedAt = DateTimeOffset.Now.AddDays(-2) });
         }
         
-        IsProjectOpen = false;
+        IsProjectOpen = openProjectShell;
         UpdateBagsState(workspace);
         RuntimeTarget = NormalizeRuntimeTarget(workspace.RuntimeTarget);
     }
@@ -632,10 +632,20 @@ public partial class MainViewModel : ObservableObject
 
     private async Task<Workspace> EnsureWorkspaceExistsAsync(CancellationToken cancellationToken = default)
     {
+        var defaultWorkspacePath = ResolveDefaultWorkspacePath();
         var workspace = await _workspaceRepository.GetWorkspaceAsync(_workspaceId, cancellationToken);
         if (workspace is not null)
         {
-            workspace.Path = string.IsNullOrWhiteSpace(workspace.Path) ? Environment.CurrentDirectory : workspace.Path;
+            if (string.IsNullOrWhiteSpace(workspace.Path) || LooksLikeBuildOutputPath(workspace.Path) || !Directory.Exists(workspace.Path))
+            {
+                workspace.Path = defaultWorkspacePath;
+            }
+
+            if (string.IsNullOrWhiteSpace(workspace.CurrentWorktreePath) || !Directory.Exists(workspace.CurrentWorktreePath))
+            {
+                workspace.CurrentWorktreePath = workspace.Path;
+            }
+
             workspace.Name = string.IsNullOrWhiteSpace(workspace.Name) ? "Takomi Code Workspace" : workspace.Name;
             workspace.RuntimeTarget = NormalizeRuntimeTarget(workspace.RuntimeTarget);
             workspace.IsAttached = true;
@@ -647,7 +657,8 @@ public partial class MainViewModel : ObservableObject
         {
             Id = _workspaceId,
             Name = "Takomi Code Workspace",
-            Path = Environment.CurrentDirectory,
+            Path = defaultWorkspacePath,
+            CurrentWorktreePath = defaultWorkspacePath,
             IsAttached = true
         };
 
@@ -660,6 +671,30 @@ public partial class MainViewModel : ObservableObject
         return string.Equals(runtimeTarget, "Cloud", StringComparison.OrdinalIgnoreCase)
             ? "Cloud"
             : "Local";
+    }
+
+    private static string ResolveDefaultWorkspacePath()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            var gitPath = Path.Combine(current.FullName, ".git");
+            var solutionPath = Path.Combine(current.FullName, "src", "TakomiCode.sln");
+            if (Directory.Exists(gitPath) || File.Exists(solutionPath))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        return Environment.CurrentDirectory;
+    }
+
+    private static bool LooksLikeBuildOutputPath(string path)
+    {
+        return path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
+            || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase);
     }
 
     private void UpdateBagsState(Workspace? workspace)
