@@ -35,7 +35,10 @@ coverage/
 # --- IDEs ---
 .vscode/
 .idea/
+.vs/
+src/.vs/
 *.swp
+**/Properties/launchSettings.json
 
 # --- .NET ---
 bin/

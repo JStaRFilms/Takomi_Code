@@ -100,7 +100,11 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
         }
     }
 
-    public async Task<OrchestrationRun> StartTaskExecutionAsync(string taskId, string? parentRunId = null, CancellationToken cancellationToken = default)
+    public async Task<OrchestrationRun> StartTaskExecutionAsync(
+        string taskId,
+        string? parentRunId = null,
+        string? chatSessionId = null,
+        CancellationToken cancellationToken = default)
     {
         var task = await _orchestrationRepository.GetTaskAsync(taskId, cancellationToken);
         if (task == null) throw new InvalidOperationException($"Task {taskId} not found.");
@@ -126,15 +130,26 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
         var parentRun = string.IsNullOrWhiteSpace(parentRunId)
             ? null
             : await _orchestrationRepository.GetRunAsync(parentRunId, cancellationToken);
-        var childChatSession = new ChatSession
+
+        ChatSession? linkedChatSession = null;
+        if (!string.IsNullOrWhiteSpace(chatSessionId))
         {
-            WorkspaceId = session.WorkspaceId,
-            Title = $"Task: {task.Name}",
-            ParentSessionId = parentRun?.ChatSessionId,
-            ModeSlug = task.TargetMode,
-            WorktreePath = task.WorkingDirectoryOverride ?? workspace?.Path
-        };
-        await _chatSessionRepository.SaveSessionAsync(childChatSession, cancellationToken);
+            linkedChatSession = await _chatSessionRepository.GetSessionAsync(chatSessionId, cancellationToken);
+        }
+
+        if (linkedChatSession is null)
+        {
+            linkedChatSession = new ChatSession
+            {
+                WorkspaceId = session.WorkspaceId,
+                Title = $"Task: {task.Name}",
+                ParentSessionId = parentRun?.ChatSessionId,
+                ModeSlug = task.TargetMode,
+                WorktreePath = task.WorkingDirectoryOverride ?? workspace?.Path
+            };
+
+            await _chatSessionRepository.SaveSessionAsync(linkedChatSession, cancellationToken);
+        }
 
         task.Status = TaskStatus.Queued;
         task.StartedAt ??= DateTimeOffset.UtcNow;
@@ -145,7 +160,7 @@ public class OrchestratorExecutionEngine : IOrchestratorExecutionEngine
             WorkspaceId = session.WorkspaceId,
             TaskId = task.Id,
             ParentRunId = parentRunId,
-            ChatSessionId = childChatSession.Id,
+            ChatSessionId = linkedChatSession.Id,
             WorkingDirectory = ResolveWorkingDirectory(task, workspace?.Path),
             Status = TaskStatus.Queued,
             IsBackground = true

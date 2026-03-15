@@ -17,7 +17,11 @@ public interface IOrchestratorExecutionEngine
         string? parentTaskId = null,
         string? workingDirectoryOverride = null,
         CancellationToken cancellationToken = default);
-    Task<OrchestrationRun> StartTaskExecutionAsync(string taskId, string? parentRunId = null, CancellationToken cancellationToken = default);
+    Task<OrchestrationRun> StartTaskExecutionAsync(
+        string taskId,
+        string? parentRunId = null,
+        string? chatSessionId = null,
+        CancellationToken cancellationToken = default);
     Task BackgroundMonitorRunsAsync(string sessionId, CancellationToken cancellationToken = default);
     Task MarkTaskCompleteAsync(string taskId, string resultFilePath, CancellationToken cancellationToken = default);
     Task MarkTaskFailedAsync(string taskId, string errorMessage, CancellationToken cancellationToken = default);

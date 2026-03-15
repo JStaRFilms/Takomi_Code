@@ -28,6 +28,8 @@ public partial class ChatMessageViewModel : ObservableObject
             }
         }
     }
+
+    public bool IsUser => Role.Equals("user", StringComparison.OrdinalIgnoreCase);
     
     public DateTimeOffset Timestamp => _entity.Timestamp;
 }

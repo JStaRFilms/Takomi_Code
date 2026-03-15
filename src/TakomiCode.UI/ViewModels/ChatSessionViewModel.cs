@@ -9,10 +9,12 @@ namespace TakomiCode.UI.ViewModels;
 public partial class ChatSessionViewModel : ObservableObject
 {
     private readonly ChatSession _entity;
+    private bool _isTransient;
     
-    public ChatSessionViewModel(ChatSession entity)
+    public ChatSessionViewModel(ChatSession entity, bool isTransient = false)
     {
         _entity = entity;
+        _isTransient = isTransient;
         Messages = new ObservableCollection<ChatMessageViewModel>(
             _entity.Transcript.Select(m => new ChatMessageViewModel(m))
         );
@@ -41,6 +43,10 @@ public partial class ChatSessionViewModel : ObservableObject
     public string? WorktreePath => _entity.WorktreePath;
     public DateTimeOffset UpdatedAt => _entity.UpdatedAt;
     public DateTimeOffset CreatedAt => _entity.CreatedAt;
+    public bool IsTransient => _isTransient;
+    public bool HasMessages => _entity.Transcript.Count > 0;
+
+    public string LastActiveFormatted => UpdatedAt.LocalDateTime.ToString("g");
 
     public ObservableCollection<ChatMessageViewModel> Messages { get; }
     
@@ -83,6 +89,17 @@ public partial class ChatSessionViewModel : ObservableObject
         _entity.UpdatedAt = DateTimeOffset.UtcNow;
         OnPropertyChanged(nameof(WorktreePath));
         OnPropertyChanged(nameof(UpdatedAt));
+    }
+
+    public void MarkPersisted()
+    {
+        if (!_isTransient)
+        {
+            return;
+        }
+
+        _isTransient = false;
+        OnPropertyChanged(nameof(IsTransient));
     }
     
     public ChatSession GetEntity() => _entity;
