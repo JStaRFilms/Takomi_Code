@@ -7,9 +7,19 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
+            
+            <SolidColorBrush x:Key="AppBackgroundBrush" Color="#141414" />
+            <SolidColorBrush x:Key="SurfaceBrush" Color="#1F1F1F" />
+            <SolidColorBrush x:Key="SurfaceAltBrush" Color="#282828" />
+            <SolidColorBrush x:Key="SurfaceAccentBrush" Color="#241B15" />
+            <SolidColorBrush x:Key="ElevatedBrush" Color="#282828" />
+            <SolidColorBrush x:Key="AccentBrush" Color="#FFB900" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#888888" />
+            <SolidColorBrush x:Key="BorderBrush" Color="#333333" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="#10893E" />
+            <SolidColorBrush x:Key="DangerBrush" Color="#D13438" />
+            <SolidColorBrush x:Key="WarningBrush" Color="#FCE100" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

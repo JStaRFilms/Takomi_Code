@@ -42,8 +42,12 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private OrchestrationRun? _selectedActiveRun;
 
+    [ObservableProperty]
+    private bool _isProjectOpen;
+
     public ObservableCollection<ChatSessionViewModel> Sessions { get; } = new();
     public ObservableCollection<OrchestrationRun> ActiveRuns { get; } = new();
+    public ObservableCollection<WorkspaceViewModel> RecentWorkspaces { get; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(WorkspaceName))]
@@ -162,6 +166,24 @@ public partial class MainViewModel : ObservableObject
         SelectedShellSection = section;
     }
 
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    public async Task InitializeProjectAsync(WorkspaceViewModel workspaceVm)
+    {
+        // For now, we simulate switching. In a real app, we'd reload the context.
+        WorkspacePath = workspaceVm.Path;
+        WorkspaceDisplayName = workspaceVm.Name;
+        IsProjectOpen = true;
+        StatusMessage = $"Project {workspaceVm.Name} opened.";
+        await InitializeAsync();
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    public void CloseProject()
+    {
+        IsProjectOpen = false;
+        StatusMessage = "Project closed.";
+    }
+
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         var workspace = await EnsureWorkspaceExistsAsync(cancellationToken);
@@ -196,6 +218,14 @@ public partial class MainViewModel : ObservableObject
         await ReloadActiveRunsAsync(cancellationToken);
 
         await LoadBillingStateAsync(cancellationToken);
+        
+        if (RecentWorkspaces.Count == 0)
+        {
+            RecentWorkspaces.Add(new WorkspaceViewModel { Name = "Takomi_Code", Path = @"C:\CreativeOS\01_Projects\Code\Takomi_Code", LastOpenedAt = DateTimeOffset.Now.AddMinutes(-12) });
+            RecentWorkspaces.Add(new WorkspaceViewModel { Name = "Agent_Core_V2", Path = @"C:\CreativeOS\01_Projects\Code\Agent_Core_V2", LastOpenedAt = DateTimeOffset.Now.AddDays(-2) });
+        }
+        
+        IsProjectOpen = false;
         UpdateBagsState(workspace);
         RuntimeTarget = NormalizeRuntimeTarget(workspace.RuntimeTarget);
     }
