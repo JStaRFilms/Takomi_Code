@@ -9,7 +9,7 @@
     mc:Ignorable="d">
 
     <Grid x:Name="RootGrid"
-          Background="#0E0E11"
+          Background="{StaticResource AppBackgroundBrush}"
           Loaded="RootGrid_Loaded">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -17,20 +17,6 @@
         </Grid.RowDefinitions>
         
         <Grid.Resources>
-            <Style x:Key="Win5HeaderLabelStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="10" />
-                <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
-                <Setter Property="CharacterSpacing" Value="100" />
-            </Style>
-
-            <Style x:Key="StudioCardStyle" TargetType="Border">
-                <Setter Property="Background" Value="#1F1F1F" />
-                <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="12" />
-            </Style>
-
             <Style x:Key="SettingsSubNavButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
@@ -53,11 +39,12 @@
             <!-- App Studio Shell -->
             <NavigationView x:Name="ShellNavigation"
                             Visibility="{Binding IsProjectOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
-                            Background="{StaticResource AppBackgroundBrush}"
+                            Background="Transparent"
                             IsBackButtonVisible="Collapsed"
                             IsSettingsVisible="False"
                             PaneDisplayMode="LeftCompact"
                             CompactPaneLength="64"
+                            OpenPaneLength="220"
                             SelectionChanged="ShellNavigation_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Name="HomeNavItem" Content="Home" Tag="Home">
@@ -110,8 +97,8 @@
                                        VerticalAlignment="Center" />
                             <Border Width="1" Height="16" Background="{StaticResource BorderBrush}" Margin="8,0" />
                             <Border Padding="8,4" 
-                                    Background="#141414" 
-                                    BorderBrush="#33ffffff" 
+                                    Background="{StaticResource AppBackgroundBrush}" 
+                                    BorderBrush="#1Affffff" 
                                     BorderThickness="1" 
                                     CornerRadius="4">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
@@ -119,7 +106,7 @@
                                     <TextBlock Text="{Binding WorkspacePath}" 
                                                FontSize="11" 
                                                Foreground="{StaticResource TextMutedBrush}" 
-                                               FontFamily="Cascadia Code, Segoe UI Mono" />
+                                               FontFamily="{StaticResource V5MonoFontFamily}" />
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -129,7 +116,7 @@
                                 Background="{StaticResource AccentBrush}"
                                 Foreground="Black"
                                 FontWeight="SemiBold"
-                                Padding="16,8"
+                                Padding="20,8"
                                 CornerRadius="4"
                                 Click="CreateChatButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -143,46 +130,45 @@
                 <Grid Grid.Row="1">
                     <Grid x:Name="HomeSection">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel MaxWidth="1024" HorizontalAlignment="Center" Margin="0,48" Spacing="48">
+                            <StackPanel MaxWidth="1024" HorizontalAlignment="Center" Margin="0,64" Spacing="48">
                                 
-                                <StackPanel Spacing="8">
-                                    <TextBlock Text="Orchestrator Overview" FontSize="36" FontWeight="SemiBold" Foreground="White" />
-                                    <TextBlock Text="Status: Connected to Runtime" FontSize="14" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Right" Margin="0,-24,0,0" />
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Orchestrator Overview" FontSize="32" FontWeight="SemiBold" Foreground="White" />
+                                        <TextBlock Text="Local runtime connectivity established." FontSize="14" Foreground="{StaticResource TextMutedBrush}" />
+                                    </StackPanel>
+                                    <TextBlock Text="Status: Connected to Runtime" FontSize="12" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="{StaticResource V5MonoFontFamily}" />
+                                </Grid>
 
-                                <!-- Action Row -->
+                                <!-- Status Grid -->
                                 <Grid ColumnSpacing="24">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="1.5*" />
+                                        <ColumnDefinition Width="2*" />
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Runtime Card -->
                                     <Border Style="{StaticResource StudioCardStyle}" Padding="20">
-                                        <StackPanel Spacing="16">
+                                        <StackPanel Spacing="12">
                                             <TextBlock Text="RUNTIME ENGINE" Style="{StaticResource Win5HeaderLabelStyle}" />
                                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                                <Ellipse Width="12" Height="12" Fill="{StaticResource SuccessBrush}" VerticalAlignment="Center" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Local" Foreground="White" FontWeight="SemiBold" FontSize="16" />
-                                                    <TextBlock Text="Local Docker" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
-                                                </StackPanel>
+                                                <Ellipse Width="10" Height="10" Fill="{StaticResource SuccessBrush}" VerticalAlignment="Center" />
+                                                <TextBlock Text="Local Docker" Foreground="White" FontWeight="SemiBold" FontSize="15" />
                                             </StackPanel>
+                                            <TextBlock Text="Docker Daemon v24.0.5" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" />
                                         </StackPanel>
                                     </Border>
 
                                     <!-- Context Card -->
-                                    <Border Style="{StaticResource StudioCardStyle}" Padding="20">
-                                        <StackPanel Spacing="16">
+                                    <Border Grid.Column="1" Style="{StaticResource StudioCardStyle}" Padding="20">
+                                        <StackPanel Spacing="12">
                                             <TextBlock Text="PARENT GIT BRANCH" Style="{StaticResource Win5HeaderLabelStyle}" />
                                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                                <FontIcon Glyph="&#xEC50;" Foreground="{StaticResource TextMutedBrush}" FontSize="20" />
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding CurrentGitBranch}" Foreground="White" FontWeight="SemiBold" FontSize="16" />
-                                                    <TextBlock Text="1 active worktree" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
-                                                </StackPanel>
+                                                <FontIcon Glyph="&#xE8B7;" Foreground="{StaticResource TextMutedBrush}" FontSize="18" />
+                                                <TextBlock Text="{Binding CurrentGitBranch}" Foreground="White" FontWeight="SemiBold" FontSize="15" />
                                             </StackPanel>
+                                            <TextBlock Text="1 active worktree" FontSize="10" Foreground="{StaticResource TextMutedBrush}" />
                                         </StackPanel>
                                     </Border>
 
@@ -195,22 +181,24 @@
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <FontIcon Glyph="&#xEA39;" Foreground="{StaticResource DangerBrush}" FontSize="24" VerticalAlignment="Center" />
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <FontIcon Glyph="&#xE7BA;" Foreground="{StaticResource DangerBrush}" FontSize="24" VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
                                                 <TextBlock Text="ATTENTION REQUIRED" Style="{StaticResource Win5HeaderLabelStyle}" Foreground="{StaticResource DangerBrush}" />
-                                                <TextBlock Text="{Binding BlockedRunCountLabel}" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding BlockedRunCountLabel}" Foreground="White" FontSize="16" FontWeight="SemiBold" />
                                             </StackPanel>
                                             <Button Grid.Column="2" Content="Resolve Now" 
-                                                    Background="Transparent" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" 
-                                                    Foreground="{StaticResource DangerBrush}" FontSize="12" Padding="12,4" />
+                                                    Background="{StaticResource DangerBrush}" Opacity="0.9"
+                                                    Foreground="White" FontSize="12" FontWeight="SemiBold" Padding="16,6" CornerRadius="4" />
                                         </Grid>
                                     </Border>
                                 </Grid>
 
                                 <!-- Recent Sessions Table -->
                                 <StackPanel Spacing="20">
-                                    <TextBlock Text="Recent Sessions" Style="{StaticResource Win5HeaderLabelStyle}" />
-                                    <Border Style="{StaticResource StudioCardStyle}" Padding="0">
+                                    <Border Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0" CornerRadius="8,8,0,0" Padding="16,12">
+                                        <TextBlock Text="Recent Sessions" Foreground="White" FontSize="14" FontWeight="SemiBold" />
+                                    </Border>
+                                    <Border Style="{StaticResource StudioCardStyle}" CornerRadius="0,0,8,8" Padding="0">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
@@ -218,7 +206,7 @@
                                             </Grid.RowDefinitions>
                                             
                                             <!-- Table Header -->
-                                            <Grid Background="#1A1A1A" Padding="16,10" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                            <Grid Background="#121212" Padding="16,8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="2*" />
                                                     <ColumnDefinition Width="100" />
@@ -232,10 +220,17 @@
                                             </Grid>
 
                                             <!-- Table Body -->
-                                            <ListView Grid.Row="1" ItemsSource="{Binding Sessions}" SelectionMode="None">
+                                            <ListView Grid.Row="1" ItemsSource="{Binding Sessions}" SelectionMode="None" Padding="0">
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                        <Setter Property="Padding" Value="0" />
+                                                        <Setter Property="MinHeight" Value="48" />
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
                                                 <ListView.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Grid Padding="16,8">
+                                                        <Grid Padding="16,10" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="2*" />
                                                                 <ColumnDefinition Width="100" />
@@ -243,17 +238,19 @@
                                                                 <ColumnDefinition Width="150" />
                                                             </Grid.ColumnDefinitions>
                                                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                                                <Ellipse Width="8" Height="8" Fill="{StaticResource AccentBrush}" VerticalAlignment="Center" />
-                                                                <TextBlock Text="{Binding Title}" Foreground="White" FontSize="13" VerticalAlignment="Center" />
+                                                                <Ellipse Width="6" Height="6" Fill="{StaticResource AccentBrush}" VerticalAlignment="Center" />
+                                                                <TextBlock Text="{Binding Title}" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
                                                             </StackPanel>
-                                                            <Border Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="6,2" Background="#1A1A1A" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1" CornerRadius="4">
-                                                                <TextBlock Text="ACTIVE" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
+                                                            
+                                                            <Border Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8,2" Background="#1A1A1A" BorderBrush="{StaticResource AccentBrush}" BorderThickness="1" CornerRadius="4">
+                                                                <TextBlock Text="ACTIVE" FontSize="9" FontWeight="Black" Foreground="{StaticResource AccentBrush}" />
                                                             </Border>
+
                                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                                                 <FontIcon Glyph="&#xE8B7;" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
-                                                                <TextBlock Text="{Binding WorktreePath}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" TextTrimming="CharacterEllipsis" FontFamily="Cascadia Code" />
+                                                                <TextBlock Text="{Binding WorktreePath}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" TextTrimming="CharacterEllipsis" FontFamily="{StaticResource V5MonoFontFamily}" />
                                                             </StackPanel>
-                                                            <TextBlock Grid.Column="3" Text="{Binding LastActiveFormatted}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+                                                            <TextBlock Grid.Column="3" Text="{Binding LastActiveFormatted}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" />
                                                         </Grid>
                                                     </DataTemplate>
                                                 </ListView.ItemTemplate>

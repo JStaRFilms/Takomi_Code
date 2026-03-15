@@ -9,17 +9,49 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
             
-            <SolidColorBrush x:Key="AppBackgroundBrush" Color="#141414" />
-            <SolidColorBrush x:Key="SurfaceBrush" Color="#1F1F1F" />
-            <SolidColorBrush x:Key="SurfaceAltBrush" Color="#282828" />
+            <!-- v5 Color System -->
+            <Color x:Key="V5BgColor">#141414</Color>
+            <Color x:Key="V5SurfaceColor">#1F1F1F</Color>
+            <Color x:Key="V5ElevatedColor">#282828</Color>
+            <Color x:Key="V5AccentColor">#FFB900</Color>
+            <Color x:Key="V5TextMutedColor">#888888</Color>
+            <Color x:Key="V5BorderColor">#333333</Color>
+            <Color x:Key="V5DangerColor">#D13438</Color>
+            <Color x:Key="V5SuccessColor">#10893E</Color>
+            <Color x:Key="V5WarningColor">#FCE100</Color>
+
+            <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource V5BgColor}" />
+            <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource V5SurfaceColor}" />
+            <SolidColorBrush x:Key="SurfaceAltBrush" Color="{StaticResource V5ElevatedColor}" />
             <SolidColorBrush x:Key="SurfaceAccentBrush" Color="#241B15" />
-            <SolidColorBrush x:Key="ElevatedBrush" Color="#282828" />
-            <SolidColorBrush x:Key="AccentBrush" Color="#FFB900" />
-            <SolidColorBrush x:Key="TextMutedBrush" Color="#888888" />
-            <SolidColorBrush x:Key="BorderBrush" Color="#333333" />
-            <SolidColorBrush x:Key="SuccessBrush" Color="#10893E" />
-            <SolidColorBrush x:Key="DangerBrush" Color="#D13438" />
-            <SolidColorBrush x:Key="WarningBrush" Color="#FCE100" />
+            <SolidColorBrush x:Key="ElevatedBrush" Color="{StaticResource V5ElevatedColor}" />
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource V5AccentColor}" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource V5TextMutedColor}" />
+            <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource V5BorderColor}" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource V5SuccessColor}" />
+            <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource V5DangerColor}" />
+            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource V5WarningColor}" />
+
+            <!-- Typography -->
+            <FontFamily x:Key="V5FontFamily">Segoe UI Variable Display, Segoe UI, Inter</FontFamily>
+            <FontFamily x:Key="V5MonoFontFamily">Cascadia Code, JetBrains Mono, monospace</FontFamily>
+
+            <!-- Reusable Styles -->
+            <Style x:Key="Win5HeaderLabelStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="10" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+                <Setter Property="CharacterSpacing" Value="100" />
+                <Setter Property="FontFamily" Value="{StaticResource V5FontFamily}" />
+            </Style>
+
+            <Style x:Key="StudioCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="12" />
+            </Style>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
