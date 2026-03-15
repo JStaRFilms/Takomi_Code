@@ -2,341 +2,559 @@
     x:Class="TakomiCode.UI.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:viewModels="using:TakomiCode.UI.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Grid x:Name="RootGrid"
-          Loaded="RootGrid_Loaded"
-          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="300" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+          Background="#0E0E11"
+          Loaded="RootGrid_Loaded">
+        <Grid.Resources>
+            <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0E0E11" />
+            <SolidColorBrush x:Key="NavigationBrush" Color="#151519" />
+            <SolidColorBrush x:Key="SurfaceBrush" Color="#181C22" />
+            <SolidColorBrush x:Key="SurfaceAltBrush" Color="#20252D" />
+            <SolidColorBrush x:Key="SurfaceAccentBrush" Color="#2A1F17" />
+            <SolidColorBrush x:Key="BorderBrush" Color="#2C3440" />
+            <SolidColorBrush x:Key="AccentBrush" Color="#F4A259" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#98A4B3" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="#73C991" />
+            <SolidColorBrush x:Key="DangerBrush" Color="#FF7B72" />
+        </Grid.Resources>
 
-        <Border Grid.ColumnSpan="3"
-                Margin="20,20,20,0"
-                Padding="20"
-                Background="{ThemeResource AccentFillColorSecondaryBrush}"
-                CornerRadius="18">
-            <StackPanel Spacing="6">
-                <TextBlock Text="Takomi Code"
-                           FontSize="28"
-                           FontWeight="SemiBold" />
-                <TextBlock Text="Orchestrator shell"
-                           FontSize="14"
-                           Opacity="0.78" />
-                <Border Padding="12"
-                        CornerRadius="12"
-                        Background="{ThemeResource LayerOnAccentAcrylicFillColorDefaultBrush}">
-                    <TextBlock Text="{Binding StatusMessage}"
-                               TextWrapping="WrapWholeWords" />
-                </Border>
-            </StackPanel>
-        </Border>
+        <NavigationView x:Name="ShellNavigation"
+                        Background="{StaticResource AppBackgroundBrush}"
+                        IsBackButtonVisible="Collapsed"
+                        IsSettingsVisible="False"
+                        PaneDisplayMode="LeftCompact"
+                        SelectionChanged="ShellNavigation_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Name="HomeNavItem" Content="Home" Tag="Home">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE80F;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="SessionsNavItem" Content="Sessions" Tag="Sessions">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8BD;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="WorktreesNavItem" Content="Worktrees" Tag="Worktrees">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8A5;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="BillingNavItem" Content="Billing" Tag="Billing">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xEAFD;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="SettingsNavItem" Content="Settings" Tag="Settings">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
 
-        <Border Grid.Row="1"
-                Margin="20,20,10,20"
-                Padding="18"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderThickness="1"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                CornerRadius="16">
-            <Grid RowSpacing="12">
+            <Grid Margin="20">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Sessions" FontSize="20" FontWeight="SemiBold" />
-                    <TextBlock Text="Project chats and child threads" FontSize="13" Opacity="0.7" />
-                </StackPanel>
+                <Border Grid.Row="0"
+                        Padding="24,18"
+                        Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="20">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8">
-                    <Button Content="New Chat"
-                            Click="CreateChatButton_Click"
-                            Style="{ThemeResource AccentButtonStyle}" />
-                    <Button Content="New Child" Click="CreateChildSessionButton_Click" />
-                </StackPanel>
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="{Binding ActiveSectionTitle}"
+                                       Foreground="White"
+                                       FontSize="24"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding ActiveSectionSubtitle}"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       TextWrapping="WrapWholeWords" />
+                        </StackPanel>
 
-                <ListView Grid.Row="2"
-                          ItemsSource="{Binding Sessions}"
-                          SelectedItem="{Binding SelectedSession, Mode=TwoWay}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="viewModels:ChatSessionViewModel">
-                            <Border Margin="0,0,0,10"
-                                    Padding="12"
-                                    CornerRadius="12"
-                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" TextWrapping="WrapWholeWords" />
-                                    <TextBlock Text="{x:Bind WorkspaceId}" FontSize="12" Opacity="0.72" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{x:Bind ParentSessionId}" FontSize="12" Opacity="0.58" TextTrimming="CharacterEllipsis" />
-                                </StackPanel>
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    Spacing="12"
+                                    VerticalAlignment="Center">
+                            <Border Padding="12,6"
+                                    Background="{StaticResource SurfaceAltBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="999">
+                                <TextBlock Text="{Binding WorkspacePath}"
+                                           MaxWidth="320"
+                                           Foreground="White"
+                                           FontSize="12"
+                                           TextTrimming="CharacterEllipsis" />
                             </Border>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </Grid>
-        </Border>
+                            <Button Content="New Session" Click="CreateChatButton_Click" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
-        <Border Grid.Row="1"
-                Grid.Column="1"
-                Margin="10,20,10,20"
-                Padding="18"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderThickness="1"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                CornerRadius="16">
-            <Grid RowSpacing="12">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="1"
+                              Margin="0,20,0,0"
+                              VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid x:Name="HomeSection">
+                            <Grid RowSpacing="20">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                <StackPanel Spacing="12">
-                    <TextBlock Text="{Binding CurrentSessionTitle}"
-                               FontSize="20"
-                               FontWeight="SemiBold" />
-                    <Border Padding="12"
-                            CornerRadius="12"
-                            Background="{ThemeResource LayerFillColorDefaultBrush}">
-                        <StackPanel Spacing="10">
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <TextBlock Text="Worktree" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                <TextBlock Text="{Binding CurrentSessionWorktree}" FontSize="12" Opacity="0.72" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <TextBlock Text="Branch" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                <TextBlock Text="{Binding CurrentGitBranch}" FontSize="12" Opacity="0.72" VerticalAlignment="Center" />
-                                <TextBlock Text="{Binding GitDirtyIndicator}" FontSize="12" Foreground="Goldenrod" FontWeight="Bold" VerticalAlignment="Center" />
-                                <TextBlock Text="Runtime" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0" />
-                                <ComboBox SelectedItem="{Binding RuntimeTarget, Mode=TwoWay}" MinWidth="110" Height="30">
-                                    <x:String>Local</x:String>
-                                    <x:String>Cloud</x:String>
-                                </ComboBox>
-                            </StackPanel>
-                            <Grid ColumnSpacing="8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Content="New Worktree" Command="{Binding CreateWorktreeCommand}" />
-                                <TextBox Grid.Column="1"
-                                         PlaceholderText="Enter target worktree path"
-                                         Text="{Binding TargetWorktreePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <Button Grid.Column="2" Content="Switch" Command="{Binding SwitchWorktreeCommand}" />
+                                <Grid ColumnSpacing="20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Padding="28"
+                                            Background="{StaticResource SurfaceAccentBrush}"
+                                            BorderBrush="{StaticResource BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="24">
+                                        <StackPanel Spacing="16">
+                                            <TextBlock Text="Takomi Code"
+                                                       Foreground="White"
+                                                       FontSize="34"
+                                                       FontWeight="SemiBold" />
+                                            <TextBlock Text="Workspace-first orchestration shell with stronger hierarchy and dedicated page surfaces."
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       TextWrapping="WrapWholeWords" />
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Button Grid.Column="0"
+                                                        Content="Open Sessions"
+                                                        Tag="Sessions"
+                                                        Click="ShellShortcutButton_Click" />
+                                                <Button Grid.Column="1"
+                                                        Content="Runtime Settings"
+                                                        Tag="Settings"
+                                                        Click="ShellShortcutButton_Click" />
+                                            </Grid>
+                                            <Border Padding="18"
+                                                    Background="#241B15"
+                                                    BorderBrush="#4A3524"
+                                                    BorderThickness="1"
+                                                    CornerRadius="16">
+                                                <StackPanel Spacing="6">
+                                                    <TextBlock Text="{Binding WorkspaceName}"
+                                                               Foreground="White"
+                                                               FontSize="18"
+                                                               FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding WorkspacePath}"
+                                                               Foreground="{StaticResource TextMutedBrush}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding RuntimeEngineLabel}"
+                                                               Foreground="{StaticResource AccentBrush}"
+                                                               FontWeight="SemiBold" />
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Spacing="16">
+                                        <Border Padding="20"
+                                                Background="{StaticResource SurfaceBrush}"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="18">
+                                            <StackPanel Spacing="8">
+                                                <TextBlock Text="Runtime Health"
+                                                           Foreground="{StaticResource TextMutedBrush}" />
+                                                <TextBlock Text="Debug | x64 validated"
+                                                           Foreground="White"
+                                                           FontSize="18"
+                                                           FontWeight="SemiBold" />
+                                                <TextBlock Text="No startup/runtime errors reported."
+                                                           Foreground="{StaticResource SuccessBrush}" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Padding="20"
+                                                Background="{StaticResource SurfaceBrush}"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="18">
+                                            <StackPanel Spacing="8">
+                                                <TextBlock Text="Current Status"
+                                                           Foreground="{StaticResource TextMutedBrush}" />
+                                                <TextBlock Text="{Binding StatusMessage}"
+                                                           Foreground="White"
+                                                           TextWrapping="WrapWholeWords" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Row="1" ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Padding="18" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="16">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="Sessions" Foreground="{StaticResource TextMutedBrush}" />
+                                            <TextBlock Text="{Binding SessionCount}" Foreground="White" FontSize="28" FontWeight="SemiBold" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="1" Padding="18" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="16">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="Active Runs" Foreground="{StaticResource TextMutedBrush}" />
+                                            <TextBlock Text="{Binding ActiveRunCount}" Foreground="White" FontSize="28" FontWeight="SemiBold" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="2" Padding="18" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="16">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="Blocked" Foreground="{StaticResource TextMutedBrush}" />
+                                            <TextBlock Text="{Binding BlockedRunCount}" Foreground="{StaticResource DangerBrush}" FontSize="28" FontWeight="SemiBold" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="3" Padding="18" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="16">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="Runtime" Foreground="{StaticResource TextMutedBrush}" />
+                                            <TextBlock Text="{Binding RuntimeTarget}" Foreground="{StaticResource AccentBrush}" FontSize="28" FontWeight="SemiBold" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
                             </Grid>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <ListView Grid.Row="1"
-                          ItemsSource="{Binding SelectedSession.Messages}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="viewModels:ChatMessageViewModel">
-                            <Border Margin="0,0,0,8"
-                                    Padding="12"
-                                    CornerRadius="12"
-                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="{x:Bind Role}" FontWeight="SemiBold" />
-                                    <TextBlock Text="{x:Bind Content}" TextWrapping="WrapWholeWords" />
-                                    <TextBlock Text="{x:Bind Timestamp}" FontSize="12" Opacity="0.6" />
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-
-                <Border Grid.Row="2"
-                        Padding="12"
-                        CornerRadius="12"
-                        Background="{ThemeResource LayerFillColorDefaultBrush}">
-                    <StackPanel Spacing="10">
-                        <TextBox Text="{Binding DraftMessage, Mode=TwoWay}"
-                                 PlaceholderText="Type a message to persist into the transcript"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 MinHeight="84" />
-                        <Button Content="Save Message"
-                                HorizontalAlignment="Right"
-                                Click="SendMessageButton_Click"
-                                Style="{ThemeResource AccentButtonStyle}" />
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Border>
-
-        <!-- Active Runs Pane -->
-        <Border Grid.Row="1"
-                Grid.Column="2"
-                Margin="10,20,20,20"
-                Padding="18"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderThickness="1"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                CornerRadius="16">
-            <Grid RowSpacing="12">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Active Runs" FontSize="20" FontWeight="SemiBold" />
-                    <TextBlock Text="Select a run to intervene" FontSize="13" Opacity="0.7" />
-                </StackPanel>
-
-                <ListView Grid.Row="1"
-                          ItemsSource="{Binding ActiveRuns}"
-                          SelectedItem="{Binding SelectedActiveRun, Mode=TwoWay}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="0,0,0,10"
-                                    Padding="12"
-                                    CornerRadius="12"
-                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Text="{Binding TaskId}" FontWeight="SemiBold" TextWrapping="WrapWholeWords" />
-                                    <TextBlock Text="{Binding RunId}" FontSize="12" Opacity="0.7" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding Status}" FontSize="12" FontWeight="SemiBold" Foreground="{ThemeResource SystemAccentColor}" />
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-
-                <StackPanel Grid.Row="2" Spacing="8">
-                    <Grid ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="Pause" Command="{Binding PauseRunCommand}" HorizontalAlignment="Stretch" />
-                        <Button Grid.Column="1" Content="Resume" Command="{Binding ResumeRunCommand}" HorizontalAlignment="Stretch" />
-                        <Button Grid.Column="2" Content="Cancel" Command="{Binding CancelRunCommand}" HorizontalAlignment="Stretch" />
-                    </Grid>
-                    <Grid ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="Reroute" Command="{Binding RerouteRunCommand}" HorizontalAlignment="Stretch" />
-                        <Button Grid.Column="1" Content="Guidance" Command="{Binding InjectGuidanceCommand}" HorizontalAlignment="Stretch" />
-                    </Grid>
-                    <Grid ColumnSpacing="8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="Replace" Command="{Binding ReplaceRunCommand}" HorizontalAlignment="Stretch" />
-                        <Button Grid.Column="1" Content="Migrate" Command="{Binding MigrateRunCommand}" HorizontalAlignment="Stretch" />
-                    </Grid>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Border Grid.Row="2"
-                Grid.ColumnSpan="3"
-                Margin="20,0,20,20"
-                Padding="16"
-                Background="{ThemeResource LayerFillColorAltBrush}"
-                CornerRadius="16">
-            <Grid ColumnSpacing="16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <Border Padding="14"
-                        CornerRadius="14"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                    <StackPanel Spacing="10">
-                        <TextBlock Text="Billing"
-                                   FontSize="18"
-                                   FontWeight="SemiBold" />
-                        <TextBlock Text="Demo-safe Paystack entitlement flow"
-                                   FontSize="13"
-                                   Opacity="0.72" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="Status:" Opacity="0.7" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding BillingStatusText}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{ThemeResource SystemAccentColorLight2}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                        <TextBox Text="{Binding BillingEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="Paystack customer email" />
-                        <Grid ColumnSpacing="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0"
-                                    Content="Start Checkout"
-                                    Command="{Binding InitiateCheckoutCommand}"
-                                    Style="{ThemeResource AccentButtonStyle}" />
-                            <Button Grid.Column="1"
-                                    Content="Confirm Success"
-                                    Command="{Binding ConfirmCheckoutSuccessCommand}" />
                         </Grid>
-                        <TextBlock Text="{Binding PendingBillingReference}" FontFamily="Consolas" />
-                        <TextBlock Text="{Binding BillingCheckoutUrl}" TextWrapping="WrapWholeWords" />
-                    </StackPanel>
-                </Border>
 
-                <Border Grid.Column="1"
-                        Padding="14"
-                        CornerRadius="14"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                    <StackPanel Spacing="10">
-                        <TextBlock Text="Bags Verification"
-                                   FontSize="18"
-                                   FontWeight="SemiBold" />
-                        <TextBlock Text="Token linkage and readiness surface"
-                                   FontSize="13"
-                                   Opacity="0.72" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="Status:" Opacity="0.7" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding VerificationStatusText}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{ThemeResource SystemAccentColorLight2}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                        <TextBox Text="{Binding BagsTokenAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="Bags token address" />
-                        <Grid ColumnSpacing="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0"
-                                    Content="Link Token"
-                                    Command="{Binding LinkBagsTokenCommand}" />
-                            <Button Grid.Column="1"
-                                    Content="Check Readiness"
-                                    Command="{Binding CheckVerificationReadinessCommand}" />
+                        <Grid x:Name="SessionsSection" Visibility="Collapsed">
+                            <Grid ColumnSpacing="20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Padding="18"
+                                        Background="{StaticResource SurfaceBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="18">
+                                    <Grid RowSpacing="12">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Text="Project Threads"
+                                                   Foreground="White"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold" />
+
+                                        <Grid Grid.Row="1" ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Button Grid.Column="0" Content="New Chat" Click="CreateChatButton_Click" />
+                                            <Button Grid.Column="1" Content="New Child" Click="CreateChildSessionButton_Click" />
+                                        </Grid>
+
+                                        <ListView Grid.Row="2"
+                                                  ItemsSource="{Binding Sessions}"
+                                                  SelectedItem="{Binding SelectedSession, Mode=TwoWay}"
+                                                  DisplayMemberPath="Title"
+                                                  Background="Transparent"
+                                                  BorderThickness="0"
+                                                  Foreground="White" />
+                                    </Grid>
+                                </Border>
+
+                                <Grid Grid.Column="1" RowSpacing="16">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Border Padding="20"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            BorderBrush="{StaticResource BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="18">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Text="{Binding CurrentSessionTitle}"
+                                                       Foreground="White"
+                                                       FontSize="24"
+                                                       FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding CurrentSessionWorktree}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="The session area now acts like a dedicated top-level surface instead of sharing one crowded startup page."
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       TextWrapping="WrapWholeWords" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Row="1"
+                                            Padding="20"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            BorderBrush="{StaticResource BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="18">
+                                        <Grid RowSpacing="12">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Text="Transcript"
+                                                       Foreground="White"
+                                                       FontSize="18"
+                                                       FontWeight="SemiBold" />
+
+                                            <ListView Grid.Row="1"
+                                                      ItemsSource="{Binding SelectedSession.Messages}"
+                                                      Background="Transparent"
+                                                      BorderThickness="0"
+                                                      Foreground="White">
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Margin="0,0,0,10"
+                                                                Padding="12"
+                                                                Background="{StaticResource SurfaceAltBrush}"
+                                                                CornerRadius="12">
+                                                            <StackPanel Spacing="4">
+                                                                <TextBlock Text="{Binding Role}"
+                                                                           Foreground="{StaticResource AccentBrush}"
+                                                                           FontWeight="SemiBold" />
+                                                                <TextBlock Text="{Binding Content}"
+                                                                           Foreground="White"
+                                                                           TextWrapping="WrapWholeWords" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Grid.Row="2"
+                                            Padding="16"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            BorderBrush="{StaticResource BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="18">
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0"
+                                                     Text="{Binding DraftMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     PlaceholderText="Add a transcript note or orchestration instruction" />
+                                            <Button Grid.Column="1"
+                                                    Content="Save Message"
+                                                    Click="SendMessageButton_Click" />
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </Grid>
                         </Grid>
-                        <TextBlock Text="Project-scoped chats, transcript restore, billing state, and verification readiness are all persisted locally through repositories and service adapters."
-                                   TextWrapping="WrapWholeWords"
-                                   Opacity="0.76" />
-                    </StackPanel>
-                </Border>
+
+                        <Grid x:Name="WorktreesSection" Visibility="Collapsed">
+                            <Grid ColumnSpacing="20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Padding="24"
+                                        Background="{StaticResource SurfaceBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="18">
+                                    <StackPanel Spacing="14">
+                                        <TextBlock Text="Workspace Manager"
+                                                   Foreground="White"
+                                                   FontSize="24"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding WorkspacePath}"
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="This area is reserved for worktree routing, branch context, and workspace attachments."
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   TextWrapping="WrapWholeWords" />
+                                        <Border Padding="16"
+                                                Background="{StaticResource SurfaceAltBrush}"
+                                                CornerRadius="14">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="Git State"
+                                                           Foreground="{StaticResource TextMutedBrush}" />
+                                                <TextBlock Text="{Binding CurrentGitBranch}"
+                                                           Foreground="White"
+                                                           FontSize="18"
+                                                           FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding GitDirtyIndicator}"
+                                                           Foreground="{StaticResource DangerBrush}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1"
+                                        Padding="20"
+                                        Background="{StaticResource SurfaceBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="18">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Routing Notes"
+                                                   Foreground="White"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="Current session"
+                                                   Foreground="{StaticResource TextMutedBrush}" />
+                                        <TextBlock Text="{Binding CurrentSessionTitle}"
+                                                   Foreground="White" />
+                                        <TextBlock Text="Current worktree"
+                                                   Foreground="{StaticResource TextMutedBrush}" />
+                                        <TextBlock Text="{Binding CurrentSessionWorktree}"
+                                                   Foreground="White"
+                                                   TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+
+                        <Grid x:Name="BillingSection" Visibility="Collapsed">
+                            <Grid ColumnSpacing="20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Padding="24"
+                                        Background="{StaticResource SurfaceBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="18">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Billing"
+                                                   Foreground="White"
+                                                   FontSize="24"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding BillingStatusText}"
+                                                   Foreground="{StaticResource AccentBrush}"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold" />
+                                        <TextBox Text="{Binding BillingEmail, Mode=TwoWay}"
+                                                 PlaceholderText="Billing email" />
+                                        <TextBlock Text="This page is isolated so billing status no longer competes with session controls on first launch."
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1"
+                                        Padding="24"
+                                        Background="{StaticResource SurfaceBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="18">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Bags Verification"
+                                                   Foreground="White"
+                                                   FontSize="24"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding VerificationStatusText}"
+                                                   Foreground="{StaticResource AccentBrush}"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold" />
+                                        <TextBox Text="{Binding BagsTokenAddress, Mode=TwoWay}"
+                                                 PlaceholderText="Bags token address" />
+                                        <TextBlock Text="Verification readiness is now grouped with its own context rather than mixed into the landing screen."
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+
+                        <Grid x:Name="SettingsSection" Visibility="Collapsed">
+                            <Grid ColumnSpacing="20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Padding="24"
+                                        Background="{StaticResource SurfaceBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="18">
+                                    <StackPanel Spacing="14">
+                                        <TextBlock Text="Runtime Settings"
+                                                   Foreground="White"
+                                                   FontSize="24"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="Select where orchestration runs should execute."
+                                                   Foreground="{StaticResource TextMutedBrush}" />
+                                        <ComboBox SelectedItem="{Binding RuntimeTarget, Mode=TwoWay}">
+                                            <x:String>Local</x:String>
+                                            <x:String>Cloud</x:String>
+                                        </ComboBox>
+                                        <Border Padding="16"
+                                                Background="{StaticResource SurfaceAltBrush}"
+                                                CornerRadius="14">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="Runtime Surface"
+                                                           Foreground="{StaticResource TextMutedBrush}" />
+                                                <TextBlock Text="{Binding RuntimeEngineLabel}"
+                                                           Foreground="White"
+                                                           FontSize="18"
+                                                           FontWeight="SemiBold" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1"
+                                        Padding="20"
+                                        Background="{StaticResource SurfaceBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="18">
+                                    <StackPanel Spacing="10">
+                                        <TextBlock Text="Notes"
+                                                   Foreground="White"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="This page follows the runtime-settings direction you preferred: dedicated, calmer, and more desktop-like."
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   TextWrapping="WrapWholeWords" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
             </Grid>
-        </Border>
+        </NavigationView>
     </Grid>
 </Window>

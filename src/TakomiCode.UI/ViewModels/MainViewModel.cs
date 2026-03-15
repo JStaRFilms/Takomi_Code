@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.IO;
 using TakomiCode.Application.Configuration;
 using TakomiCode.Application.Contracts.Persistence;
 using TakomiCode.Domain.Entities;
@@ -23,6 +24,16 @@ public partial class MainViewModel : ObservableObject
     private string _statusMessage = "Welcome to Takomi Code Orchestrator";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsHomeSection))]
+    [NotifyPropertyChangedFor(nameof(IsSessionsSection))]
+    [NotifyPropertyChangedFor(nameof(IsWorktreesSection))]
+    [NotifyPropertyChangedFor(nameof(IsBillingSection))]
+    [NotifyPropertyChangedFor(nameof(IsSettingsSection))]
+    [NotifyPropertyChangedFor(nameof(ActiveSectionTitle))]
+    [NotifyPropertyChangedFor(nameof(ActiveSectionSubtitle))]
+    private string _selectedShellSection = "Home";
+
+    [ObservableProperty]
     private ChatSessionViewModel? _selectedSession;
 
     [ObservableProperty]
@@ -34,8 +45,44 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<ChatSessionViewModel> Sessions { get; } = new();
     public ObservableCollection<OrchestrationRun> ActiveRuns { get; } = new();
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(WorkspaceName))]
+    private string _workspacePath = Environment.CurrentDirectory;
+
+    [ObservableProperty]
+    private string _workspaceDisplayName = "Takomi Code Workspace";
+
     public string CurrentSessionTitle => SelectedSession?.Title ?? "No session selected";
     public string CurrentSessionWorktree => SelectedSession?.WorktreePath ?? "Same workspace / default worktree";
+    public string WorkspaceName => Path.GetFileName(WorkspacePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+    public string RuntimeEngineLabel => IsCloudTarget ? "Cloud Runtime" : "Local Docker";
+    public int SessionCount => Sessions.Count;
+    public int ActiveRunCount => ActiveRuns.Count;
+    public int BlockedRunCount => ActiveRuns.Count(run => run.Status == TakomiCode.Domain.Entities.TaskStatus.Blocked);
+    public int HealthyRunCount => ActiveRuns.Count(run => run.Status is TakomiCode.Domain.Entities.TaskStatus.InProgress or TakomiCode.Domain.Entities.TaskStatus.Queued or TakomiCode.Domain.Entities.TaskStatus.Paused);
+    public bool HasSessions => Sessions.Count > 0;
+    public bool HasActiveRuns => ActiveRuns.Count > 0;
+    public bool IsHomeSection => SelectedShellSection == "Home";
+    public bool IsSessionsSection => SelectedShellSection == "Sessions";
+    public bool IsWorktreesSection => SelectedShellSection == "Worktrees";
+    public bool IsBillingSection => SelectedShellSection == "Billing";
+    public bool IsSettingsSection => SelectedShellSection == "Settings";
+    public string ActiveSectionTitle => SelectedShellSection switch
+    {
+        "Sessions" => "Session Workspace",
+        "Worktrees" => "Worktree Manager",
+        "Billing" => "Billing And Verification",
+        "Settings" => "Runtime Configuration",
+        _ => "Orchestrator Overview"
+    };
+    public string ActiveSectionSubtitle => SelectedShellSection switch
+    {
+        "Sessions" => "Manage project chats, orchestration runs, and interventions.",
+        "Worktrees" => "Control linked worktrees and branch routing for active session trees.",
+        "Billing" => "Review Paystack entitlement state and Bags verification readiness.",
+        "Settings" => "Adjust runtime target and review local execution defaults.",
+        _ => "Workspace-first orchestration shell with quick status, recent sessions, and runtime health."
+    };
 
     [ObservableProperty]
     private string _currentGitBranch = "unknown";
@@ -109,9 +156,18 @@ public partial class MainViewModel : ObservableObject
         _bagsService = bagsService;
     }
 
+    public void SelectShellSection(string section)
+    {
+        SelectedShellSection = section;
+    }
+
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         var workspace = await EnsureWorkspaceExistsAsync(cancellationToken);
+        WorkspacePath = workspace.CurrentWorktreePath
+            ?? workspace.Path
+            ?? Environment.CurrentDirectory;
+        WorkspaceDisplayName = workspace.Name;
 
         var sessions = (await _chatSessionRepository
             .GetSessionsByWorkspaceAsync(_workspaceId, cancellationToken))
@@ -135,6 +191,7 @@ public partial class MainViewModel : ObservableObject
             StatusMessage = $"Loaded {Sessions.Count} chat session(s)";
         }
 
+        NotifySessionMetricsChanged();
         await ReloadActiveRunsAsync(cancellationToken);
 
         await LoadBillingStateAsync(cancellationToken);
@@ -171,6 +228,8 @@ public partial class MainViewModel : ObservableObject
         {
             ActiveRuns.Add(run);
         }
+
+        NotifyRunMetricsChanged();
     }
 
     public async Task CreateProjectChatAsync(string? title = null, CancellationToken cancellationToken = default)
@@ -182,6 +241,7 @@ public partial class MainViewModel : ObservableObject
         };
 
         await PersistNewSessionAsync(session, cancellationToken);
+        SelectedShellSection = "Sessions";
         StatusMessage = $"Created chat '{session.Title}'";
     }
 
@@ -197,6 +257,7 @@ public partial class MainViewModel : ObservableObject
             title: $"{SelectedSession.Title} / Child {GetChildCount(SelectedSession.Id) + 1}");
 
         await PersistNewSessionAsync(child, cancellationToken);
+        SelectedShellSection = "Sessions";
         StatusMessage = $"Created child session under '{SelectedSession.Title}'";
     }
 
@@ -248,6 +309,7 @@ public partial class MainViewModel : ObservableObject
         var viewModel = new ChatSessionViewModel(session);
         Sessions.Insert(0, viewModel);
         SelectedSession = viewModel;
+        NotifySessionMetricsChanged();
     }
 
     private int GetChildCount(string parentSessionId)
@@ -266,6 +328,7 @@ public partial class MainViewModel : ObservableObject
         Sessions.RemoveAt(index);
         Sessions.Insert(0, session);
         SelectedSession = session;
+        NotifySessionMetricsChanged();
     }
 
     [CommunityToolkit.Mvvm.Input.RelayCommand]
@@ -450,6 +513,7 @@ public partial class MainViewModel : ObservableObject
         {
             workspace.CurrentWorktreePath = targetWorktreePath;
             await _workspaceRepository.SaveWorkspaceAsync(workspace);
+            WorkspacePath = workspace.CurrentWorktreePath ?? workspace.Path;
         }
 
         await AppendWorkspaceAuditAsync(
@@ -564,6 +628,25 @@ public partial class MainViewModel : ObservableObject
     {
         BagsTokenAddress = workspace?.BagsTokenAddress ?? string.Empty;
         IsVerificationReady = workspace?.IsVerificationReady ?? false;
+    }
+
+    partial void OnWorkspacePathChanged(string value)
+    {
+        OnPropertyChanged(nameof(WorkspaceName));
+    }
+
+    private void NotifySessionMetricsChanged()
+    {
+        OnPropertyChanged(nameof(SessionCount));
+        OnPropertyChanged(nameof(HasSessions));
+    }
+
+    private void NotifyRunMetricsChanged()
+    {
+        OnPropertyChanged(nameof(ActiveRunCount));
+        OnPropertyChanged(nameof(BlockedRunCount));
+        OnPropertyChanged(nameof(HealthyRunCount));
+        OnPropertyChanged(nameof(HasActiveRuns));
     }
 
     [CommunityToolkit.Mvvm.Input.RelayCommand]
