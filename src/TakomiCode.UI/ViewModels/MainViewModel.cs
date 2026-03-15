@@ -167,6 +167,13 @@ public partial class MainViewModel : ObservableObject
     }
 
     [CommunityToolkit.Mvvm.Input.RelayCommand]
+    public void OpenSettings()
+    {
+        IsProjectOpen = true;
+        SelectedShellSection = "Settings";
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
     public async Task InitializeProjectAsync(WorkspaceViewModel workspaceVm)
     {
         // For now, we simulate switching. In a real app, we'd reload the context.

@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using TakomiCode.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 
 namespace TakomiCode.UI;
 
@@ -15,6 +16,7 @@ public sealed partial class MainWindow : Window
         Title = "Takomi Code";
         ViewModel = App.Host!.Services.GetRequiredService<MainViewModel>();
         this.RootGrid.DataContext = ViewModel;
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         SelectSection("Home");
     }
 
@@ -49,21 +51,28 @@ public sealed partial class MainWindow : Window
 
     private void ShellShortcutButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag is string section)
+        if (sender is FrameworkElement element && element.Tag is string section)
         {
             SelectSection(section);
+        }
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainViewModel.SelectedShellSection))
+        {
+            SyncNavigationSelection(ViewModel.SelectedShellSection);
         }
     }
 
     private void SelectSection(string section)
     {
         ViewModel.SelectShellSection(section);
-        HomeSection.Visibility = section == "Home" ? Visibility.Visible : Visibility.Collapsed;
-        SessionsSection.Visibility = section == "Sessions" ? Visibility.Visible : Visibility.Collapsed;
-        WorktreesSection.Visibility = section == "Worktrees" ? Visibility.Visible : Visibility.Collapsed;
-        BillingSection.Visibility = section == "Billing" ? Visibility.Visible : Visibility.Collapsed;
-        SettingsSection.Visibility = section == "Settings" ? Visibility.Visible : Visibility.Collapsed;
+        SyncNavigationSelection(section);
+    }
 
+    private void SyncNavigationSelection(string section)
+    {
         var targetItem = section switch
         {
             "Sessions" => SessionsNavItem,

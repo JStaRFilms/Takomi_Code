@@ -72,7 +72,12 @@
                 <!-- Footer Info -->
                 <Border Grid.Row="4" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
                     <Grid>
-                        <TextBlock Text="Settings" Foreground="{StaticResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" />
+                        <HyperlinkButton Content="Settings" 
+                                         Foreground="{StaticResource TextMutedBrush}" 
+                                         FontSize="11" 
+                                         VerticalAlignment="Center" 
+                                         Padding="0"
+                                         Command="{Binding ElementName=ProjectSelectorRoot, Path=DataContext.OpenSettingsCommand}" />
                         <TextBlock Text="v0.001" Foreground="{StaticResource TextMutedBrush}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     </Grid>
                 </Border>
