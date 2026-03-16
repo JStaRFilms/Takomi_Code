@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:TakomiCode.UI.Converters"
+    xmlns:controls="using:TakomiCode.UI.Controls"
     xmlns:views="using:TakomiCode.UI.Views"
     mc:Ignorable="d">
 
@@ -369,25 +370,36 @@
                                                     <!-- User Message -->
                                                     <Border Visibility="{Binding IsUser, Converter={StaticResource BooleanToVisibilityConverter}}" 
                                                             HorizontalAlignment="Right" Background="{StaticResource AccentBrush}" 
-                                                            CornerRadius="8" Padding="16,12" MaxWidth="600">
-                                                        <TextBlock Text="{Binding Content}" Foreground="Black" FontSize="14" FontWeight="Medium" TextWrapping="Wrap" />
+                                                            CornerRadius="8" Padding="16,12" MaxWidth="640">
+                                                        <TextBlock Text="{Binding Content}"
+                                                                   Foreground="Black"
+                                                                   FontSize="14"
+                                                                   FontWeight="Medium"
+                                                                   TextWrapping="Wrap"
+                                                                   Width="560" />
                                                     </Border>
                                                     
                                                     <!-- Agent Message -->
-                                                    <StackPanel Visibility="{Binding IsUser, Converter={StaticResource InverseBooleanToVisibilityConverter}}" 
-                                                                HorizontalAlignment="Left" Orientation="Horizontal" Spacing="16" MaxWidth="700">
+                                                    <Grid Visibility="{Binding IsUser, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                                                          HorizontalAlignment="Left"
+                                                          MaxWidth="760"
+                                                          ColumnSpacing="16">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
                                                         <Border Width="32" Height="32" Background="#1F1F1F" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" VerticalAlignment="Top">
                                                             <FontIcon Glyph="&#xE946;" FontSize="16" Foreground="{StaticResource DangerBrush}" />
                                                         </Border>
-                                                        <StackPanel Spacing="12">
-                                                            <Border Background="#1Affffff" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16">
+                                                        <StackPanel Grid.Column="1" Spacing="12">
+                                                            <Border Background="#1Affffff" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="16" MaxWidth="680">
                                                                 <StackPanel Spacing="8">
-                                                                    <TextBlock Text="Codex" FontSize="14" FontWeight="SemiBold" Foreground="White" />
-                                                                    <TextBlock Text="{Binding Content}" FontSize="14" Foreground="White" Opacity="0.9" TextWrapping="Wrap" />
+                                                                    <TextBlock Text="Takomi" FontSize="14" FontWeight="SemiBold" Foreground="White" />
+                                                                    <controls:MarkdownMessageView Text="{Binding Content}" MaxWidth="640" HorizontalAlignment="Stretch" />
                                                                 </StackPanel>
                                                             </Border>
                                                         </StackPanel>
-                                                    </StackPanel>
+                                                    </Grid>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -422,7 +434,7 @@
                                                 </Grid>
                                             </StackPanel>
                                         </Border>
-                                        <TextBlock Text="Codex runs locally. No fee-sharing. Bags Protocol verified." 
+                                                    <TextBlock Text="Takomi runs locally. No fee-sharing. Bags Protocol verified."
                                                    FontSize="10" FontFamily="{StaticResource V5MonoFontFamily}" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" />
                                     </StackPanel>
                                 </Border>
@@ -454,7 +466,7 @@
                                     <ScrollViewer Grid.Row="1" Padding="16" Background="#141414">
                                         <StackPanel Spacing="16">
                                             <TextBlock Text="CURRENT EXECUTION" Style="{StaticResource Win5HeaderLabelStyle}" />
-                                            <TextBlock Text="Codex-backed runs now appear here as they start and finish."
+                                            <TextBlock Text="Takomi runs now appear here as they start and finish."
                                                        FontSize="12"
                                                        Foreground="{StaticResource TextMutedBrush}"
                                                        TextWrapping="Wrap" />
@@ -533,7 +545,7 @@
                                             <Border Style="{StaticResource StudioCardStyle}"
                                                     Padding="16"
                                                     Visibility="{Binding HasActiveRuns, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
-                                                <TextBlock Text="No active Codex runs. Route a message to start one."
+                                                    <TextBlock Text="No active Takomi runs. Route a message to start one."
                                                            Foreground="{StaticResource TextMutedBrush}"
                                                            FontSize="12"
                                                            TextWrapping="Wrap" />
@@ -845,7 +857,7 @@
                                                         </Grid>
                                                         <Border Background="#141414" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12">
                                                             <StackPanel Spacing="4">
-                                                                <TextBlock Text="Codex CLI: PROD-READY" FontSize="10" FontFamily="{StaticResource V5MonoFontFamily}" Foreground="{StaticResource TextMutedBrush}" />
+                                                                <TextBlock Text="Takomi Runtime: ACTIVE" FontSize="10" FontFamily="{StaticResource V5MonoFontFamily}" Foreground="{StaticResource TextMutedBrush}" />
                                                                 <TextBlock Text="{Binding WorkspacePath}" FontSize="10" FontFamily="{StaticResource V5MonoFontFamily}" Foreground="{StaticResource TextMutedBrush}" TextTrimming="CharacterEllipsis" />
                                                             </StackPanel>
                                                         </Border>

@@ -1,0 +1,9 @@
+{
+  "name": "takomi-codex-sdk-bridge",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "dependencies": {
+    "@openai/codex-sdk": "^0.114.0"
+  }
+}

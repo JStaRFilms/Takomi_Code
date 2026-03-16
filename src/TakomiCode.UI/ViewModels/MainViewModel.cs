@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using TakomiCode.Application.Configuration;
 using TakomiCode.Application.Contracts.Persistence;
 using TakomiCode.Application.Contracts.Runtime;
@@ -28,8 +27,10 @@ public partial class MainViewModel : ObservableObject
     private readonly IOrchestratorExecutionEngine _orchestratorExecutionEngine;
     private readonly ICodexRuntimeAdapter _codexRuntimeAdapter;
     private readonly DispatcherQueue _dispatcherQueue;
-    private readonly Dictionary<string, string> _runOutputFiles = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ChatMessageViewModel> _runProgressMessages = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _runSessionIds = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, List<string>> _runProgressLines = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _runAssistantStreams = new(StringComparer.Ordinal);
     private readonly Dictionary<string, List<string>> _runErrorLines = new(StringComparer.Ordinal);
     private ChatSessionViewModel? _draftSession;
 
@@ -112,7 +113,7 @@ public partial class MainViewModel : ObservableObject
     public string SelectedRunWorkingDirectoryLabel => SelectedActiveRun?.WorkingDirectory ?? "No working directory";
     public string SelectedRunDetailText => SelectedActiveRun?.ErrorMessage
         ?? SelectedActiveRun?.ResultFilePath
-        ?? "Waiting for Codex output.";
+        ?? "Waiting for Takomi output.";
     public string SelectedRunDetailLabel => string.IsNullOrWhiteSpace(SelectedActiveRun?.ErrorMessage) ? "Details" : "Error";
     public string SelectedRunStatusBrushKey => SelectedActiveRun?.Status switch
     {
@@ -297,8 +298,20 @@ public partial class MainViewModel : ObservableObject
         
         if (RecentWorkspaces.Count == 0)
         {
-            RecentWorkspaces.Add(new WorkspaceViewModel { Name = "Takomi_Code", Path = @"C:\CreativeOS\01_Projects\Code\Takomi_Code", LastOpenedAt = DateTimeOffset.Now.AddMinutes(-12) });
-            RecentWorkspaces.Add(new WorkspaceViewModel { Name = "Agent_Core_V2", Path = @"C:\CreativeOS\01_Projects\Code\Agent_Core_V2", LastOpenedAt = DateTimeOffset.Now.AddDays(-2) });
+            var recentWorkspacePath = string.IsNullOrWhiteSpace(workspace.CurrentWorktreePath)
+                ? workspace.Path
+                : workspace.CurrentWorktreePath;
+
+            if (!string.IsNullOrWhiteSpace(recentWorkspacePath))
+            {
+                RecentWorkspaces.Add(new WorkspaceViewModel
+                {
+                    Id = workspace.Id,
+                    Name = workspace.Name,
+                    Path = recentWorkspacePath,
+                    LastOpenedAt = DateTimeOffset.Now
+                });
+            }
         }
         
         IsProjectOpen = openProjectShell;
@@ -330,7 +343,7 @@ public partial class MainViewModel : ObservableObject
     public async Task ReloadActiveRunsAsync(CancellationToken cancellationToken = default)
     {
         var selectedRunId = SelectedActiveRun?.RunId;
-        var runs = await _orchestrationRepository.GetActiveRunsAsync(cancellationToken);
+        var runs = (await _orchestrationRepository.GetActiveRunsAsync(cancellationToken)).ToList();
         ActiveRuns.Clear();
         foreach (var run in runs)
         {
@@ -518,7 +531,7 @@ public partial class MainViewModel : ObservableObject
         {
             var workspacePath = await GetSelectedWorkspacePathAsync();
             var orchestrationSession = await _orchestratorExecutionEngine.InitiateSessionAsync(_workspaceId, prompt, cancellationToken);
-            var (taskFilePath, outputFilePath) = BuildRoutedTaskPaths(orchestrationSession.SessionId, session.Id);
+            var taskFilePath = BuildRoutedTaskPath(orchestrationSession.SessionId, session.Id);
 
             await WriteRoutedTaskEnvelopeAsync(taskFilePath, session, prompt, workspacePath, cancellationToken);
 
@@ -528,7 +541,7 @@ public partial class MainViewModel : ObservableObject
                 prompt,
                 targetMode: "mode-code",
                 taskFilePath: taskFilePath,
-                executionCommand: BuildCodexExecutionCommand(session, prompt, outputFilePath),
+                executionCommand: BuildCodexExecutionPrompt(prompt),
                 workingDirectoryOverride: workspacePath,
                 cancellationToken: cancellationToken);
 
@@ -537,22 +550,22 @@ public partial class MainViewModel : ObservableObject
                 chatSessionId: session.Id,
                 cancellationToken: cancellationToken);
 
-            _runOutputFiles[run.RunId] = outputFilePath;
             _runSessionIds[run.RunId] = session.Id;
+            _runProgressLines[run.RunId] = new List<string>();
+            _runAssistantStreams[run.RunId] = string.Empty;
             _runErrorLines[run.RunId] = new List<string>();
-
-            session.AddMessage("Assistant", $"Routing request to Codex in {Path.GetFileName(workspacePath)}...");
+            _runProgressMessages[run.RunId] = session.AddMessage("Assistant", string.Empty);
             await _chatSessionRepository.SaveSessionAsync(session.GetEntity(), cancellationToken);
 
             await ReloadActiveRunsAsync(cancellationToken);
             SelectedActiveRun = ActiveRuns.FirstOrDefault(activeRun => string.Equals(activeRun.RunId, run.RunId, StringComparison.Ordinal))
                 ?? run;
 
-            StatusMessage = $"Codex is working on '{session.Title}'.";
+            StatusMessage = $"Takomi is working on '{session.Title}'.";
         }
         catch (Exception ex)
         {
-            session.AddMessage("Assistant", $"Unable to start a Codex run: {ex.Message}");
+            session.AddMessage("Assistant", $"Unable to start a Takomi run: {ex.Message}");
             await _chatSessionRepository.SaveSessionAsync(session.GetEntity(), cancellationToken);
             StatusMessage = $"Route failed: {ex.Message}";
         }
@@ -570,22 +583,62 @@ public partial class MainViewModel : ObservableObject
 
     private void HandleCodexRuntimeOutputReceived(CodexRuntimeOutputEventArgs e)
     {
-        if (!e.IsError || string.IsNullOrWhiteSpace(e.Content))
+        if (string.IsNullOrWhiteSpace(e.Content))
         {
             return;
         }
 
-        if (!_runErrorLines.TryGetValue(e.RunId, out var errorLines))
+        if (e.IsError)
         {
-            errorLines = new List<string>();
-            _runErrorLines[e.RunId] = errorLines;
+            if (!_runErrorLines.TryGetValue(e.RunId, out var errorLines))
+            {
+                errorLines = new List<string>();
+                _runErrorLines[e.RunId] = errorLines;
+            }
+
+            errorLines.Add(e.Content.Trim());
+            if (errorLines.Count > 12)
+            {
+                errorLines.RemoveAt(0);
+            }
+
+            return;
         }
 
-        errorLines.Add(e.Content.Trim());
-        if (errorLines.Count > 12)
+        if (!_runProgressMessages.TryGetValue(e.RunId, out var progressMessage))
         {
-            errorLines.RemoveAt(0);
+            return;
         }
+
+        var session = ResolveRunSession(e.RunId);
+        if (session is null)
+        {
+            return;
+        }
+
+        var trimmed = e.Content.Trim();
+        switch (e.Kind)
+        {
+            case CodexRuntimeOutputKind.AssistantStream:
+            case CodexRuntimeOutputKind.AssistantFinal:
+                _runAssistantStreams[e.RunId] = trimmed;
+                break;
+            default:
+                if (!_runProgressLines.TryGetValue(e.RunId, out var progressLines))
+                {
+                    progressLines = new List<string>();
+                    _runProgressLines[e.RunId] = progressLines;
+                }
+
+                if (progressLines.Count == 0 || !string.Equals(progressLines[^1], trimmed, StringComparison.Ordinal))
+                {
+                    progressLines.Add(trimmed);
+                }
+                break;
+        }
+
+        session.UpdateMessage(progressMessage, BuildRunTranscript(e.RunId));
+        StatusMessage = trimmed;
     }
 
     private async Task HandleCodexRuntimeStateChangedAsync(CodexRuntimeStateEventArgs e)
@@ -593,10 +646,10 @@ public partial class MainViewModel : ObservableObject
         switch (e.State)
         {
             case CodexRuntimeState.Starting:
-                StatusMessage = "Launching Codex run...";
+                StatusMessage = "Launching Takomi run...";
                 break;
             case CodexRuntimeState.Running:
-                StatusMessage = "Codex run in progress...";
+                StatusMessage = "Takomi run in progress...";
                 break;
             case CodexRuntimeState.Completed:
                 await FinalizeTrackedRunAsync(e.RunId, e.Details, cancellationToken: CancellationToken.None);
@@ -626,7 +679,7 @@ public partial class MainViewModel : ObservableObject
         if (session is null)
         {
             CleanupTrackedRun(runId);
-            StatusMessage = details ?? (isFailure ? "Codex run failed." : "Codex run completed.");
+            StatusMessage = details ?? (isFailure ? "Takomi run failed." : "Takomi run completed.");
             return;
         }
 
@@ -637,26 +690,35 @@ public partial class MainViewModel : ObservableObject
         }
         else
         {
-            finalMessage = await ReadRunOutputMessageAsync(runId, cancellationToken)
-                ?? details
-                ?? "Codex finished without returning a final message.";
+            finalMessage = details ?? "Takomi finished without returning a final message.";
         }
 
-        session.AddMessage("Assistant", finalMessage);
+        if (_runProgressMessages.TryGetValue(runId, out var progressMessage))
+        {
+            if (!isFailure && !string.IsNullOrWhiteSpace(finalMessage))
+            {
+                _runAssistantStreams[runId] = finalMessage;
+            }
+
+            session.UpdateMessage(progressMessage, isFailure ? finalMessage : BuildRunTranscript(runId));
+        }
+        else
+        {
+            session.AddMessage("Assistant", finalMessage);
+        }
+
         await _chatSessionRepository.SaveSessionAsync(session.GetEntity(), cancellationToken);
         MoveSessionToTop(session);
         CleanupTrackedRun(runId);
-        StatusMessage = isFailure ? "Codex run failed." : "Codex run completed.";
+        StatusMessage = isFailure ? "Takomi run failed." : "Takomi run completed.";
     }
 
     private async Task<ChatSessionViewModel?> TryResolveRunSessionAsync(string runId, CancellationToken cancellationToken)
     {
-        if (_runSessionIds.TryGetValue(runId, out var sessionId))
+        var resolvedSession = ResolveRunSession(runId);
+        if (resolvedSession is not null)
         {
-            return Sessions.FirstOrDefault(session => string.Equals(session.Id, sessionId, StringComparison.Ordinal))
-                ?? (SelectedSession is not null && string.Equals(SelectedSession.Id, sessionId, StringComparison.Ordinal)
-                    ? SelectedSession
-                    : null);
+            return resolvedSession;
         }
 
         var run = await _orchestrationRepository.GetRunAsync(runId, cancellationToken);
@@ -671,15 +733,17 @@ public partial class MainViewModel : ObservableObject
                 : null);
     }
 
-    private async Task<string?> ReadRunOutputMessageAsync(string runId, CancellationToken cancellationToken)
+    private ChatSessionViewModel? ResolveRunSession(string runId)
     {
-        if (!_runOutputFiles.TryGetValue(runId, out var outputPath) || !File.Exists(outputPath))
+        if (!_runSessionIds.TryGetValue(runId, out var sessionId))
         {
             return null;
         }
 
-        var message = await File.ReadAllTextAsync(outputPath, cancellationToken);
-        return string.IsNullOrWhiteSpace(message) ? null : message.Trim();
+        return Sessions.FirstOrDefault(session => string.Equals(session.Id, sessionId, StringComparison.Ordinal))
+            ?? (SelectedSession is not null && string.Equals(SelectedSession.Id, sessionId, StringComparison.Ordinal)
+                ? SelectedSession
+                : null);
     }
 
     private string BuildFailureMessage(string runId, string? details)
@@ -687,19 +751,46 @@ public partial class MainViewModel : ObservableObject
         if (_runErrorLines.TryGetValue(runId, out var errorLines) && errorLines.Count > 0)
         {
             var joinedErrors = string.Join(Environment.NewLine, errorLines);
-            return $"Codex run failed.{Environment.NewLine}{Environment.NewLine}{joinedErrors}";
+            return $"Takomi run failed.{Environment.NewLine}{Environment.NewLine}{joinedErrors}";
         }
 
         return string.IsNullOrWhiteSpace(details)
-            ? "Codex run failed."
-            : $"Codex run failed.{Environment.NewLine}{Environment.NewLine}{details}";
+            ? "Takomi run failed."
+            : $"Takomi run failed.{Environment.NewLine}{Environment.NewLine}{details}";
     }
 
     private void CleanupTrackedRun(string runId)
     {
-        _runOutputFiles.Remove(runId);
+        _runProgressMessages.Remove(runId);
         _runSessionIds.Remove(runId);
+        _runProgressLines.Remove(runId);
+        _runAssistantStreams.Remove(runId);
         _runErrorLines.Remove(runId);
+    }
+
+    private string BuildRunTranscript(string runId)
+    {
+        var sections = new List<string>();
+
+        if (_runProgressLines.TryGetValue(runId, out var progressLines))
+        {
+            var visibleProgress = progressLines
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            if (visibleProgress.Count > 0)
+            {
+                sections.Add(string.Join(Environment.NewLine, visibleProgress));
+            }
+        }
+
+        if (_runAssistantStreams.TryGetValue(runId, out var assistantText) && !string.IsNullOrWhiteSpace(assistantText))
+        {
+            sections.Add(assistantText.Trim());
+        }
+
+        return string.Join($"{Environment.NewLine}{Environment.NewLine}", sections);
     }
 
     private static string BuildTaskName(string prompt)
@@ -711,22 +802,34 @@ public partial class MainViewModel : ObservableObject
             : $"{singleLinePrompt[..maxLength].TrimEnd()}...";
     }
 
-    private static (string TaskFilePath, string OutputFilePath) BuildRoutedTaskPaths(string orchestrationSessionId, string chatSessionId)
+    private static string BuildRoutedTaskPath(string orchestrationSessionId, string chatSessionId)
     {
         var root = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "TakomiCode",
             "routed-tasks");
 
-        var pendingDirectory = Path.Combine(root, "pending");
-        var completedDirectory = Path.Combine(root, "completed");
-        Directory.CreateDirectory(pendingDirectory);
-        Directory.CreateDirectory(completedDirectory);
+        var pendingDirectory = EnsureRoutedTaskDirectory(root);
 
-        var baseName = $"{orchestrationSessionId}-{chatSessionId[..Math.Min(8, chatSessionId.Length)]}-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}";
-        return (
-            Path.Combine(pendingDirectory, $"{baseName}.task.md"),
-            Path.Combine(completedDirectory, $"{baseName}.result.md"));
+        var baseName = $"{orchestrationSessionId}-{chatSessionId[..Math.Min(8, chatSessionId.Length)]}-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}";
+        return Path.Combine(pendingDirectory, $"{baseName}.task.md");
+    }
+
+    private static string EnsureRoutedTaskDirectory(string root)
+    {
+        var pendingDirectory = Path.Combine(root, "pending");
+
+        try
+        {
+            Directory.CreateDirectory(pendingDirectory);
+            return pendingDirectory;
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException or ArgumentException or NotSupportedException)
+        {
+            throw new InvalidOperationException(
+                $"Unable to prepare the routed task directory at '{pendingDirectory}'. Check access permissions and filesystem availability.",
+                ex);
+        }
     }
 
     private static async Task WriteRoutedTaskEnvelopeAsync(
@@ -752,10 +855,9 @@ public partial class MainViewModel : ObservableObject
         await File.WriteAllTextAsync(taskFilePath, content, cancellationToken);
     }
 
-    private string BuildCodexExecutionCommand(ChatSessionViewModel session, string prompt, string outputFilePath)
+    private static string BuildCodexExecutionPrompt(string prompt)
     {
-        var transcriptContext = BuildTranscriptContext(session);
-        var executionPrompt = $$"""
+        return $$"""
             You are handling a routed request from the Takomi desktop app inside the active repository workspace.
             Execute the user's latest request now.
 
@@ -768,88 +870,15 @@ public partial class MainViewModel : ObservableObject
             - If the user asked a simple conversational question, answer it briefly.
             - End with a concise summary of what you changed or why you were blocked.
 
-            Recent conversation context:
-            {{transcriptContext}}
-
             Latest user request:
             {{prompt}}
             """;
-
-        return string.Join(
-            " ",
-            "exec",
-            "--skip-git-repo-check",
-            "--dangerously-bypass-approvals-and-sandbox",
-            "--color",
-            "never",
-            "-o",
-            QuoteCommandArgument(outputFilePath),
-            QuoteCommandArgument(executionPrompt));
-    }
-
-    private static string BuildTranscriptContext(ChatSessionViewModel session)
-    {
-        var recentMessages = session.Messages
-            .TakeLast(6)
-            .Select(message => $"{message.Role}: {NormalizePromptForExecution(message.Content)}");
-
-        return string.Join(Environment.NewLine, recentMessages);
     }
 
     private static string NormalizePromptForExecution(string prompt)
     {
         return string.Join(" ", prompt
             .Split(new[] { '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-    }
-
-    private static string QuoteCommandArgument(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return "\"\"";
-        }
-
-        var builder = new StringBuilder();
-        var needsQuotes = value.Any(character => char.IsWhiteSpace(character) || character == '"');
-        if (!needsQuotes)
-        {
-            return value;
-        }
-
-        builder.Append('"');
-        var backslashCount = 0;
-        foreach (var character in value)
-        {
-            if (character == '\\')
-            {
-                backslashCount++;
-                continue;
-            }
-
-            if (character == '"')
-            {
-                builder.Append('\\', backslashCount * 2 + 1);
-                builder.Append(character);
-                backslashCount = 0;
-                continue;
-            }
-
-            if (backslashCount > 0)
-            {
-                builder.Append('\\', backslashCount);
-                backslashCount = 0;
-            }
-
-            builder.Append(character);
-        }
-
-        if (backslashCount > 0)
-        {
-            builder.Append('\\', backslashCount * 2);
-        }
-
-        builder.Append('"');
-        return builder.ToString();
     }
 
     [CommunityToolkit.Mvvm.Input.RelayCommand]

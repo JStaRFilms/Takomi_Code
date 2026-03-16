@@ -42,7 +42,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}" VerticalAlignment="Center" />
                         <StackPanel>
-                            <TextBlock Text="Codex Engine" Foreground="White" FontWeight="SemiBold" FontSize="12" />
+                                <TextBlock Text="Takomi Engine" Foreground="White" FontWeight="SemiBold" FontSize="12" />
                             <TextBlock Text="v1.2.4-alpha" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" />
                         </StackPanel>
                     </StackPanel>
