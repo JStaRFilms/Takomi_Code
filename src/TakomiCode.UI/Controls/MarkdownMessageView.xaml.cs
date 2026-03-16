@@ -233,7 +233,7 @@ public sealed partial class MarkdownMessageView : UserControl
         var bodyText = new TextBlock
         {
             Text = body,
-            TextWrapping = TextWrapping.WrapWholeWords,
+            TextWrapping = TextWrapping.Wrap,
             FontSize = 13,
             Foreground = CreateBrush(230, 230, 230, 230)
         };
@@ -295,7 +295,7 @@ public sealed partial class MarkdownMessageView : UserControl
             FontSize = 12,
             FontFamily = new FontFamily("Cascadia Code"),
             Foreground = CreateBrush(255, 242, 242, 242),
-            TextWrapping = TextWrapping.WrapWholeWords,
+            TextWrapping = TextWrapping.Wrap,
             IsTextSelectionEnabled = true
         };
 
@@ -306,7 +306,7 @@ public sealed partial class MarkdownMessageView : UserControl
     {
         return new RichTextBlock
         {
-            TextWrapping = TextWrapping.WrapWholeWords,
+            TextWrapping = TextWrapping.Wrap,
             FontSize = 14,
             Foreground = CreateBrush(230, 255, 255, 255),
             IsTextSelectionEnabled = true

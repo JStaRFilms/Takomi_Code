@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Takomi Code — Clean UI Concept</title>
+    <style>
+        :root {
+            --bg: #0b0d10;
+            --panel: rgba(18, 21, 27, 0.88);
+            --panel-2: rgba(22, 26, 33, 0.92);
+            --panel-3: rgba(29, 34, 43, 0.9);
+            --line: rgba(255, 255, 255, 0.08);
+            --line-strong: rgba(255, 255, 255, 0.14);
+            --text: #eef2f7;
+            --muted: #9aa4b2;
+            --soft: #c9d2de;
+            --accent: #f5b301;
+            --accent-2: #ffd54d;
+            --success: #29c36a;
+            --danger: #ff5d73;
+            --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(245, 179, 1, 0.09), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05), transparent 20%),
+                var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 84px 290px minmax(640px, 1fr) 360px;
+            height: 100vh;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .rail,
+        .sidebar,
+        .main,
+        .aside {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(18px);
+            box-shadow: var(--shadow);
+            min-height: 0;
+        }
+
+        .rail {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 10px;
+        }
+
+        .brand {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent), #ffdf76);
+            color: #18140a;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            box-shadow: 0 12px 30px rgba(245, 179, 1, 0.28);
+        }
+
+        .rail-nav,
+        .rail-bottom {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--muted);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: 180ms ease;
+        }
+
+        .icon-btn:hover,
+        .icon-btn.active {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            border-color: var(--line);
+            transform: translateY(-1px);
+        }
+
+        .sidebar {
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            padding: 18px;
+            gap: 16px;
+        }
+
+        .project-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 16px;
+        }
+
+        .eyebrow {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .project-title {
+            margin-top: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .project-meta {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--line);
+            color: var(--soft);
+            font-size: 12px;
+        }
+
+        .search {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 12px 14px;
+            color: var(--muted);
+        }
+
+        .search input {
+            background: transparent;
+            border: 0;
+            outline: none;
+            color: var(--text);
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .linkish {
+            color: var(--accent-2);
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .session-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .session {
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 14px;
+            cursor: pointer;
+            transition: 180ms ease;
+        }
+
+        .session:hover,
+        .session.active {
+            border-color: rgba(245, 179, 1, 0.34);
+            background: linear-gradient(180deg, rgba(245, 179, 1, 0.1), rgba(255, 255, 255, 0.03));
+            transform: translateY(-1px);
+        }
+
+        .session-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .session-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .session-sub {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .new-btn,
+        .primary-btn,
+        .ghost-btn {
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 180ms ease;
+        }
+
+        .new-btn,
+        .primary-btn {
+            background: linear-gradient(135deg, var(--accent), #ffd85e);
+            color: #17120a;
+            box-shadow: 0 12px 28px rgba(245, 179, 1, 0.2);
+        }
+
+        .ghost-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--soft);
+            border: 1px solid var(--line);
+        }
+
+        .main {
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            min-width: 0;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 22px 12px;
+            border-bottom: 1px solid var(--line);
+            gap: 14px;
+        }
+
+        .title-wrap h1 {
+            margin: 0;
+            font-size: 22px;
+            line-height: 1.15;
+        }
+
+        .title-wrap p {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .status-chip {
+            padding: 10px 12px;
+            border-radius: 999px;
+            background: rgba(41, 195, 106, 0.12);
+            color: #91efb6;
+            border: 1px solid rgba(41, 195, 106, 0.22);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .subbar {
+            padding: 12px 22px;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .breadcrumbs {
+            color: var(--muted);
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 9px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            color: var(--soft);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid transparent;
+        }
+
+        .tab.active {
+            background: rgba(245, 179, 1, 0.14);
+            border-color: rgba(245, 179, 1, 0.25);
+            color: #ffe08a;
+        }
+
+        .chat {
+            overflow: auto;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .day-label {
+            align-self: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--muted);
+            font-size: 12px;
+            border: 1px solid var(--line);
+        }
+
+        .msg {
+            max-width: 78%;
+            border-radius: 22px;
+            padding: 16px 18px;
+            border: 1px solid var(--line);
+            line-height: 1.6;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+        }
+
+        .msg.assistant {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+            align-self: flex-start;
+        }
+
+        .msg.user {
+            background: linear-gradient(180deg, rgba(245, 179, 1, 0.18), rgba(245, 179, 1, 0.1));
+            border-color: rgba(245, 179, 1, 0.24);
+            align-self: flex-end;
+        }
+
+        .msg-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .msg p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .composer-wrap {
+            padding: 18px 22px 22px;
+            border-top: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(11, 13, 16, 0), rgba(11, 13, 16, 0.35));
+        }
+
+        .composer {
+            background: var(--panel-2);
+            border: 1px solid var(--line-strong);
+            border-radius: 22px;
+            padding: 14px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .composer-tools {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mini-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--soft);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 60px;
+            max-height: 180px;
+            resize: vertical;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: var(--text);
+            font: inherit;
+            line-height: 1.5;
+            padding: 6px 0;
+        }
+
+        .aside {
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            padding: 18px;
+            gap: 16px;
+        }
+
+        .segmented {
+            display: inline-flex;
+            padding: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            gap: 4px;
+            width: fit-content;
+        }
+
+        .seg {
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .seg.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+        }
+
+        .card {
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .run-state {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--line);
+            margin-top: 14px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            background: var(--success);
+            box-shadow: 0 0 0 6px rgba(41, 195, 106, 0.12);
+            flex: 0 0 auto;
+        }
+
+        .graph {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow: auto;
+            padding-right: 2px;
+        }
+
+        .node {
+            position: relative;
+            padding: 14px 14px 14px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
+        }
+
+        .node::before {
+            content: "";
+            position: absolute;
+            left: -9px;
+            top: 22px;
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 0 0 5px rgba(245, 179, 1, 0.12);
+        }
+
+        .node-title {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .node-sub {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .metric {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 18px;
+            margin-top: 6px;
+        }
+
+        .footer-note {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        @media (max-width: 1400px) {
+            .app {
+                grid-template-columns: 74px 260px 1fr 320px;
+            }
+        }
+
+        @media (max-width: 1180px) {
+            .app {
+                grid-template-columns: 74px 250px 1fr;
+            }
+
+            .aside {
+                display: none;
+            }
+        }
+
+        @media (max-width: 860px) {
+
+            html,
+            body {
+                overflow: auto;
+            }
+
+            .app {
+                height: auto;
+                min-height: 100vh;
+                grid-template-columns: 1fr;
+            }
+
+            .rail,
+            .sidebar,
+            .main {
+                min-height: unset;
+            }
+
+            .rail {
+                flex-direction: row;
+                padding: 12px;
+            }
+
+            .rail-nav,
+            .rail-bottom {
+                flex-direction: row;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+
+            .main {
+                order: 3;
+                min-height: 70vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="rail">
+            <div class="rail-nav">
+                <div class="brand">T</div>
+                <button class="icon-btn active" title="Workspace">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.9">
+                        <path d="M3 10.5 12 3l9 7.5" />
+                        <path d="M5 9.5V21h14V9.5" />
+                    </svg>
+                </button>
+                <button class="icon-btn" title="Chats">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.9">
+                        <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z" />
+                    </svg>
+                </button>
+                <button class="icon-btn" title="Files">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.9">
+                        <path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" />
+                    </svg>
+                </button>
+                <button class="icon-btn" title="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.9">
+                        <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Z" />
+                        <path
+                            d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.08V21a2 2 0 1 1-4 0v-.08a1.7 1.7 0 0 0-.4-1.08 1.7 1.7 0 0 0-1-.6 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.08-.4H2.84a2 2 0 1 1 0-4h.08a1.7 1.7 0 0 0 1.08-.4 1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.08V2.84a2 2 0 1 1 4 0v.08a1.7 1.7 0 0 0 .4 1.08 1.7 1.7 0 0 0 1 .6 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.27.3.48.64.6 1 .09.32.13.66.13 1s-.04.68-.13 1c-.12.36-.33.7-.6 1Z" />
+                    </svg>
+                </button>
+            </div>
+            <div class="rail-bottom">
+                <button class="icon-btn" title="Theme">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.9">
+                        <path
+                            d="M12 3v2.5M12 18.5V21M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M3 12h2.5M18.5 12H21M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77" />
+                        <circle cx="12" cy="12" r="4" />
+                    </svg>
+                </button>
+                <button class="icon-btn" title="Profile">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.9">
+                        <path d="M20 21a8 8 0 1 0-16 0" />
+                        <circle cx="12" cy="8" r="4" />
+                    </svg>
+                </button>
+            </div>
+        </aside>
+
+        <section class="sidebar">
+            <div class="project-card">
+                <div class="eyebrow">Active project</div>
+                <div class="project-title">Takomi Code UI exploration</div>
+                <div class="project-meta">
+                    <span class="pill">2026-03-10</span>
+                    <span class="pill">Warm dark theme</span>
+                    <span class="pill">3 agents</span>
+                </div>
+            </div>
+
+            <label class="search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                </svg>
+                <input type="text" value="Search sessions, files, commands" />
+            </label>
+
+            <div style="min-height:0; display:flex; flex-direction:column;">
+                <div class="section-head">
+                    <div class="section-title">Sessions</div>
+                    <a class="linkish" href="#">View all</a>
+                </div>
+                <div class="session-list">
+                    <div class="session active">
+                        <div class="session-top">
+                            <div class="session-name">Project Chat 9</div>
+                            <span class="pill">Live</span>
+                        </div>
+                        <div class="session-sub">Landing page redesign and orchestration cleanup</div>
+                    </div>
+                    <div class="session">
+                        <div class="session-top">
+                            <div class="session-name">Project Chat 8</div>
+                            <span class="pill">Paused</span>
+                        </div>
+                        <div class="session-sub">Sub-chat routing experiment for index.html and sibling pages</div>
+                    </div>
+                    <div class="session">
+                        <div class="session-top">
+                            <div class="session-name">Agent UX audit</div>
+                            <span class="pill">Done</span>
+                        </div>
+                        <div class="session-sub">Friction log, Windows quirks, command surfaces</div>
+                    </div>
+                    <div class="session">
+                        <div class="session-top">
+                            <div class="session-name">Artifacts review</div>
+                            <span class="pill">Draft</span>
+                        </div>
+                        <div class="session-sub">Generated files, screenshots, polished previews</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="new-btn">＋ New Session</button>
+        </section>
+
+        <main class="main">
+            <div class="topbar">
+                <div class="title-wrap">
+                    <h1>Project Chat 9</h1>
+                    <p>Cleaner hierarchy, quieter chrome, less “hello I am a million boxes” energy.</p>
+                </div>
+                <div class="top-actions">
+                    <span class="status-chip">Engine ready</span>
+                    <button class="ghost-btn">Artifacts</button>
+                    <button class="primary-btn">New orchestration</button>
+                </div>
+            </div>
+
+            <div class="subbar">
+                <div class="breadcrumbs">C:\CreativeOS\01_Projects\Code\Personal_Stuff\2026-03-10_Takomi_Code</div>
+                <div class="tabs">
+                    <div class="tab active">Chat</div>
+                    <div class="tab">Context</div>
+                    <div class="tab">Files</div>
+                    <div class="tab">Preview</div>
+                </div>
+            </div>
+
+            <div class="chat">
+                <div class="day-label">Today</div>
+
+                <article class="msg assistant">
+                    <div class="msg-head"><span>Codex</span><span>09:11</span></div>
+                    <p>I rebuilt the page with a softer visual hierarchy: fewer hard dividers, more space, cleaner
+                        cards, and better grouping for sessions, chat, and execution. The previous layout worked, but it
+                        was shouting every border at once like a very enthusiastic spreadsheet.</p>
+                </article>
+
+                <article class="msg user">
+                    <div class="msg-head"><span>You</span><span>09:13</span></div>
+                    <p>Imagine a better UI for this and give me a self-contained HTML code so I can see what your
+                        version is. I want clean and neat.</p>
+                </article>
+
+                <article class="msg assistant">
+                    <div class="msg-head"><span>Design Agent</span><span>09:15</span></div>
+                    <p>Done. This concept keeps the same mental model but simplifies the noise: slim icon rail, focused
+                        session list, roomy chat canvas, and a right panel that feels like a control surface instead of
+                        a random storage closet for widgets.</p>
+                </article>
+
+                <article class="msg assistant">
+                    <div class="msg-head"><span>Design Notes</span><span>09:16</span></div>
+                    <p>Big idea: let the conversation breathe. The original interface is functional, but the density
+                        makes everything compete at the same volume. Here the emphasis is on navigation first, active
+                        work second, diagnostics third.</p>
+                </article>
+            </div>
+
+            <div class="composer-wrap">
+                <div class="composer">
+                    <div class="composer-tools">
+                        <button class="mini-btn" title="Attach">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path
+                                    d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l9.9-9.9a4 4 0 1 1 5.66 5.66l-10 10a2 2 0 1 1-2.83-2.83l9.2-9.19" />
+                            </svg>
+                        </button>
+                        <button class="mini-btn" title="Context">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <textarea
+                        placeholder="Route a task, ask an agent, or drop implementation notes...">Can you generate a self-contained prototype for this redesign with responsive behavior?</textarea>
+                    <button class="primary-btn">Route</button>
+                </div>
+            </div>
+        </main>
+
+        <aside class="aside">
+            <div>
+                <div class="section-head" style="margin-bottom:12px;">
+                    <div class="section-title">Execution</div>
+                </div>
+                <div class="segmented">
+                    <div class="seg active">Task graph</div>
+                    <div class="seg">Artifacts</div>
+                    <div class="seg">Runs</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="eyebrow">Current run</div>
+                <div class="run-state">
+                    <div class="dot"></div>
+                    <div>
+                        <div style="font-weight:700;">UI redesign prototype</div>
+                        <div class="node-sub">Generating single-file HTML preview with inline CSS and responsive layout.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="graph">
+                <div class="node">
+                    <div class="node-title">1. Parse screenshot</div>
+                    <div class="node-sub">Identify layout buckets, visual friction, and hierarchy problems from the
+                        original desktop UI.</div>
+                </div>
+                <div class="node">
+                    <div class="node-title">2. Reframe information architecture</div>
+                    <div class="node-sub">Navigation on the left, work in the middle, execution telemetry on the right.
+                        Less clutter, more intent.</div>
+                </div>
+                <div class="node">
+                    <div class="node-title">3. Build self-contained preview</div>
+                    <div class="node-sub">Single HTML file, no external dependencies, easy to paste anywhere and test
+                        immediately.</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="eyebrow">Workspace metrics</div>
+                <div class="metrics" style="margin-top:12px;">
+                    <div class="metric">
+                        <span class="eyebrow">Sessions</span>
+                        <strong>9</strong>
+                    </div>
+                    <div class="metric">
+                        <span class="eyebrow">Agents</span>
+                        <strong>3</strong>
+                    </div>
+                    <div class="metric">
+                        <span class="eyebrow">Artifacts</span>
+                        <strong>14</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-note">The trick is not adding more chrome. It is deciding what deserves to be loud. Most
+                interfaces suffer from decorative democracy: every panel gets equal rights, and the result is chaos in a
+                suit.</div>
+        </aside>
+    </div>
+</body>
+
+</html>

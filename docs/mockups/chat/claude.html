@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takomi — Code Orchestrator</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d0e11;
+            --surface: #13151a;
+            --surface2: #1a1d24;
+            --surface3: #21242d;
+            --border: #2a2d38;
+            --border-subtle: #1e2029;
+            --text: #e8eaf0;
+            --text-muted: #6b7280;
+            --text-dim: #9499a8;
+            --accent: #f0c040;
+            --accent-dim: #f0c04018;
+            --accent-glow: #f0c04030;
+            --green: #34d399;
+            --green-dim: #34d39918;
+            --red: #f87171;
+            --blue: #60a5fa;
+            --mono: 'Geist Mono', monospace;
+            --sans: 'DM Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            height: 44px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .topbar-logo {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent);
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-logo::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .topbar-sep {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+        }
+
+        .topbar-project {
+            font-size: 12px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            flex: 1;
+        }
+
+        .topbar-project span {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #0d0e11;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: var(--sans);
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity .15s;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            opacity: .85;
+        }
+
+        .status-pill {
+            font-family: var(--mono);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-pill.blocked {
+            background: #f8717120;
+            color: var(--red);
+        }
+
+        .status-pill.blocked::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background: var(--red);
+            border-radius: 50%;
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 220px 1fr 300px;
+            overflow: hidden;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-section {
+            padding: 14px 16px 8px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .session-list {
+            overflow-y: auto;
+            flex: 1;
+            padding: 0 8px 8px;
+        }
+
+        .session-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: background .12s;
+            font-size: 13px;
+            color: var(--text-dim);
+            border: 1px solid transparent;
+        }
+
+        .session-item:hover {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .session-item.active {
+            background: var(--accent-dim);
+            border-color: var(--accent-glow);
+            color: var(--text);
+        }
+
+        .session-item.active .session-icon {
+            color: var(--accent);
+        }
+
+        .session-icon {
+            font-size: 11px;
+            opacity: .6;
+        }
+
+        .session-item.active .session-icon {
+            opacity: 1;
+        }
+
+        .sidebar-new {
+            margin: 8px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            border: 1px dashed var(--border);
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all .12s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            width: calc(100% - 16px);
+            font-family: var(--sans);
+        }
+
+        .sidebar-new:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        /* ── CENTER: CHAT ── */
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        .chat-header {
+            padding: 0 20px;
+            height: 44px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            background: var(--surface);
+        }
+
+        .context-tag {
+            font-family: var(--mono);
+            font-size: 11px;
+            background: var(--surface3);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: var(--text-dim);
+        }
+
+        .sub-chat-badge {
+            margin-left: auto;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--green);
+            background: var(--green-dim);
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sub-chat-badge::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .4
+            }
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        /* assistant message */
+        .msg-agent {
+            display: flex;
+            gap: 12px;
+            animation: fadeUp .3s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(6px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .agent-avatar {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #0d0e11;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .msg-body {
+            flex: 1;
+        }
+
+        .msg-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .msg-text {
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: var(--text-dim);
+            max-width: 680px;
+        }
+
+        .msg-text a {
+            color: var(--blue);
+            text-decoration: none;
+            font-family: var(--mono);
+            font-size: 12px;
+        }
+
+        .msg-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* command blocks */
+        .cmd-block {
+            margin-top: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            max-width: 680px;
+        }
+
+        .cmd-header {
+            padding: 7px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .cmd-status {
+            margin-left: auto;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .cmd-status.running {
+            background: #f0c04018;
+            color: var(--accent);
+        }
+
+        .cmd-status.done {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .cmd-code {
+            padding: 10px 12px;
+            font-family: var(--mono);
+            font-size: 11.5px;
+            line-height: 1.6;
+            color: #9ca3af;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .cmd-code .kw {
+            color: var(--blue);
+        }
+
+        .cmd-code .str {
+            color: var(--green);
+        }
+
+        .cmd-code .path {
+            color: #c084fc;
+        }
+
+        /* thinking block */
+        .thinking-block {
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: var(--surface2);
+            border-left: 2px solid var(--accent-glow);
+            border-radius: 0 6px 6px 0;
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            font-style: italic;
+            max-width: 680px;
+        }
+
+        /* user message */
+        .msg-user {
+            display: flex;
+            justify-content: flex-end;
+            animation: fadeUp .3s ease;
+        }
+
+        .msg-user-bubble {
+            background: var(--accent);
+            color: #0d0e11;
+            padding: 10px 14px;
+            border-radius: 12px 12px 3px 12px;
+            font-size: 13.5px;
+            line-height: 1.55;
+            max-width: 460px;
+            font-weight: 500;
+        }
+
+        /* ── INPUT AREA ── */
+        .input-area {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-subtle);
+            background: var(--surface);
+            flex-shrink: 0;
+        }
+
+        .input-wrapper {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: border-color .15s;
+            overflow: hidden;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent-glow);
+        }
+
+        .input-box {
+            width: 100%;
+            background: none;
+            border: none;
+            outline: none;
+            padding: 12px 14px 4px;
+            font-size: 13.5px;
+            font-family: var(--sans);
+            color: var(--text);
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+        }
+
+        .input-box::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-footer {
+            display: flex;
+            align-items: center;
+            padding: 6px 10px 8px;
+            gap: 8px;
+        }
+
+        .input-tag {
+            font-size: 10px;
+            font-family: var(--mono);
+            padding: 3px 7px;
+            border-radius: 4px;
+            background: var(--surface3);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all .12s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .input-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .input-route {
+            margin-left: auto;
+            background: var(--accent);
+            color: #0d0e11;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: var(--sans);
+            transition: opacity .15s;
+        }
+
+        .input-route:hover {
+            opacity: .85;
+        }
+
+        /* ── RIGHT PANEL ── */
+        .right-panel {
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 12px 0;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all .15s;
+            background: none;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            font-family: var(--sans);
+        }
+
+        .panel-tab.active {
+            color: var(--text);
+            border-bottom-color: var(--accent);
+        }
+
+        .panel-tab:hover:not(.active) {
+            color: var(--text-dim);
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .panel-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panel-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        /* execution card */
+        .exec-section {
+            margin-bottom: 20px;
+        }
+
+        .exec-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .run-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+
+        .run-card.active {
+            border-color: var(--accent-glow);
+            background: var(--accent-dim);
+        }
+
+        .run-id {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text);
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .run-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .run-row {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .run-row-key {
+            color: var(--text-muted);
+            width: 46px;
+            flex-shrink: 0;
+        }
+
+        .run-row-val {
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 10.5px;
+            word-break: break-all;
+        }
+
+        .run-row-val.running {
+            color: var(--accent);
+        }
+
+        .run-row-val.green {
+            color: var(--green);
+        }
+
+        .run-row-val.path {
+            color: #c084fc;
+            font-size: 10px;
+        }
+
+        .active-run-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px 12px;
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: border-color .12s;
+        }
+
+        .active-run-card:hover {
+            border-color: var(--border-subtle);
+        }
+
+        .active-run-card .run-short {
+            color: var(--text-dim);
+            margin-bottom: 3px;
+        }
+
+        .active-run-card .run-in {
+            color: var(--green);
+            margin-bottom: 2px;
+        }
+
+        .active-run-card .run-folder {
+            font-size: 9.5px;
+            color: var(--text-muted);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 16px 0;
+        }
+
+        .footer-info {
+            padding: 10px 16px;
+            font-size: 10.5px;
+            font-family: var(--mono);
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        /* scrollbar */
+        .messages::-webkit-scrollbar {
+            width: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-logo">Takomi</div>
+        <div class="topbar-sep"></div>
+        <div class="topbar-project">
+            Project: <span>2026-03-10_Takomi_Code</span>
+            &nbsp;·&nbsp;
+            <span
+                style="color:var(--text-muted)">C:\CreativeOS\01_Projects\Code\Personal_Stuff\2026-03-10_Takomi_Code</span>
+        </div>
+        <div class="topbar-actions">
+            <div class="status-pill blocked">Blocked</div>
+            <button class="btn-primary">+ New Orchestration</button>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-section">Sessions</div>
+            <div class="session-list">
+                <div class="session-item"><span class="session-icon">↩</span> Project Chat 9</div>
+                <div class="session-item"><span class="session-icon">↩</span> Project Chat 8</div>
+                <div class="session-item"><span class="session-icon">↩</span> Project Chat 7</div>
+                <div class="session-item"><span class="session-icon">↩</span> Project Chat 6</div>
+                <div class="session-item active"><span class="session-icon">↩</span> Project Chat 5</div>
+                <div class="session-item"><span class="session-icon">↩</span> Project Chat 1</div>
+            </div>
+            <button class="sidebar-new">＋ New Session</button>
+        </aside>
+
+        <!-- CHAT -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="context-tag">CONTEXT · 2026-03-10_Takomi_Code / ws-a8b2</div>
+                <div class="sub-chat-badge">Sub-Chat Active</div>
+            </div>
+
+            <div class="messages" id="messages">
+
+                <!-- Agent message 1 -->
+                <div class="msg-agent">
+                    <div class="agent-avatar">C</div>
+                    <div class="msg-body">
+                        <div class="msg-label">Codex</div>
+                        <div class="msg-text">
+                            Created a page at <a href="#">john/index.html</a>, with styling in <a
+                                href="#">john/styles.css</a> and a small interaction script in <a
+                                href="#">john/script.js</a>. It has a clean warm look, a button that changes the line of
+                            text, and a live clock.
+                            <br><br>
+                            The repo has a lot of files, so I wrote the complete visible file list to <a
+                                href="#">john/visible-files.txt</a>. That manifest currently contains <strong
+                                style="color:var(--text);font-family:var(--mono);font-size:12px">2372</strong> visible
+                            files.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User message -->
+                <div class="msg-user">
+                    <div class="msg-user-bubble">
+                        ok niceee so now in that same html file make a new page with something else in it<br><br>
+                        BTW I love what you created it was sooo cute 😊
+                    </div>
+                </div>
+
+                <!-- Agent message 2: thinking + commands -->
+                <div class="msg-agent">
+                    <div class="agent-avatar">C</div>
+                    <div class="msg-body">
+                        <div class="msg-label">Codex — Processing</div>
+                        <div class="thinking-block">
+                            Routing request to Codex in 2026-03-10_Takomi_Code…
+                            <br>
+                            Using <code
+                                style="background:var(--surface3);padding:1px 4px;border-radius:3px;font-size:11px">takomi</code>
+                            and <code
+                                style="background:var(--surface3);padding:1px 4px;border-radius:3px;font-size:11px">frontend-design</code>
+                            again for this follow-up. I'll check the existing <em>john</em> page files, then add a
+                            second standalone page and wire an easy link between them.
+                        </div>
+
+                        <div class="cmd-block">
+                            <div class="cmd-header">
+                                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                                    <rect width="12" height="12" rx="2" fill="#2a2d38" />
+                                    <path d="M3 4l2 2-2 2M7 8h2" stroke="#9499a8" stroke-width="1.2"
+                                        stroke-linecap="round" />
+                                </svg>
+                                PowerShell · Read skill
+                                <span class="cmd-status running">running</span>
+                            </div>
+                            <div class="cmd-code"><span class="kw">Get-Content</span> <span
+                                    class="path">C:/Users/johno/.claude/skills/frontend-design/SKILL.md</span> <span
+                                    class="str">-TotalCount 80</span></div>
+                        </div>
+
+                        <div class="cmd-block">
+                            <div class="cmd-header">
+                                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                                    <rect width="12" height="12" rx="2" fill="#2a2d38" />
+                                    <path d="M3 4l2 2-2 2M7 8h2" stroke="#9499a8" stroke-width="1.2"
+                                        stroke-linecap="round" />
+                                </svg>
+                                PowerShell · List files
+                                <span class="cmd-status running">running</span>
+                            </div>
+                            <div class="cmd-code"><span class="kw">Get-ChildItem</span> <span class="path">john</span>
+                                <span class="str">-Force</span> | Select-Object Name, Length, Mode</div>
+                        </div>
+
+                        <div class="cmd-block">
+                            <div class="cmd-header">
+                                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                                    <rect width="12" height="12" rx="2" fill="#2a2d38" />
+                                    <path d="M3 4l2 2-2 2M7 8h2" stroke="#9499a8" stroke-width="1.2"
+                                        stroke-linecap="round" />
+                                </svg>
+                                PowerShell · Read index
+                                <span class="cmd-status running">running</span>
+                            </div>
+                            <div class="cmd-code"><span class="kw">Get-Content</span> <span
+                                    class="path">john/index.html</span> <span class="str">-TotalCount 200</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- INPUT -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <textarea class="input-box" placeholder="Ask agent to resolve, or provide context…" rows="1"
+                        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                    <div class="input-footer">
+                        <div class="input-tag">📎 Context</div>
+                        <div class="input-tag">⚙ Sub-Chat</div>
+                        <button class="input-route">Route →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+            <div class="panel-tabs">
+                <button class="panel-tab active">Task Graph</button>
+                <button class="panel-tab">Artifacts</button>
+            </div>
+
+            <div class="panel-body">
+
+                <div class="exec-section">
+                    <div class="exec-label">Current Execution</div>
+                    <div class="run-card active">
+                        <div class="run-id">Run 355222e7</div>
+                        <div class="run-meta">
+                            <div class="run-row">
+                                <span class="run-row-key">Status</span>
+                                <span class="run-row-val running">● Running</span>
+                            </div>
+                            <div class="run-row">
+                                <span class="run-row-key">Task</span>
+                                <span class="run-row-val">2301b015-e137-42f1-ae87-cc1a0a423403</span>
+                            </div>
+                            <div class="run-row">
+                                <span class="run-row-key">Folder</span>
+                                <span
+                                    class="run-row-val path">C:\CreativeOS\01_Projects\Code\Personal_Stuff\2026-03-10_Takomi_Code</span>
+                            </div>
+                            <div class="run-row">
+                                <span class="run-row-key">Details</span>
+                                <span class="run-row-val" style="font-style:italic">Waiting for Codex output…</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="exec-section">
+                    <div class="exec-label">Active Runs</div>
+                    <div class="active-run-card">
+                        <div class="run-short">355222e7-a626-4865-8a91-932ce158641f</div>
+                        <div class="run-in">● InProgress</div>
+                        <div class="run-folder">C:\CreativeOS\01_Projects\Code\Persona…</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="footer-info">
+                <div class="footer-dot"></div>
+                Codex runs locally · No fee-sharing · Bags Protocol verified
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.panel-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Session switching
+        document.querySelectorAll('.session-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.session-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Auto scroll
+        const msgs = document.getElementById('messages');
+        msgs.scrollTop = msgs.scrollHeight;
+    </script>
+
+</body>
+
+</html>

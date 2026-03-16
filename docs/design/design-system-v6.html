@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi v6 - Design System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            takomi: {
+              bg: '#0C0C0D',
+              surface: '#151516',
+              elevated: '#1E1E1F',
+              accent: '#FACC15', // Yellow 400
+              accentMuted: 'rgba(250, 204, 21, 0.15)',
+              file: '#94A3B8', // Slate 400
+              folder: '#FACC15',
+              success: '#10B981',
+              danger: '#EF4444',
+              warning: '#F59E0B',
+            },
+          },
+          boxShadow: {
+            'premium': '0 8px 32px -4px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.3)',
+            'inner-glow': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      background-color: #0C0C0D;
+      color: #F8FAFC;
+    }
+    .glass {
+      background: rgba(21, 21, 22, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .status-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+  </style>
+</head>
+<body class="p-12 space-y-24">
+  <section class="max-w-5xl mx-auto">
+    <h1 class="text-4xl font-bold mb-4">Takomi v6 Design System</h1>
+    <p class="text-slate-400 max-w-2xl">A premium, minimal, high-performance visual language for local AI orchestration. Built with Tailwind and the "Spirit of Takomi."</p>
+  </section>
+
+  <!-- Colors -->
+  <section class="max-w-5xl mx-auto space-y-8">
+    <h2 class="text-2xl font-semibold border-b border-slate-800 pb-2">Color Palette</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="space-y-2">
+        <div class="h-24 rounded-2xl bg-takomi-bg border border-slate-800"></div>
+        <p class="text-sm font-medium">Background (#0C0C0D)</p>
+      </div>
+      <div class="space-y-2">
+        <div class="h-24 rounded-2xl bg-takomi-surface border border-slate-800"></div>
+        <p class="text-sm font-medium">Surface (#151516)</p>
+      </div>
+      <div class="space-y-2">
+        <div class="h-24 rounded-2xl bg-takomi-elevated border border-slate-800"></div>
+        <p class="text-sm font-medium">Elevated (#1E1E1F)</p>
+      </div>
+      <div class="space-y-2">
+        <div class="h-24 rounded-2xl bg-takomi-accent"></div>
+        <p class="text-sm font-medium">Takomi Yellow (#FACC15)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Typography -->
+  <section class="max-w-5xl mx-auto space-y-8">
+    <h2 class="text-2xl font-semibold border-b border-slate-800 pb-2">Typography</h2>
+    <div class="space-y-4">
+      <div class="space-y-1">
+        <p class="text-sm text-slate-500">Sans - Inter</p>
+        <p class="text-4xl font-bold">The quick brown fox jumps over the lazy dog</p>
+      </div>
+      <div class="space-y-1">
+        <p class="text-sm text-slate-500">Mono - JetBrains Mono</p>
+        <p class="text-2xl font-mono">npm install takomi-orchestrator</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Components -->
+  <section class="max-w-5xl mx-auto space-y-8">
+    <h2 class="text-2xl font-semibold border-b border-slate-800 pb-2">Core Components</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <!-- File/Folder Pills -->
+      <div class="space-y-4">
+        <h3 class="text-sm font-semibold uppercase text-slate-500">File System Assets</h3>
+        <div class="flex flex-wrap gap-4">
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-takomi-surface border border-slate-800 rounded-lg group hover:border-takomi-accent transition-all cursor-default">
+            <svg class="w-4 h-4 text-takomi-folder" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+            <span class="text-sm font-medium">src/features</span>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-takomi-surface border border-slate-800 rounded-lg group hover:border-slate-600 transition-all cursor-default">
+            <svg class="w-4 h-4 text-takomi-file" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span class="text-sm font-medium text-slate-300">orchestrator.ts</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Indicators -->
+      <div class="space-y-4">
+        <h3 class="text-sm font-semibold uppercase text-slate-500">Execution Status</h3>
+        <div class="flex flex-wrap gap-4">
+          <span class="status-pill bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Active
+          </span>
+          <span class="status-pill bg-red-500/10 text-red-500 border border-red-500/20">
+             <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div> Blocked
+          </span>
+          <span class="status-pill bg-slate-500/10 text-slate-400 border border-slate-500/20">
+             <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div> Queued
+          </span>
+          <span class="status-pill bg-takomi-accentMuted text-takomi-accent border border-takomi-accent/20">
+             <div class="w-1.5 h-1.5 rounded-full bg-takomi-accent animate-pulse"></div> Thinking
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Transcript Pattern -->
+  <section class="max-w-5xl mx-auto space-y-8">
+    <h2 class="text-2xl font-semibold border-b border-slate-800 pb-2">Transcript Pattern</h2>
+    <div class="max-w-2xl space-y-6">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 mb-2">
+           <div class="w-2 h-2 rounded-full bg-takomi-accent"></div>
+           <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Takomi</span>
+        </div>
+        <p class="text-slate-300 leading-relaxed">I've analyzed the current build failure. It seems like the <span class="text-takomi-accent bg-takomi-accentMuted px-1 rounded">tailwind.config.ts</span> is missing a critical type definition.</p>
+        
+        <!-- Status Block -->
+        <div class="bg-takomi-surface/50 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+           <div class="flex items-center gap-3">
+              <div class="w-5 h-5 flex items-center justify-center text-takomi-accent">
+                 <svg class="w-full h-full animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              </div>
+              <div>
+                 <p class="text-xs font-semibold">Running verification</p>
+                 <p class="text-[10px] text-slate-500 font-mono">npx tsc --noEmit</p>
+              </div>
+           </div>
+           <span class="text-[10px] font-mono text-slate-500">2.4s</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

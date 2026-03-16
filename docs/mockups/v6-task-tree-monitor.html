@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi v6 - Task Tree Monitor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+          colors: {
+            takomi: { bg: '#0C0C0D', surface: '#151516', elevated: '#1E1E1F', accent: '#FACC15', accentMuted: 'rgba(250, 204, 21, 0.15)', file: '#94A3B8', folder: '#FACC15' }
+          },
+        }
+      }
+    };
+  </script>
+  <style>
+    body { background-color: #0C0C0D; color: #F8FAFC; overflow: hidden; }
+    .tree-line { position: absolute; left: 0.75rem; top: 0; bottom: 0; width: 1px; background: rgba(255, 255, 255, 0.05); }
+    .tree-item { position: relative; transition: all 0.2s ease; }
+    .tree-item:hover { background: rgba(255, 255, 255, 0.02); }
+    .status-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; }
+  </style>
+</head>
+<body class="h-screen flex font-sans">
+
+  <!-- Shared Sidebar -->
+  <aside class="w-16 flex flex-col items-center py-8 border-r border-white/5 shrink-0 h-full">
+    <div class="mb-12">
+      <div class="w-8 h-8 rounded-lg bg-takomi-accent flex items-center justify-center text-takomi-bg">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5" /></svg>
+      </div>
+    </div>
+    <nav class="space-y-6">
+      <button class="p-2 text-slate-600 hover:text-slate-300 transition-colors"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></button>
+      <button class="p-2 text-slate-600 hover:text-slate-300 transition-colors"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></button>
+      <button class="p-2 text-takomi-accent bg-takomi-accentMuted rounded-xl"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg></button>
+    </nav>
+  </aside>
+
+  <!-- Monitor Layout -->
+  <main class="flex-1 flex min-w-0">
+    <!-- Tree View -->
+    <div class="flex-1 flex flex-col border-r border-white/5">
+       <header class="h-16 flex items-center px-8 border-b border-white/5 shrink-0 bg-takomi-bg/50 backdrop-blur-md">
+          <div class="flex items-center gap-4">
+             <h1 class="text-xl font-bold tracking-tight">Task Tree</h1>
+             <span class="px-2 py-0.5 bg-takomi-accentMuted text-takomi-accent text-[10px] font-mono rounded border border-takomi-accent/20 uppercase tracking-widest">Active Run</span>
+          </div>
+          <div class="ml-auto flex items-center gap-4">
+             <div class="flex items-center gap-2 text-xs text-slate-500">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> 12 Success
+                <div class="w-1.5 h-1.5 rounded-full bg-takomi-accent"></div> 1 Running
+                <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div> 1 Blocked
+             </div>
+          </div>
+       </header>
+
+       <div class="flex-1 overflow-y-auto p-8 relative">
+          <!-- The Tree -->
+          <div class="space-y-1 relative">
+             <div class="tree-line"></div>
+             
+             <!-- Root Task -->
+             <div class="tree-item p-3 rounded-xl flex items-center gap-4 group">
+                <div class="w-6 h-6 flex items-center justify-center z-10 relative">
+                   <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+                </div>
+                <div class="flex-1">
+                   <p class="text-sm font-semibold">Orchestrate: Refactor Auth</p>
+                   <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Completed in 14.2s</p>
+                </div>
+             </div>
+
+             <!-- Sub Tasks -->
+             <div class="pl-10 space-y-1 relative">
+                <div class="tree-line" style="left: -1.75rem;"></div>
+                
+                <div class="tree-item p-3 rounded-xl flex items-center gap-4 group bg-white/[0.02]">
+                   <div class="w-6 h-6 flex items-center justify-center z-10 relative">
+                      <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                   </div>
+                   <div class="flex-1">
+                      <p class="text-sm font-medium">Research: Identify Provider Exports</p>
+                      <p class="text-[10px] font-mono text-slate-500 uppercase tracking-widest">2.1s</p>
+                   </div>
+                </div>
+
+                <div class="tree-item p-3 rounded-xl flex items-center gap-4 group border border-takomi-accent/20 bg-takomi-accentMuted/5">
+                   <div class="w-6 h-6 flex items-center justify-center z-10 relative">
+                      <div class="w-2.5 h-2.5 rounded-full bg-takomi-accent animate-pulse"></div>
+                   </div>
+                   <div class="flex-1">
+                      <p class="text-sm font-bold text-takomi-accent tracking-tight">Action: Update auth.service.ts</p>
+                      <p class="text-[10px] font-mono text-takomi-accent opacity-60 uppercase tracking-widest">In Progress • 5.4s</p>
+                   </div>
+                </div>
+
+                <div class="tree-item p-3 rounded-xl flex items-center gap-4 group opacity-40">
+                   <div class="w-6 h-6 flex items-center justify-center z-10 relative">
+                      <div class="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
+                   </div>
+                   <div class="flex-1">
+                      <p class="text-sm font-medium">Verify: Type-check validation</p>
+                      <p class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">Queued</p>
+                   </div>
+                </div>
+             </div>
+
+             <!-- Another Branch -->
+             <div class="tree-item p-3 rounded-xl flex items-center gap-4 group border border-red-500/20 bg-red-500/5">
+                <div class="w-6 h-6 flex items-center justify-center z-10 relative">
+                   <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                </div>
+                <div class="flex-1">
+                   <p class="text-sm font-bold text-red-400 tracking-tight">Background: Sync Docs</p>
+                   <p class="text-[10px] font-mono text-red-500 opacity-60 uppercase tracking-widest">Blocked • Connection Error</p>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+
+    <!-- Inspector Detail -->
+    <aside class="w-96 flex flex-col bg-takomi-surface border-l border-white/5">
+       <header class="h-16 flex items-center px-6 border-b border-white/5 shrink-0">
+          <h2 class="text-sm font-bold uppercase tracking-widest text-slate-500">Task Details</h2>
+       </header>
+       <div class="flex-1 overflow-y-auto p-6 space-y-8">
+          <div class="space-y-4">
+             <div class="p-4 rounded-2xl bg-takomi-bg border border-white/5 space-y-2">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tool Call</h3>
+                <p class="text-sm font-mono text-takomi-accent break-all">replace(file_path: "src/services/auth.service.ts", ...)</p>
+             </div>
+             
+             <div class="space-y-2">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Logs</h3>
+                <div class="bg-black/40 rounded-xl p-4 font-mono text-[11px] leading-relaxed text-slate-500 space-y-1">
+                   <p><span class="text-emerald-500">[INFO]</span> Initializing replace tool...</p>
+                   <p><span class="text-emerald-500">[INFO]</span> File read success.</p>
+                   <p><span class="text-takomi-accent">[WAIT]</span> Applying diff...</p>
+                </div>
+             </div>
+          </div>
+       </div>
+    </aside>
+  </main>
+
+</body>
+</html>

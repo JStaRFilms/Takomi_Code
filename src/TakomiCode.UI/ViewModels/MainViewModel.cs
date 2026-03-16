@@ -29,8 +29,7 @@ public partial class MainViewModel : ObservableObject
     private readonly DispatcherQueue _dispatcherQueue;
     private readonly Dictionary<string, ChatMessageViewModel> _runProgressMessages = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _runSessionIds = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, List<string>> _runProgressLines = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, string> _runAssistantStreams = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, List<RunTranscriptSegment>> _runTranscriptSegments = new(StringComparer.Ordinal);
     private readonly Dictionary<string, List<string>> _runErrorLines = new(StringComparer.Ordinal);
     private ChatSessionViewModel? _draftSession;
 
@@ -49,6 +48,12 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private ChatSessionViewModel? _selectedSession;
+
+    [ObservableProperty]
+    private bool _isLeftSidebarOpen = true;
+
+    [ObservableProperty]
+    private bool _isRightSidebarOpen = true;
 
     [ObservableProperty]
     private string _draftMessage = string.Empty;
@@ -221,6 +226,12 @@ public partial class MainViewModel : ObservableObject
     {
         SelectedShellSection = section;
     }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    public void ToggleLeftSidebar() => IsLeftSidebarOpen = !IsLeftSidebarOpen;
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    public void ToggleRightSidebar() => IsRightSidebarOpen = !IsRightSidebarOpen;
 
     [CommunityToolkit.Mvvm.Input.RelayCommand]
     public void OpenSettings()
@@ -551,10 +562,12 @@ public partial class MainViewModel : ObservableObject
                 cancellationToken: cancellationToken);
 
             _runSessionIds[run.RunId] = session.Id;
-            _runProgressLines[run.RunId] = new List<string>();
-            _runAssistantStreams[run.RunId] = string.Empty;
+            _runTranscriptSegments[run.RunId] = new List<RunTranscriptSegment>
+            {
+                new(CodexRuntimeOutputKind.Progress, "Thinking through the request...")
+            };
             _runErrorLines[run.RunId] = new List<string>();
-            _runProgressMessages[run.RunId] = session.AddMessage("Assistant", string.Empty);
+            _runProgressMessages[run.RunId] = session.AddMessage("Assistant", BuildRunTranscript(run.RunId));
             await _chatSessionRepository.SaveSessionAsync(session.GetEntity(), cancellationToken);
 
             await ReloadActiveRunsAsync(cancellationToken);
@@ -617,25 +630,7 @@ public partial class MainViewModel : ObservableObject
         }
 
         var trimmed = e.Content.Trim();
-        switch (e.Kind)
-        {
-            case CodexRuntimeOutputKind.AssistantStream:
-            case CodexRuntimeOutputKind.AssistantFinal:
-                _runAssistantStreams[e.RunId] = trimmed;
-                break;
-            default:
-                if (!_runProgressLines.TryGetValue(e.RunId, out var progressLines))
-                {
-                    progressLines = new List<string>();
-                    _runProgressLines[e.RunId] = progressLines;
-                }
-
-                if (progressLines.Count == 0 || !string.Equals(progressLines[^1], trimmed, StringComparison.Ordinal))
-                {
-                    progressLines.Add(trimmed);
-                }
-                break;
-        }
+        AppendRunTranscriptSegment(e.RunId, e.Kind, trimmed);
 
         session.UpdateMessage(progressMessage, BuildRunTranscript(e.RunId));
         StatusMessage = trimmed;
@@ -695,12 +690,12 @@ public partial class MainViewModel : ObservableObject
 
         if (_runProgressMessages.TryGetValue(runId, out var progressMessage))
         {
-            if (!isFailure && !string.IsNullOrWhiteSpace(finalMessage))
-            {
-                _runAssistantStreams[runId] = finalMessage;
-            }
+            AppendRunTranscriptSegment(
+                runId,
+                isFailure ? CodexRuntimeOutputKind.Error : CodexRuntimeOutputKind.AssistantFinal,
+                finalMessage);
 
-            session.UpdateMessage(progressMessage, isFailure ? finalMessage : BuildRunTranscript(runId));
+            session.UpdateMessage(progressMessage, BuildRunTranscript(runId));
         }
         else
         {
@@ -763,34 +758,73 @@ public partial class MainViewModel : ObservableObject
     {
         _runProgressMessages.Remove(runId);
         _runSessionIds.Remove(runId);
-        _runProgressLines.Remove(runId);
-        _runAssistantStreams.Remove(runId);
+        _runTranscriptSegments.Remove(runId);
         _runErrorLines.Remove(runId);
     }
 
     private string BuildRunTranscript(string runId)
     {
-        var sections = new List<string>();
+        return !_runTranscriptSegments.TryGetValue(runId, out var segments)
+            ? string.Empty
+            : string.Join(
+                $"{Environment.NewLine}{Environment.NewLine}",
+                segments
+                    .Select(segment => segment.Content.Trim())
+                    .Where(content => !string.IsNullOrWhiteSpace(content)));
+    }
 
-        if (_runProgressLines.TryGetValue(runId, out var progressLines))
+    private void AppendRunTranscriptSegment(string runId, CodexRuntimeOutputKind kind, string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
         {
-            var visibleProgress = progressLines
-                .Where(line => !string.IsNullOrWhiteSpace(line))
-                .Distinct(StringComparer.Ordinal)
-                .ToList();
+            return;
+        }
 
-            if (visibleProgress.Count > 0)
+        if (!_runTranscriptSegments.TryGetValue(runId, out var segments))
+        {
+            segments = new List<RunTranscriptSegment>();
+            _runTranscriptSegments[runId] = segments;
+        }
+
+        var trimmed = content.Trim();
+        if (segments.Count == 0)
+        {
+            segments.Add(new RunTranscriptSegment(kind, trimmed));
+            return;
+        }
+
+        var lastSegment = segments[^1];
+        if (kind is CodexRuntimeOutputKind.AssistantStream or CodexRuntimeOutputKind.AssistantFinal)
+        {
+            if (lastSegment.Kind is CodexRuntimeOutputKind.AssistantStream or CodexRuntimeOutputKind.AssistantFinal)
             {
-                sections.Add(string.Join(Environment.NewLine, visibleProgress));
+                lastSegment.Content = trimmed;
+                lastSegment.Kind = kind;
+                return;
             }
+
+            segments.Add(new RunTranscriptSegment(kind, trimmed));
+            return;
         }
 
-        if (_runAssistantStreams.TryGetValue(runId, out var assistantText) && !string.IsNullOrWhiteSpace(assistantText))
+        if (lastSegment.Kind == kind && string.Equals(lastSegment.Content, trimmed, StringComparison.Ordinal))
         {
-            sections.Add(assistantText.Trim());
+            return;
         }
 
-        return string.Join($"{Environment.NewLine}{Environment.NewLine}", sections);
+        segments.Add(new RunTranscriptSegment(kind, trimmed));
+    }
+
+    private sealed class RunTranscriptSegment
+    {
+        public RunTranscriptSegment(CodexRuntimeOutputKind kind, string content)
+        {
+            Kind = kind;
+            Content = content;
+        }
+
+        public CodexRuntimeOutputKind Kind { get; set; }
+        public string Content { get; set; }
     }
 
     private static string BuildTaskName(string prompt)

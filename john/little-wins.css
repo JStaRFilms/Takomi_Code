@@ -1,0 +1,155 @@
+:root {
+  --sky: #f8f4ed;
+  --ink: #22304d;
+  --muted: #5f6a7f;
+  --peach: #f7c7ae;
+  --blue: #cfe0f6;
+  --paper: #fffdf8;
+  --line: rgba(34, 48, 77, 0.12);
+  --shadow: 0 28px 70px rgba(34, 48, 77, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "DM Sans", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top, rgba(247, 199, 174, 0.55), transparent 34%),
+    linear-gradient(180deg, #fefbf7, var(--sky));
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+}
+
+.board {
+  width: min(920px, 100%);
+  padding: 36px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.back-link,
+.tag {
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.back-link {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.tag {
+  margin: 20px 0 12px;
+  color: #b66445;
+}
+
+h1 {
+  margin: 0;
+  max-width: 10ch;
+  font-family: "Fraunces", serif;
+  font-size: clamp(2.7rem, 7vw, 5.4rem);
+  line-height: 0.95;
+}
+
+.intro {
+  margin: 20px 0 0;
+  max-width: 42rem;
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 1.02rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 32px;
+}
+
+.note {
+  min-height: 220px;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 40px rgba(34, 48, 77, 0.08);
+}
+
+.peach {
+  background: linear-gradient(180deg, #ffd8c4, var(--peach));
+  transform: rotate(-2deg);
+}
+
+.blue {
+  background: linear-gradient(180deg, #deebfb, var(--blue));
+  transform: rotate(1.5deg);
+}
+
+.paper {
+  background: var(--paper);
+  transform: rotate(-1deg);
+}
+
+.note-label {
+  display: inline-block;
+  margin-bottom: 18px;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(34, 48, 77, 0.66);
+}
+
+.note h2 {
+  margin: 0 0 12px;
+  font-family: "Fraunces", serif;
+  font-size: 1.8rem;
+  line-height: 1.05;
+}
+
+.note p {
+  margin: 0 0 10px;
+  line-height: 1.6;
+}
+
+button {
+  width: 100%;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 18px;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #22304d, #405987);
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: 0 14px 24px rgba(34, 48, 77, 0.2);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 30px rgba(34, 48, 77, 0.24);
+}
+
+@media (max-width: 780px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .board {
+    padding: 28px 20px;
+  }
+}

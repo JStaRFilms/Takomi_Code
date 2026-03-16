@@ -3,175 +3,207 @@
     x:Name="ProjectSelectorRoot"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:TakomiCode.UI.Views"
-    xmlns:viewmodels="using:TakomiCode.UI.ViewModels"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    xmlns:viewmodels="using:TakomiCode.UI.ViewModels">
 
     <Grid Background="{StaticResource AppBackgroundBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="280" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+        <Ellipse
+            Width="600"
+            Height="600"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Opacity="0.3">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#18FACC15" Offset="0" />
+                    <GradientStop Color="#00FACC15" Offset="0.8" />
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
 
-        <!-- Left Sidebar (Studio Acrylic vibe) -->
-        <Border Grid.Column="0" Background="#1F1F1F" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="64" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel
+                MaxWidth="900"
+                Margin="0,80,0,80"
+                HorizontalAlignment="Center"
+                Spacing="56">
 
-                <!-- Branding -->
-                <Border Grid.Row="0" Padding="24,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                        <Border Width="32" Height="32" Background="{StaticResource AccentBrush}" CornerRadius="4">
-                            <FontIcon Glyph="&#xE946;" Foreground="Black" FontSize="18" />
-                        </Border>
-                        <TextBlock Text="Takomi Code" Foreground="White" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Border>
-
-                <!-- Environment Widget -->
-                <StackPanel Grid.Row="1" Padding="24" Spacing="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-                    <TextBlock Text="ENVIRONMENT" Style="{StaticResource Win5HeaderLabelStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}" VerticalAlignment="Center" />
-                        <StackPanel>
-                                <TextBlock Text="Takomi Engine" Foreground="White" FontWeight="SemiBold" FontSize="12" />
-                            <TextBlock Text="v1.2.4-alpha" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontFamily="{StaticResource V5MonoFontFamily}" />
-                        </StackPanel>
-                    </StackPanel>
-                    <StackPanel Spacing="4">
-                        <Grid>
-                            <TextBlock Text="Docker Daemon" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontWeight="Medium" />
-                            <TextBlock Text="Healthy" FontSize="10" Foreground="{StaticResource SuccessBrush}" FontWeight="Medium" HorizontalAlignment="Right" />
-                        </Grid>
-                        <Grid>
-                            <TextBlock Text="LLM Endpoint" FontSize="10" Foreground="{StaticResource TextMutedBrush}" FontWeight="Medium" />
-                            <TextBlock Text="Connected" FontSize="10" Foreground="{StaticResource SuccessBrush}" FontWeight="Medium" HorizontalAlignment="Right" />
-                        </Grid>
-                    </StackPanel>
-                </StackPanel>
-
-                <!-- Permissions Widget -->
-                <StackPanel Grid.Row="2" Padding="24" Spacing="12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-                    <TextBlock Text="PERMISSIONS" Style="{StaticResource Win5HeaderLabelStyle}" />
-                    <Border Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <FontIcon Glyph="&#xE73E;" Foreground="{StaticResource SuccessBrush}" FontSize="14" />
-                            <TextBlock Text="Bags Verified Pro" Foreground="White" FontSize="11" FontWeight="Medium" VerticalAlignment="Center" />
-                        </StackPanel>
+                <StackPanel Spacing="16" HorizontalAlignment="Center">
+                    <Border
+                        Width="64"
+                        Height="64"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource AccentBrush}"
+                        CornerRadius="{StaticResource V6AvatarCornerRadius}">
+                        <Viewbox Margin="16">
+                            <FontIcon Glyph="&#xE8B7;" Foreground="{StaticResource AppBackgroundBrush}" />
+                        </Viewbox>
                     </Border>
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            Text="Select a workspace"
+                            FontSize="36"
+                            FontWeight="Bold"
+                            HorizontalAlignment="Center"
+                            Foreground="White" />
+                        <TextBlock
+                            Text="Open an existing project and resume Takomi orchestration."
+                            FontSize="15"
+                            HorizontalAlignment="Center"
+                            Foreground="{StaticResource TextMutedBrush}" />
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- Footer Info -->
-                <Border Grid.Row="4" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
-                    <Grid>
-                        <HyperlinkButton Content="Settings" 
-                                         Foreground="{StaticResource TextMutedBrush}" 
-                                         FontSize="11" 
-                                         VerticalAlignment="Center" 
-                                         Padding="0"
-                                         Command="{Binding ElementName=ProjectSelectorRoot, Path=DataContext.OpenSettingsCommand}" />
-                        <TextBlock Text="v0.001" Foreground="{StaticResource TextMutedBrush}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                    </Grid>
-                </Border>
-            </Grid>
-        </Border>
+                <Grid MaxWidth="440" HorizontalAlignment="Center">
+                    <Border
+                        Padding="{StaticResource V6CompactPadding}"
+                        Background="{StaticResource SurfaceBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource V6CardCornerRadius}"
+                        Opacity="0.8">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Glyph="&#xE721;" Foreground="{StaticResource TextMutedBrush}" FontSize="16" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="Search projects..."
+                                FontSize="14"
+                                VerticalAlignment="Center"
+                                Foreground="{StaticResource TextMutedBrush}" />
+                        </Grid>
+                    </Border>
+                </Grid>
 
-        <!-- Main Content -->
-        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-            <Grid MaxWidth="800" HorizontalAlignment="Center" Margin="0,80" VerticalAlignment="Center">
-                <StackPanel Spacing="48">
-                    
-                    <StackPanel Spacing="8" HorizontalAlignment="Center">
-                        <TextBlock Text="Select a Workspace" FontSize="32" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center" />
-                        <TextBlock Text="Open an existing project or initialize a new orchestrator environment." Foreground="{StaticResource TextMutedBrush}" FontSize="14" HorizontalAlignment="Center" />
-                    </StackPanel>
+                <ItemsControl ItemsSource="{Binding RecentWorkspaces}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VariableSizedWrapGrid Orientation="Horizontal" ItemWidth="440" HorizontalAlignment="Center" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodels:WorkspaceViewModel">
+                            <Button
+                                Margin="8"
+                                Padding="0"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Command="{Binding ElementName=ProjectSelectorRoot, Path=DataContext.InitializeProjectCommand}"
+                                CommandParameter="{Binding}">
+                                <Border
+                                    Padding="24"
+                                    Background="{StaticResource SurfaceBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="{StaticResource V6CardCornerRadius}">
+                                    <Grid RowSpacing="16">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
 
-                    <!-- Quick Actions -->
-                    <Grid ColumnSpacing="24">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                                        <Grid>
+                                            <Border
+                                                Width="44"
+                                                Height="44"
+                                                HorizontalAlignment="Left"
+                                                Background="{StaticResource AccentMutedBrush}"
+                                                CornerRadius="{StaticResource V6IconCornerRadius}">
+                                                <Viewbox Margin="10">
+                                                    <FontIcon Glyph="&#xE8B7;" Foreground="{StaticResource AccentBrush}" />
+                                                </Viewbox>
+                                            </Border>
+                                            <TextBlock
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Text="{Binding LastOpenedFormatted}"
+                                                FontSize="10"
+                                                FontWeight="Bold"
+                                                Foreground="{StaticResource TextMutedBrush}"
+                                                FontFamily="{StaticResource V6MonoFontFamily}"
+                                                CharacterSpacing="100" />
+                                        </Grid>
 
-                        <Button HorizontalAlignment="Stretch" Height="128" 
-                                Background="#1F1F1F" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12"
-                                IsEnabled="False" Opacity="0.55">
-                            <StackPanel Spacing="12">
-                                <FontIcon Glyph="&#xE710;" Foreground="{StaticResource TextMutedBrush}" FontSize="28" />
-                                <TextBlock Text="Initialize Folder" Foreground="White" FontWeight="SemiBold" FontSize="14" />
+                                        <StackPanel Grid.Row="1" Spacing="4">
+                                            <TextBlock
+                                                Text="{Binding Name}"
+                                                FontSize="19"
+                                                FontWeight="SemiBold"
+                                                Foreground="White" />
+                                            <TextBlock
+                                                Text="{Binding Path}"
+                                                FontSize="13"
+                                                Foreground="{StaticResource TextMutedBrush}"
+                                                FontFamily="{StaticResource V6MonoFontFamily}"
+                                                TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <Ellipse Width="6" Height="6" Fill="{StaticResource SuccessBrush}" VerticalAlignment="Center" />
+                                                <TextBlock
+                                                    Text="Recent workspace"
+                                                    FontSize="11"
+                                                    Foreground="{StaticResource TextMutedBrush}"
+                                                    FontFamily="{StaticResource V6MonoFontFamily}" />
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE9A1;" Foreground="{StaticResource TextMutedBrush}" FontSize="12" />
+                                                <TextBlock
+                                                    Text="{Binding Id}"
+                                                    FontSize="11"
+                                                    Foreground="{StaticResource TextMutedBrush}"
+                                                    FontFamily="{StaticResource V6MonoFontFamily}"
+                                                    TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <StackPanel Spacing="24">
+                    <Button
+                        HorizontalAlignment="Center"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        IsEnabled="False"
+                        Opacity="0.55">
+                        <Border
+                            Width="440"
+                            Padding="24"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{StaticResource V6CardCornerRadius}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+                                <FontIcon Glyph="&#xE710;" Foreground="{StaticResource TextMutedBrush}" FontSize="16" />
+                                <TextBlock
+                                    Text="Initialize new project"
+                                    FontSize="14"
+                                    FontWeight="SemiBold"
+                                    Foreground="{StaticResource TextMutedBrush}" />
                             </StackPanel>
-                        </Button>
-
-                        <Button Grid.Column="1" HorizontalAlignment="Stretch" Height="128" 
-                                Background="#1F1F1F" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="12"
-                                IsEnabled="False" Opacity="0.55">
-                            <StackPanel Spacing="12">
-                                <FontIcon Glyph="&#xE8B9;" Foreground="{StaticResource TextMutedBrush}" FontSize="28" />
-                                <TextBlock Text="Clone Repository" Foreground="White" FontWeight="SemiBold" FontSize="14" />
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-
-                    <!-- Recent Projects -->
-                    <StackPanel Spacing="16">
-                        <TextBlock Text="RECENT ENVIRONMENTS" Style="{StaticResource Win5HeaderLabelStyle}" />
-
-                        <Border Background="#1A1A1A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8">
-                            <ListView ItemsSource="{Binding RecentWorkspaces}"
-                                      SelectionMode="None"
-                                      Padding="0">
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                        <Setter Property="Padding" Value="0" />
-                                        <Setter Property="Background" Value="Transparent" />
-                                        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-                                        <Setter Property="BorderThickness" Value="0,0,0,1" />
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:WorkspaceViewModel">
-                                        <Button HorizontalAlignment="Stretch" 
-                                                HorizontalContentAlignment="Left"
-                                                Padding="20,16"
-                                                Background="Transparent" 
-                                                BorderThickness="0"
-                                                Command="{Binding ElementName=ProjectSelectorRoot, Path=DataContext.InitializeProjectCommand}"
-                                                CommandParameter="{Binding}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-
-                                                <FontIcon Grid.Column="0" Glyph="&#xE8B7;" Foreground="{StaticResource AccentBrush}" FontSize="20" Margin="0,0,20,0" />
-
-                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                                    <TextBlock Text="{Binding Name}" Foreground="White" FontWeight="SemiBold" FontSize="14" />
-                                                    <TextBlock Text="{Binding Path}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" FontFamily="{StaticResource V5MonoFontFamily}" />
-                                                </StackPanel>
-
-                                                <TextBlock Grid.Column="2" Text="{Binding LastOpenedFormatted}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" />
-                                            </Grid>
-                                        </Button>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
                         </Border>
-                        
-                        <Button Content="Clear Recent History..." Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextMutedBrush}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Left" Padding="0,8" IsEnabled="False" Opacity="0.55" />
-                    </StackPanel>
+                    </Button>
+
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        Text="Takomi v6.0.0-alpha"
+                        FontSize="10"
+                        FontWeight="Bold"
+                        Foreground="{StaticResource TextMutedBrush}"
+                        FontFamily="{StaticResource V6MonoFontFamily}"
+                        CharacterSpacing="200" />
                 </StackPanel>
-            </Grid>
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>
