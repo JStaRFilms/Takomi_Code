@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi v6 - Worktree Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+          colors: {
+            takomi: { bg: '#0C0C0D', surface: '#151516', elevated: '#1E1E1F', accent: '#FACC15', accentMuted: 'rgba(250, 204, 21, 0.15)', file: '#94A3B8', folder: '#FACC15' }
+          },
+        }
+      }
+    };
+  </script>
+  <style>
+    body { background-color: #0C0C0D; color: #F8FAFC; }
+    .worktree-card { background: #151516; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; transition: all 0.3s ease; position: relative; overflow: hidden; }
+    .worktree-card:hover { border-color: rgba(250, 204, 21, 0.2); transform: translateY(-2px); }
+    .worktree-card.active { border-color: #FACC15; background: rgba(250, 204, 21, 0.02); }
+    .active-glow { position: absolute; top: 0; right: 0; width: 6rem; height: 6rem; background: radial-gradient(circle at top right, rgba(250, 204, 21, 0.1) 0%, transparent 70%); }
+  </style>
+</head>
+<body class="min-h-screen flex font-sans">
+
+  <!-- Shared Sidebar -->
+  <aside class="w-16 flex flex-col items-center py-8 border-r border-white/5 shrink-0 sticky top-0 h-screen">
+    <div class="mb-12">
+      <div class="w-8 h-8 rounded-lg bg-takomi-accent flex items-center justify-center text-takomi-bg shadow-lg">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5" /></svg>
+      </div>
+    </div>
+    <nav class="space-y-6">
+      <button class="p-2 text-slate-600 hover:text-slate-300 transition-colors"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></button>
+      <button class="p-2 text-takomi-accent bg-takomi-accentMuted rounded-xl"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></button>
+      <button class="p-2 text-slate-600 hover:text-slate-300 transition-colors"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg></button>
+    </nav>
+  </aside>
+
+  <!-- Worktree Manager View -->
+  <main class="flex-1 p-12 max-w-6xl space-y-12">
+    <header class="flex items-center justify-between">
+       <div>
+          <h1 class="text-3xl font-bold tracking-tight mb-2">Worktree Manager</h1>
+          <p class="text-slate-500">Manage isolated development environments for Takomi_Code.</p>
+       </div>
+       <button class="bg-takomi-elevated border border-white/5 hover:border-white/10 text-slate-300 px-5 py-2.5 rounded-2xl font-semibold transition-all flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+          Spawn Worktree
+       </button>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+       <!-- Active Worktree -->
+       <div class="worktree-card active p-6 space-y-6">
+          <div class="active-glow"></div>
+          <div class="flex items-start justify-between">
+             <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-takomi-accent">Active Context</span>
+                <h3 class="text-xl font-bold">ws-a8b2</h3>
+                <p class="text-xs font-mono text-slate-500">branch: feat/refactor-auth</p>
+             </div>
+             <div class="w-8 h-8 rounded-full bg-takomi-accent flex items-center justify-center text-takomi-bg">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+             </div>
+          </div>
+          
+          <div class="space-y-3">
+             <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-400">Changed Files</span>
+                <span class="font-mono text-takomi-accent">12</span>
+             </div>
+             <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-full bg-takomi-accent w-2/3"></div>
+             </div>
+          </div>
+
+          <div class="pt-2">
+             <button class="w-full py-2.5 bg-takomi-accent/10 border border-takomi-accent/20 text-takomi-accent rounded-xl text-xs font-bold uppercase tracking-wider">Syncing...</button>
+          </div>
+       </div>
+
+       <!-- Other Worktree -->
+       <div class="worktree-card p-6 space-y-6 group">
+          <div class="flex items-start justify-between">
+             <div class="space-y-1 text-slate-300">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-600">Background</span>
+                <h3 class="text-xl font-bold">ws-f3d1</h3>
+                <p class="text-xs font-mono text-slate-500">branch: main</p>
+             </div>
+          </div>
+          
+          <div class="space-y-3">
+             <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-400">Changed Files</span>
+                <span class="font-mono text-slate-500">0</span>
+             </div>
+             <div class="w-full h-1 bg-slate-800 rounded-full"></div>
+          </div>
+
+          <div class="pt-2">
+             <button class="w-full py-2.5 bg-takomi-elevated border border-white/5 text-slate-400 rounded-xl text-xs font-bold uppercase tracking-wider group-hover:bg-takomi-accent group-hover:text-takomi-bg group-hover:border-transparent transition-all">Switch Context</button>
+          </div>
+       </div>
+
+       <!-- Another Worktree -->
+       <div class="worktree-card p-6 space-y-6 group">
+          <div class="flex items-start justify-between">
+             <div class="space-y-1 text-slate-300">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-600">Stashed</span>
+                <h3 class="text-xl font-bold">ws-experimental</h3>
+                <p class="text-xs font-mono text-slate-500">branch: fix/ui-glitch</p>
+             </div>
+          </div>
+          
+          <div class="space-y-3">
+             <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-400">Changed Files</span>
+                <span class="font-mono text-slate-500">3</span>
+             </div>
+             <div class="w-full h-1 bg-slate-800 rounded-full">
+                <div class="h-full bg-slate-600 w-1/4"></div>
+             </div>
+          </div>
+
+          <div class="pt-2">
+             <button class="w-full py-2.5 bg-takomi-elevated border border-white/5 text-slate-400 rounded-xl text-xs font-bold uppercase tracking-wider group-hover:bg-takomi-accent group-hover:text-takomi-bg group-hover:border-transparent transition-all">Switch Context</button>
+          </div>
+       </div>
+    </div>
+  </main>
+
+</body>
+</html>

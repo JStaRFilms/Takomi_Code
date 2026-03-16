@@ -11,7 +11,7 @@ namespace TakomiCode.RuntimeAdapters.Codex;
 
 public class WorkspaceAwareCodexRuntimeAdapter : ICodexRuntimeAdapter
 {
-    private readonly CodexCliAdapter _localAdapter;
+    private readonly CodexSdkAdapter _localAdapter;
     private readonly CodexCloudAdapter _cloudAdapter;
     private readonly IWorkspaceRepository _workspaceRepository;
     private readonly string _defaultWorkspaceId;
@@ -21,7 +21,7 @@ public class WorkspaceAwareCodexRuntimeAdapter : ICodexRuntimeAdapter
     public event EventHandler<CodexRuntimeOutputEventArgs>? OutputReceived;
 
     public WorkspaceAwareCodexRuntimeAdapter(
-        CodexCliAdapter localAdapter,
+        CodexSdkAdapter localAdapter,
         CodexCloudAdapter cloudAdapter,
         IWorkspaceRepository workspaceRepository)
     {

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takomi Code - Redesign</title>
+    <style>
+        :root {
+            --bg-base: #0a0a0c;
+            --bg-surface: #141518;
+            --bg-surface-hover: #1e1f24;
+            --border: #27282e;
+            --text-main: #ededf0;
+            --text-muted: #8b8d98;
+            --accent: #f5a623;
+            --accent-dim: rgba(245, 166, 35, 0.15);
+            --success: #10b981;
+            --font-main: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 240px 1fr 320px;
+            grid-template-rows: 100vh;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            background-color: var(--bg-base);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 16px 12px;
+        }
+
+        .brand {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .nav-section {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .chat-list {
+            list-style: none;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .chat-item:hover {
+            background-color: var(--bg-surface-hover);
+            color: var(--text-main);
+        }
+
+        .chat-item.active {
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .btn-new {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: auto;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-new:hover {
+            background-color: var(--bg-surface);
+        }
+
+        /* Main Workspace */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-base);
+        }
+
+        .header {
+            height: 56px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            justify-content: space-between;
+        }
+
+        .breadcrumbs {
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        .breadcrumbs span {
+            color: var(--text-main);
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-width: 85%;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message-sender {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .message-content {
+            padding: 14px 18px;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+
+        .message.ai .message-content {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+        }
+
+        .message.user .message-content {
+            background-color: var(--accent-dim);
+            color: var(--text-main);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+        }
+
+        .code-block {
+            background-color: #000;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            margin-top: 8px;
+            color: #a5b4fc;
+        }
+
+        .input-area {
+            padding: 24px;
+            background: linear-gradient(transparent, var(--bg-base) 30%);
+        }
+
+        .input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-wrapper textarea {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            font-size: 14px;
+            min-height: 44px;
+            line-height: 1.5;
+        }
+
+        .input-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Right Panel */
+        .inspector {
+            background-color: var(--bg-surface);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px 0;
+            text-align: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: var(--text-main);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .panel-content {
+            padding: 24px 16px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .run-card {
+            background-color: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .run-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .run-id {
+            font-family: var(--font-mono);
+            font-weight: 600;
+        }
+
+        .status {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success);
+        }
+
+        .status.running::before {
+            background-color: var(--accent);
+        }
+
+        .run-detail {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .run-detail strong {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .run-detail span {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            word-break: break-all;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background-color: #0e639c;
+            /* Blue accent for status */
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 12px;
+            color: white;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .status-left,
+        .status-right {
+            display: flex;
+            gap: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">Takomi Code</div>
+        <div class="nav-section">Sessions</div>
+        <ul class="chat-list">
+            <li class="chat-item active">Project Chat 9</li>
+            <li class="chat-item">Project Chat 8</li>
+            <li class="chat-item">Project Chat 7</li>
+            <li class="chat-item">Project Chat 6</li>
+            <li class="chat-item">Project Chat 5</li>
+            <li class="chat-item">Project Chat 1</li>
+        </ul>
+        <button class="btn-new">+ New Session</button>
+    </aside>
+
+    <main class="workspace">
+        <header class="header">
+            <div class="breadcrumbs">
+                CreativeOS / 01_Projects / Code / Personal_Stuff / <span>2026-03-10_Takomi_Code</span>
+            </div>
+            <button class="btn-primary"
+                style="background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border);">+ New
+                Orchestration Session</button>
+        </header>
+
+        <div class="chat-container">
+            <div class="message ai">
+                <div class="message-sender">Codex</div>
+                <div class="message-content">
+                    The repo has a lot of files, so I wrote the complete visible file list to `john/visible-files.txt`.
+                    That manifest currently contains `2372` visible files.
+                </div>
+            </div>
+
+            <div class="message user">
+                <div class="message-sender">You</div>
+                <div class="message-content">
+                    ok niceee so now in that same html file make a new page with something else in it<br><br>BTW I love
+                    what you created it was sooo cute
+                </div>
+            </div>
+
+            <div class="message ai">
+                <div class="message-sender">Codex</div>
+                <div class="message-content">
+                    Routing request to Codex in 2026-03-10_Takomi_Code...<br><br>
+                    Thinking through the request...<br><br>
+                    Using `takomi` and `frontend-design` again for this follow-up. I'm checking the existing `john` page
+                    files, then I'll add a second standalone page in that same folder and wire an easy link between
+                    them.
+
+                    <div class="code-block">
+                        > Get-Content -Path 'C:/Users/johno/.codex/skills/frontend-design/SKILL.md' (in_progress)<br>
+                        > Get-ChildItem -Path 'john' -Force (in_progress)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea placeholder="Ask agent to resolve, or provide context..."></textarea>
+                <div class="input-actions">
+                    <span style="color: var(--text-muted); font-size: 12px; font-family: var(--font-mono);">Codex runs
+                        locally. Bags Protocol verified.</span>
+                    <button class="btn-primary">Route</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside class="inspector">
+        <div class="tabs">
+            <div class="tab active">Task Graph</div>
+            <div class="tab">Artifacts</div>
+        </div>
+        <div class="panel-content">
+            <div class="section-title">Current Execution</div>
+            <div class="run-card">
+                <div class="run-header">
+                    <span class="run-id">Run 355222e7</span>
+                    <span class="status running">Running</span>
+                </div>
+                <div class="run-detail">
+                    <strong>Task</strong>
+                    <span>2301b015-e137-42f1-ae87-cc1a8a423403</span>
+                </div>
+                <div class="run-detail">
+                    <strong>Folder</strong>
+                    <span>C:\CreativeOS\01_Projects\Code\...</span>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top: 32px;">Active Runs</div>
+            <div class="run-card" style="opacity: 0.7; border-color: transparent; background: var(--bg-surface-hover);">
+                <div class="run-header" style="margin-bottom: 0;">
+                    <span class="run-id" style="font-size: 12px;">355222e7-a626...</span>
+                    <span class="status running" style="font-size: 11px; color: var(--accent);">InProgress</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="status-bar">
+        <div class="status-left">
+            <span>Takomi / Local</span>
+            <span>ws-a8b2</span>
+            <span>BLOCKED</span>
+        </div>
+        <div class="status-right">
+            <span>Engine Ready</span>
+            <span>Logs</span>
+        </div>
+    </div>
+
+</body>
+
+</html>

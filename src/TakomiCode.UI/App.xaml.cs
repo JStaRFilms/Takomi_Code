@@ -26,7 +26,7 @@ public partial class App : Microsoft.UI.Xaml.Application
                 services.AddSingleton<TakomiCode.Application.Contracts.Persistence.IChatSessionRepository, TakomiCode.Infrastructure.Persistence.LocalChatSessionRepository>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Persistence.IOrchestrationRepository, TakomiCode.Infrastructure.Persistence.LocalOrchestrationRepository>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Persistence.IWorkspaceRepository, TakomiCode.Infrastructure.Persistence.LocalWorkspaceRepository>();
-                services.AddSingleton<TakomiCode.RuntimeAdapters.Codex.CodexCliAdapter>();
+                services.AddSingleton<TakomiCode.RuntimeAdapters.Codex.CodexSdkAdapter>();
                 services.AddSingleton<TakomiCode.RuntimeAdapters.Codex.CodexCloudAdapter>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ICodexRuntimeAdapter, TakomiCode.RuntimeAdapters.Codex.WorkspaceAwareCodexRuntimeAdapter>();
                 services.AddSingleton<TakomiCode.Application.Contracts.Runtime.ITakomiConfigurationLoader, TakomiCode.Infrastructure.Runtime.TakomiConfigurationLoader>();

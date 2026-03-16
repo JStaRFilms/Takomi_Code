@@ -50,7 +50,7 @@ public partial class ChatSessionViewModel : ObservableObject
 
     public ObservableCollection<ChatMessageViewModel> Messages { get; }
     
-    public void AddMessage(string role, string content)
+    public ChatMessageViewModel AddMessage(string role, string content)
     {
         var msg = new ChatMessage
         {
@@ -60,7 +60,39 @@ public partial class ChatSessionViewModel : ObservableObject
         };
         _entity.Transcript.Add(msg);
         _entity.UpdatedAt = DateTimeOffset.UtcNow;
-        Messages.Add(new ChatMessageViewModel(msg));
+        var viewModel = new ChatMessageViewModel(msg);
+        Messages.Add(viewModel);
+        OnPropertyChanged(nameof(UpdatedAt));
+        return viewModel;
+    }
+
+    public void UpdateMessage(ChatMessageViewModel message, string content)
+    {
+        if (!Messages.Contains(message))
+        {
+            return;
+        }
+
+        message.Content = content;
+        _entity.UpdatedAt = DateTimeOffset.UtcNow;
+        OnPropertyChanged(nameof(UpdatedAt));
+    }
+
+    public void AppendToMessage(ChatMessageViewModel message, string content, bool insertBlankLine = true)
+    {
+        if (!Messages.Contains(message) || string.IsNullOrWhiteSpace(content))
+        {
+            return;
+        }
+
+        var trimmed = content.Trim();
+        message.Content = string.IsNullOrWhiteSpace(message.Content)
+            ? trimmed
+            : insertBlankLine
+                ? $"{message.Content}{Environment.NewLine}{Environment.NewLine}{trimmed}"
+                : $"{message.Content}{trimmed}";
+
+        _entity.UpdatedAt = DateTimeOffset.UtcNow;
         OnPropertyChanged(nameof(UpdatedAt));
     }
 

@@ -12,8 +12,9 @@ This orchestrator session starts after the first implementation wave became runn
 
 1. recover visual parity with the approved mockups
 2. validate every shipped feature path step by step
-3. capture regressions and missing behavior as concrete fix tasks
-4. gate progress through review after every task
+3. verify the real feature spine feature by feature
+4. capture regressions and missing behavior as concrete fix tasks
+5. gate progress through review after every task
 
 This session assumes the build opens and runs, but the user-facing shell, feature behavior, and workflow quality are not yet trustworthy.
 
@@ -24,6 +25,7 @@ This session assumes the build opens and runs, but the user-facing shell, featur
 - Builder agents may implement or adjust one task at a time.
 - Reviewer approval is required before the next task proceeds.
 - New bugs discovered during testing must be folded into the current or next fix task, not ignored.
+- Billing is explicitly deferred unless it becomes a blocker for a higher-priority runtime or orchestration path.
 
 ## Skills Registry
 
@@ -65,16 +67,18 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 | 01 | Mockup parity audit | Pending | `vibe-ask` | `/mode-ask` | `takomi`, `ui-ux-pro-max` |
 | 02 | Visual shell recovery | Pending | `vibe-code` | `/vibe-continueBuild` | `takomi`, `ui-ux-pro-max`, `sync-docs` |
 | 03 | Feature test matrix | Pending | `vibe-architect` | `/mode-architect` | `takomi`, `spawn-task` |
-| 04 | Chat and session flow validation | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
-| 05 | Orchestrator and intervention validation | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
-| 06 | Git and worktree validation | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `git-worktree`, `sync-docs` |
-| 07 | Billing validation | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs`, `security-audit` |
-| 08 | Bags validation | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
-| 09 | Runtime target validation | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
-| 10 | Persistence and restart validation | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
-| 11 | Consolidated fix loop | Pending | `vibe-code` | `/vibe-continueBuild` | `takomi`, `spawn-task`, `sync-docs` |
-| 12 | Final validation gate | Pending | `vibe-review` | `/mode-review` | `takomi`, `code-review`, `security-audit` |
-| 13 | Session handoff | Pending | `vibe-architect` | `/mode-architect` | `takomi`, `sync-docs` |
+| 04 | Project selector and workspace lifecycle verification | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs`, `avoid-feature-creep` |
+| 05 | Chat, sub-session, and transcript verification | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
+| 06 | Codex runtime and streaming verification | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
+| 07 | Orchestration engine and task-graph verification | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs`, `avoid-feature-creep` |
+| 08 | Intervention controls verification | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
+| 09 | Git and worktree verification | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `git-worktree`, `sync-docs` |
+| 10 | Mode and workflow loader verification | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
+| 11 | Bags verification flow audit | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
+| 12 | Persistence and restart verification | Pending | `vibe-debug` | `/mode-debug` | `takomi`, `sync-docs` |
+| 13 | Consolidated repair loop | Pending | `vibe-code` | `/vibe-continueBuild` | `takomi`, `spawn-task`, `sync-docs` |
+| 14 | Final validation gate | Pending | `vibe-review` | `/mode-review` | `takomi`, `code-review`, `security-audit` |
+| 15 | Session handoff and replan summary | Pending | `vibe-architect` | `/mode-architect` | `takomi`, `sync-docs` |
 
 ## Progress Checklist
 
@@ -82,11 +86,14 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 - [ ] Mockup delta documented explicitly
 - [ ] Visual shell brought materially closer to approved mockups
 - [ ] Feature test matrix written
-- [ ] Core chat/session flows tested
-- [ ] Orchestrator/intervention flows tested
+- [ ] Project selector and workspace lifecycle tested
+- [ ] Core chat and sub-session flows tested
+- [ ] Runtime routing and streaming tested
+- [ ] Orchestration engine/task-graph flows tested
+- [ ] Intervention controls tested
 - [ ] Git/worktree flows tested
-- [ ] Billing and Bags flows tested
-- [ ] Runtime routing tested
+- [ ] Mode/workflow loading tested
+- [ ] Bags flow tested
 - [ ] Persistence/restart behavior tested
 - [ ] Fix loop completed
 - [ ] Final gate passed
@@ -94,6 +101,7 @@ See [dependency_graph.md](/C:/CreativeOS/01_Projects/Code/Personal_Stuff/2026-03
 ## Scope Guardrails
 
 - No fee-sharing work is added in this session.
+- Billing remains out of scope for the next validation wave unless it blocks a core flow.
 - No broad architectural rewrite unless a blocker proves the existing approach untenable.
 - Visual recovery targets shell parity and workflow clarity first, not pixel-perfect invention.
 - New features are secondary to making shipped features behave correctly.

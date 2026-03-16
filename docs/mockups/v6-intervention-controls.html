@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Takomi v6 - Interventions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+          colors: {
+            takomi: { bg: '#0C0C0D', surface: '#151516', elevated: '#1E1E1F', accent: '#FACC15', accentMuted: 'rgba(250, 204, 21, 0.15)', file: '#94A3B8', folder: '#FACC15' }
+          },
+        }
+      }
+    };
+  </script>
+  <style>
+    body { background-color: #0C0C0D; color: #F8FAFC; }
+    .intervention-card { background: #151516; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; }
+    .diff-added { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+    .diff-removed { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+  </style>
+</head>
+<body class="min-h-screen flex font-sans">
+
+  <!-- Shared Sidebar -->
+  <aside class="w-16 flex flex-col items-center py-8 border-r border-white/5 shrink-0 sticky top-0 h-screen">
+    <div class="mb-12">
+      <div class="w-8 h-8 rounded-lg bg-takomi-accent flex items-center justify-center text-takomi-bg shadow-lg">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5" /></svg>
+      </div>
+    </div>
+    <nav class="space-y-6">
+       <!-- Special highlight for interventions when active -->
+       <button class="p-2 text-takomi-accent bg-takomi-accentMuted rounded-xl relative">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+          <div class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-takomi-bg"></div>
+       </button>
+    </nav>
+  </aside>
+
+  <!-- Intervention View -->
+  <main class="flex-1 p-12 max-w-5xl space-y-12">
+    <header class="flex items-center justify-between">
+       <div>
+          <h1 class="text-3xl font-bold tracking-tight mb-2">Intervention Required</h1>
+          <p class="text-slate-500">The agent is requesting permission for a high-risk operation.</p>
+       </div>
+    </header>
+
+    <div class="space-y-8">
+       <div class="intervention-card p-8 space-y-8">
+          <div class="flex items-center gap-4">
+             <div class="w-12 h-12 rounded-2xl bg-takomi-accentMuted text-takomi-accent flex items-center justify-center">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+             </div>
+             <div>
+                <h2 class="text-xl font-bold tracking-tight">Destructive Operation: Delete Files</h2>
+                <p class="text-sm text-slate-500 font-mono">Session: ws-a8b2 • Task ID: t-9412</p>
+             </div>
+          </div>
+
+          <div class="space-y-4">
+             <h3 class="text-xs font-bold uppercase tracking-widest text-slate-600">Proposed Changes</h3>
+             <div class="bg-black/40 rounded-2xl overflow-hidden border border-white/5 font-mono text-sm">
+                <div class="p-4 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                   <span class="text-slate-400">src/deprecated/old_auth.ts</span>
+                   <span class="text-[10px] bg-red-500/20 text-red-500 px-2 py-0.5 rounded uppercase">Delete</span>
+                </div>
+                <div class="p-6 space-y-1 overflow-x-auto">
+                   <p class="diff-removed">- export const OldProvider = {</p>
+                   <p class="diff-removed">-   validate: (key: string) => { ... }</p>
+                   <p class="diff-removed">- }</p>
+                </div>
+             </div>
+          </div>
+
+          <div class="space-y-4">
+             <h3 class="text-xs font-bold uppercase tracking-widest text-slate-600">Context Rationale</h3>
+             <p class="text-sm text-slate-400 leading-relaxed">The file `old_auth.ts` is no longer referenced in the codebase after the refactor to `CoreProvider`. Deleting it will reduce technical debt and prevent accidental imports of deprecated logic.</p>
+          </div>
+
+          <div class="flex items-center gap-4 pt-4 border-t border-white/5">
+             <button class="flex-1 bg-takomi-accent text-takomi-bg py-4 rounded-2xl font-bold hover:scale-[1.01] transition-all">Approve & Execute</button>
+             <button class="flex-1 bg-takomi-elevated border border-white/10 text-slate-300 py-4 rounded-2xl font-bold hover:bg-white/5 transition-all">Deny Request</button>
+             <button class="px-6 bg-takomi-surface border border-white/10 text-slate-500 py-4 rounded-2xl hover:text-slate-300 transition-all">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+             </button>
+          </div>
+       </div>
+    </div>
+  </main>
+
+</body>
+</html>
